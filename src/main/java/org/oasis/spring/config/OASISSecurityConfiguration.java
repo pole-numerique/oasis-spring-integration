@@ -1,9 +1,9 @@
 package org.oasis.spring.config;
 
-import org.oasis.spring.kernel.OASISExceptionTranslationConfigurer;
-import org.oasis.spring.kernel.OASISLogoutHandler;
-import org.oasis.spring.kernel.OpenIdCAuthFilter;
-import org.oasis.spring.kernel.OpenIdCAuthProvider;
+import org.oasis.spring.kernel.security.OASISExceptionTranslationConfigurer;
+import org.oasis.spring.kernel.security.OASISLogoutHandler;
+import org.oasis.spring.kernel.security.OpenIdCAuthFilter;
+import org.oasis.spring.kernel.security.OpenIdCAuthProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

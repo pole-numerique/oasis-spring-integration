@@ -1,4 +1,4 @@
-package org.oasis.spring.kernel;
+package org.oasis.spring.kernel.security;
 
 import java.io.IOException;
 import java.security.SecureRandom;

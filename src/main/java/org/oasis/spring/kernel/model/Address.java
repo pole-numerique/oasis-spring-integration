@@ -1,13 +1,18 @@
 package org.oasis.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * User: schambon
  * Date: 4/23/14
  */
 public class Address {
+    @JsonProperty("street_address")
     private String streetAddress; // ex Gustavslundsvagen 139
     private String locality; // ex BROMMA
     private String region; // ex Stockholms Lan
+
+    @JsonProperty("postal_code")
     private String postalCode; // ex S-167 51
     private String country;
 

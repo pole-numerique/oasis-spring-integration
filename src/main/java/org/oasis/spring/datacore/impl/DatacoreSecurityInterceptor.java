@@ -1,7 +1,7 @@
 package org.oasis.spring.datacore.impl;
 
 import org.apache.commons.codec.binary.Base64;
-import org.oasis.spring.kernel.OpenIdCAuthentication;
+import org.oasis.spring.kernel.security.OpenIdCAuthentication;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;

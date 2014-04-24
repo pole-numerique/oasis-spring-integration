@@ -35,7 +35,7 @@ public class DatacoreClientImpl implements DatacoreClient {
     @Qualifier("dataCore")
     private RestTemplate dataCoreRestTemplate;
 
-    @Value("${datacore.url}")
+    @Value("${datacore.url:'http://localhost:8080'}")
     private String datacoreUrl;
 
     /**

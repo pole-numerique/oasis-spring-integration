@@ -1,4 +1,4 @@
-package org.oasis.spring.kernel;
+package org.oasis.spring.kernel.security;
 
 import com.google.common.io.BaseEncoding;
 import com.nimbusds.jose.JOSEException;

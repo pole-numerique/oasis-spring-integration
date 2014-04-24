@@ -1,4 +1,4 @@
-package org.oasis.spring.kernel;
+package org.oasis.spring.kernel.security;
 
 import com.nimbusds.jose.util.Base64;
 import org.slf4j.Logger;

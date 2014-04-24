@@ -1,4 +1,4 @@
-package org.oasis.spring.kernel;
+package org.oasis.spring.kernel.security;
 
 import org.oasis.spring.kernel.model.UserInfo;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

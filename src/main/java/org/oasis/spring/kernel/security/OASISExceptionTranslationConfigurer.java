@@ -1,4 +1,4 @@
-package org.oasis.spring.kernel;
+package org.oasis.spring.kernel.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

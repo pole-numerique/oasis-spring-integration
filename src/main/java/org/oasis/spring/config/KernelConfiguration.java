@@ -10,7 +10,7 @@ import org.oasis.spring.datacore.impl.DatacoreSecurityInterceptor;
 import org.oasis.spring.datacore.impl.GsonMessageConverter;
 import org.oasis.spring.datacore.model.DCResource;
 import org.oasis.spring.datacore.model.DCRights;
-import org.oasis.spring.kernel.OpenIdCConfiguration;
+import org.oasis.spring.kernel.security.OpenIdCConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
