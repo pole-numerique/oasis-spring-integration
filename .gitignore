@@ -1,0 +1,21 @@
+# Package files
+*.class
+*.jar
+*.war
+*.ear
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# IDEA
+.idea
+*.iml
+
+# Maven
+target/
+
+# Vim
+.*.swp
+

@@ -1,0 +1,91 @@
+package org.oasis.spring.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import org.oasis.spring.kernel.OpenIdCConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Configuration
+@ComponentScan(basePackages = "org.oasis.spring.kernel")
+public class KernelConfiguration {
+
+    // inject configuration
+    @Value("${kernel.auth.issuer}")
+    String authIssuer;
+    @Value("${kernel.auth.auth_endpoint}")
+    String authAuthEndpoint;
+    @Value("${kernel.auth.token_endpoint}")
+    String authTokenEndpoint;
+    @Value("${kernel.auth.keys_endpoint}")
+    String authKeysEndpoint;
+    @Value("${kernel.auth.revoke_endpoint}")
+    String authRevocationEndpoint;
+    @Value("${kernel.auth.userinfo_endpoint}")
+    String authUserInfoEndpoint;
+    @Value("${kernel.auth.callback_uri}")
+    String callbackUri;
+    @Value("${kernel.application_id}")
+    String applicationId;
+    @Value("${kernel.client_id}")
+    String clientId;
+    @Value("${kernel.client_secret}")
+    String clientSecret;
+    @Value("${kernel.scopes_to_require}")
+    String scopesToRequire;
+
+    @Bean
+    public OpenIdCConfiguration openIdCConfiguration() {
+        OpenIdCConfiguration configuration = new OpenIdCConfiguration();
+        configuration.setIssuer(authIssuer);
+        configuration.setAuthEndpoint(authAuthEndpoint);
+        configuration.setTokenEndpoint(authTokenEndpoint);
+        configuration.setKeysEndpoint(authKeysEndpoint);
+        configuration.setRevocationEndpoint(authRevocationEndpoint);
+        configuration.setUserInfoEndpoint(authUserInfoEndpoint);
+        configuration.setCallbackUri(callbackUri);
+        configuration.setApplicationId(applicationId);
+        configuration.setClientId(clientId);
+        configuration.setClientSecret(clientSecret);
+        configuration.setScopesToRequire(scopesToRequire);
+        return configuration;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JSR310Module());
+        return objectMapper;
+    }
+
+    @Bean
+    @Qualifier("kernelRestTemplate")
+    public RestTemplate kernelRestTemplate() {
+        RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+
+        messageConverters.add(new FormHttpMessageConverter());
+        messageConverters.add(new StringHttpMessageConverter());
+
+        MappingJackson2HttpMessageConverter jacksonMessageConverter = new MappingJackson2HttpMessageConverter();
+        jacksonMessageConverter.setObjectMapper(objectMapper());
+        messageConverters.add(jacksonMessageConverter);
+
+        template.setMessageConverters(messageConverters);
+
+        return template;
+    }
+
+}
