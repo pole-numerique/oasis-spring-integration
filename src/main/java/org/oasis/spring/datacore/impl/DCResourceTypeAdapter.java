@@ -1,7 +1,6 @@
 package org.oasis.spring.datacore.impl;
 
 import com.google.gson.*;
-import org.joda.time.DateTime;
 import org.oasis.spring.datacore.model.DCResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,8 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,15 +110,17 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
         }
     }
 
-    private static class DateHelper extends PropertyHelper<DateTime> {
+    private static class DateHelper extends PropertyHelper<Instant> {
         @Override
-        public DateTime read(JsonElement input) {
-            return new DateTime(input.getAsString());
+        public Instant read(JsonElement input) {
+
+
+            return ZonedDateTime.parse(input.getAsString()).toInstant();
         }
 
         @Override
         Class getArgClass() {
-            return DateTime.class;
+            return Instant.class;
         }
     }
 

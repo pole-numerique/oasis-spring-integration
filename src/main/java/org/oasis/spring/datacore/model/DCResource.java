@@ -1,7 +1,6 @@
 package org.oasis.spring.datacore.model;
 
-import org.joda.time.DateTime;
-
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,8 +17,8 @@ public class DCResource {
     String type;
     String iri;
 
-    DateTime created;
-    DateTime lastModified;
+    Instant created;
+    Instant lastModified;
     String createdBy;
     String lastModifiedBy;
 
@@ -57,19 +56,19 @@ public class DCResource {
         this.iri = iri;
     }
 
-    public DateTime getCreated() {
+    public Instant getCreated() {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(Instant created) {
         this.created = created;
     }
 
-    public DateTime getLastModified() {
+    public Instant getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(Instant lastModified) {
         this.lastModified = lastModified;
     }
 

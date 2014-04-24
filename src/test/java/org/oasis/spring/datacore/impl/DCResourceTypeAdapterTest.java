@@ -2,7 +2,6 @@ package org.oasis.spring.datacore.impl;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.oasis.spring.datacore.model.DCResource;
 
@@ -10,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -36,7 +37,7 @@ public class DCResourceTypeAdapterTest {
         assertEquals("0000_1111_2222", resource.getIri());
         assertEquals("http://data-test.oasis-eu.org/dc/type", resource.getBaseUri());
         assertEquals("Administrator", resource.getCreatedBy());
-        assertEquals(new DateTime("2014-01-02T11:38:18.662+01:00"), resource.getCreated());
+        assertEquals(ZonedDateTime.parse("2014-01-02T11:38:18.662+01:00").toInstant(), resource.getCreated());
         assertEquals("FRANCE", resource.getValues().get("pays_de_naissance").asString());
         assertEquals(0, resource.getVersion());
         assertTrue(resource.getValues().get("justificatifs_domicile").isArray());
@@ -65,7 +66,7 @@ public class DCResourceTypeAdapterTest {
         resource.setType("citizenkin.procedure.envelope");
         resource.setIri("3333_4444_5555");
         resource.setBaseUri("http://data-test.oasis-eu.org/dc/type");
-        resource.setCreated(new DateTime().withDate(2010, 01, 01).withTime(23, 30, 30, 0));
+        resource.setCreated(ZonedDateTime.now().withYear(2010).withMonth(01).withDayOfMonth(01).withHour(23).withMinute(30).toInstant());
         resource.getValues().put("state", new DCResource.StringValue("SENT"));
         resource.getValues().put("definition_name", new DCResource.StringValue("electoral_roll_registration"));
         resource.getValues().put("initiator", new DCResource.StringValue("tagada-tsouin-tsouin"));
@@ -111,7 +112,7 @@ public class DCResourceTypeAdapterTest {
         assertEquals("0000_1111_2222", resource.getIri());
         assertEquals("http://data-test.oasis-eu.org/dc/type", resource.getBaseUri());
         assertEquals("Administrator", resource.getCreatedBy());
-        assertEquals(new DateTime("2014-01-02T11:38:18.662+01:00"), resource.getCreated());
+        assertEquals(ZonedDateTime.parse("2014-01-02T11:38:18.662+01:00").toInstant(), resource.getCreated());
         assertEquals("FRANCE", resource.getValues().get("pays_de_naissance").asString());
         assertEquals(0, resource.getVersion());
         assertTrue(resource.getValues().get("justificatifs_domicile").isArray());

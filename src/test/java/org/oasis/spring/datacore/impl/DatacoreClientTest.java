@@ -1,6 +1,5 @@
 package org.oasis.spring.datacore.impl;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis.spring.datacore.DatacoreClient;
@@ -25,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -192,7 +192,10 @@ public class DatacoreClientTest {
         resource.setType("citizenkin.procedure.envelope");
         resource.setIri("3333_4444_5555");
         resource.setBaseUri("http://data-test.oasis-eu.org/dc/type");
-        resource.setCreated(new DateTime().withDate(2010, 01, 01).withTime(23, 30, 30, 0));
+
+        ZonedDateTime created = ZonedDateTime.now().withYear(2010).withMonth(01).withDayOfMonth(01).withHour(23).withMinute(30);
+
+        resource.setCreated(created.toInstant());
         resource.getValues().put("state", new DCResource.StringValue("SENT"));
         resource.getValues().put("definition_name", new DCResource.StringValue("electoral_roll_registration"));
         resource.getValues().put("initiator", new DCResource.StringValue("tagada-tsouin-tsouin"));
@@ -209,7 +212,7 @@ public class DatacoreClientTest {
         resource.setType("citizenkin.procedure.envelope");
         resource.setIri("3333_4444_5555");
         resource.setBaseUri("http://data-test.oasis-eu.org/dc/type");
-        resource.setCreated(new DateTime().withDate(2010, 01, 01).withTime(23, 30, 30, 0));
+        resource.setCreated(ZonedDateTime.now().withYear(2010).withMonth(01).withDayOfMonth(01).withHour(23).withMinute(30).toInstant());
         resource.getValues().put("state", new DCResource.StringValue("SENT"));
         resource.getValues().put("definition_name", new DCResource.StringValue("electoral_roll_registration"));
         resource.getValues().put("initiator", new DCResource.StringValue("tagada-tsouin-tsouin"));
@@ -231,7 +234,7 @@ public class DatacoreClientTest {
         resource.setType("citizenkin.procedure.envelope");
         resource.setIri("3333_4444_5555");
         resource.setBaseUri("http://data-test.oasis-eu.org/dc/type");
-        resource.setCreated(new DateTime().withDate(2010, 01, 01).withTime(23, 30, 30, 0));
+        resource.setCreated(ZonedDateTime.now().withYear(2010).withMonth(01).withDayOfMonth(01).withHour(23).withMinute(30).toInstant());
         resource.getValues().put("state", new DCResource.StringValue("SENT"));
         resource.getValues().put("definition_name", new DCResource.StringValue("electoral_roll_registration"));
         resource.getValues().put("initiator", new DCResource.StringValue("tagada-tsouin-tsouin"));
