@@ -18,12 +18,14 @@ The library covers the following features:
 - Token revocation through a logout handler
 
 Features implemented in Citizen Kin which will progressively migrated here:
+
 - Notifications (write-only at the present)
 - Event bus publishing
 - User Directory
 - Data core (limited functionality, but working implementation with both read and write capabilities)
 
 Features needed for the Portal will be directly implemented here, consisting of:
+
 - Social Graph
 - Notification read/update
 - Possibly an event bus receiver helper
