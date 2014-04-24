@@ -2,12 +2,21 @@ package org.oasis.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.oasis.spring.datacore.impl.DCResourceTypeAdapter;
+import org.oasis.spring.datacore.impl.DCRightsTypeAdapter;
+import org.oasis.spring.datacore.impl.DatacoreSecurityInterceptor;
+import org.oasis.spring.datacore.impl.GsonMessageConverter;
+import org.oasis.spring.datacore.model.DCResource;
+import org.oasis.spring.datacore.model.DCRights;
 import org.oasis.spring.kernel.OpenIdCConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -16,10 +25,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@ComponentScan(basePackages = "org.oasis.spring.kernel")
+@ComponentScan(basePackages = {"org.oasis.spring.kernel", "org.oasis.spring.datacore"})
 public class KernelConfiguration {
 
     // inject configuration
@@ -86,6 +96,43 @@ public class KernelConfiguration {
         template.setMessageConverters(messageConverters);
 
         return template;
+    }
+
+
+    /* data core client */
+    @Bean
+    @Qualifier("dataCore")
+    public RestTemplate dataCoreRestTemplate(Gson dataCoreGson) {
+        RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+        messageConverters.add(new GsonMessageConverter(dataCoreGson));
+        template.setMessageConverters(messageConverters);
+
+        template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor()));
+
+        return template;
+    }
+
+    @Bean
+    public Gson dataCoreGson() {
+        return new GsonBuilder().registerTypeAdapter(DCResource.class, new DCResourceTypeAdapter())
+                .registerTypeAdapter(DCRights.class, new DCRightsTypeAdapter())
+//                .registerTypeAdapter(AgentInfo.class, new AgentInfoTypeAdapter())
+//                .registerTypeAdapter(AgentInfoAddress.class, new AgentInfoAddressTypeAdapter())
+//                .registerTypeAdapter(AgentListWrapper.class, new AgentListWrapperTypeAdapter())
+//                .registerTypeAdapter(Group.class, new GroupTypeAdapter())
+//                .registerTypeAdapter(Event.class, new EventTypeAdapter())
+//                .registerTypeAdapter(ProcedurePublishedEventData.class, new ProcedurePublishedEventDataTypeAdapter())
+//                .registerTypeAdapter(Subscription.class, new SubscriptionTypeAdapter())
+                .create();
+    }
+
+
+
+    @Bean
+    public ClientHttpRequestInterceptor datacoreSecurityInterceptor() {
+        return new DatacoreSecurityInterceptor();
     }
 
 }

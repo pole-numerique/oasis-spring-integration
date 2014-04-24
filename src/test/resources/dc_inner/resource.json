@@ -1,0 +1,27 @@
+{
+    "uri": "http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.electoral_roll_registration/0000_1111_2222",
+    "version": 0,
+    "created": "2014-01-02T11:38:18.662+01:00",
+    "lastModified": "2014-01-02T11:38:18.662+01:00",
+    "createdBy": "Administrator",
+    "lastModifiedBy": "Administrator",
+    "rdf:type": [
+        "citizenkin.procedure.electoral_roll_registration"
+    ],
+    "nom_de_famille": "Dupont",
+    "code_postal": "01001",
+    "pays_de_naissance": "FRANCE",
+    "envelope": "http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.envelope/33333_4444_5555",
+    "justificatifs_domicile": [
+        "http://resources.citizenkin.org/dddd_eeee_ffff"
+    ],
+    "commune_de_naissance": "TRIFOUILLIS-LES-OIES",
+    "justificatif_identite": "http://resources.citizekin.org/aaaa_bbbb_cccc",
+    "prenom": "Jean",
+    "adresse1": "1 rue du Ru",
+    "code_departement_de_naissance": "01",
+    "commune": "AIN SUR AIN",
+    "sexe": "M",
+    "type_de_demande": "premiere_demande",
+    "date_de_naissance": "1970-01-01T01:00:01.981+01:00"
+}
