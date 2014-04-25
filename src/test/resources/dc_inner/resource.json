@@ -1,5 +1,5 @@
 {
-    "uri": "http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.electoral_roll_registration/0000_1111_2222",
+    "uri": "http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.electoral_roll_registration/0000_1111_2222",
     "version": 0,
     "created": "2014-01-02T11:38:18.662+01:00",
     "lastModified": "2014-01-02T11:38:18.662+01:00",
@@ -11,7 +11,7 @@
     "nom_de_famille": "Dupont",
     "code_postal": "01001",
     "pays_de_naissance": "FRANCE",
-    "envelope": "http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.envelope/33333_4444_5555",
+    "envelope": "http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/33333_4444_5555",
     "justificatifs_domicile": [
         "http://resources.citizenkin.org/dddd_eeee_ffff"
     ],

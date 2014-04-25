@@ -9,6 +9,6 @@ appender("CONSOLE", ConsoleAppender) {
 }
 
 logger("org.springframework", INFO)
-logger("org.oasis.spring", DEBUG)
+logger("org.oasis_eu.spring", DEBUG)
 
 root(WARN, ["CONSOLE"])

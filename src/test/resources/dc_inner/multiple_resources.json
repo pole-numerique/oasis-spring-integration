@@ -1,6 +1,6 @@
 [
     {
-        "uri":"http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.envelope/33333_4444_5555",
+        "uri":"http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/33333_4444_5555",
         "version":3,
         "created":"2014-01-03T09:55:41.759+01:00",
         "lastModified":"2014-01-03T10:09:26.016+01:00",
@@ -16,7 +16,7 @@
         "start_date":"1970-01-01T01:00:01.970+01:00"
     },
     {
-        "uri":"http://data-test.oasis-eu.org/dc/type/citizenkin.procedure.envelope/6666_7777_8888",
+        "uri":"http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/6666_7777_8888",
         "version":0,
         "created":"2014-01-03T10:53:37.476+01:00",
         "lastModified":"2014-01-03T10:53:37.476+01:00",
