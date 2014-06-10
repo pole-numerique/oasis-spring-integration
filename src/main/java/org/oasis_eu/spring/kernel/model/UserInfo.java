@@ -2,6 +2,7 @@ package org.oasis_eu.spring.kernel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
  * User: schambon
  * Date: 2/12/14
  */
-public class UserInfo {
+public class UserInfo implements Serializable {
 
     @JsonProperty("sub")
     private String userId;

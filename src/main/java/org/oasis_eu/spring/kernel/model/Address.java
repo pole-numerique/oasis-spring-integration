@@ -2,11 +2,13 @@ package org.oasis_eu.spring.kernel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 /**
  * User: schambon
  * Date: 4/23/14
  */
-public class Address {
+public class Address implements Serializable {
     @JsonProperty("street_address")
     private String streetAddress; // ex Gustavslundsvagen 139
     private String locality; // ex BROMMA
