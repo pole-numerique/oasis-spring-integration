@@ -30,7 +30,7 @@ public class NotificationService {
         kernelRestTemplate.postForEntity(endpoint + "/publish", outboundNotification, String.class);
     }
 
-    public List<org.oasis_eu.spring.kernel.model.InboundNotification> getNotifications(String userId) {
+    public List<InboundNotification> getNotifications(String userId) {
         return Arrays.asList(kernelRestTemplate.getForObject(endpoint + "/{user_id}/messages", InboundNotification[].class, userId));
     }
 
