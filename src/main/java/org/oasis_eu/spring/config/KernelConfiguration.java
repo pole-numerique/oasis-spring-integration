@@ -33,44 +33,10 @@ import java.util.List;
 @ComponentScan(basePackages = {"org.oasis_eu.spring.kernel", "org.oasis_eu.spring.datacore"})
 public class KernelConfiguration {
 
-//    // inject configuration
-//    @Value("${kernel.auth.issuer}")
-//    String authIssuer;
-//    @Value("${kernel.auth.auth_endpoint}")
-//    String authAuthEndpoint;
-//    @Value("${kernel.auth.token_endpoint}")
-//    String authTokenEndpoint;
-//    @Value("${kernel.auth.keys_endpoint}")
-//    String authKeysEndpoint;
-//    @Value("${kernel.auth.revoke_endpoint}")
-//    String authRevocationEndpoint;
-//    @Value("${kernel.auth.userinfo_endpoint}")
-//    String authUserInfoEndpoint;
-//    @Value("${kernel.auth.callback_uri}")
-//    String callbackUri;
-//    @Value("${kernel.application_id}")
-//    String applicationId;
-//    @Value("${kernel.client_id:''}")
-//    String clientId;
-//    @Value("${kernel.client_secret:''}")
-//    String clientSecret;
-//    @Value("${kernel.scopes_to_require}")
-//    String scopesToRequire;
 
     @Bean
     public OpenIdCConfiguration openIdCConfiguration() {
         OpenIdCConfiguration configuration = new StaticOpenIdCConfiguration();
-//        configuration.setIssuer(authIssuer);
-//        configuration.setAuthEndpoint(authAuthEndpoint);
-//        configuration.setTokenEndpoint(authTokenEndpoint);
-//        configuration.setKeysEndpoint(authKeysEndpoint);
-//        configuration.setRevocationEndpoint(authRevocationEndpoint);
-//        configuration.setUserInfoEndpoint(authUserInfoEndpoint);
-//        configuration.setCallbackUri(callbackUri);
-//        configuration.setApplicationId(applicationId);
-//        configuration.setClientId(clientId);
-//        configuration.setClientSecret(clientSecret);
-//        configuration.setScopesToRequire(scopesToRequire);
         return configuration;
     }
 
