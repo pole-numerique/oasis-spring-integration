@@ -1,10 +1,10 @@
 package org.oasis_eu.spring.kernel.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -47,6 +47,8 @@ public class UserInfo implements Serializable {
     @JsonProperty("updated_at")
     private long updatedAt;
 
+    @JsonProperty("locale")
+    private String locale;
 
     public String getOrganizationId() {
         return organizationId;
@@ -182,4 +184,13 @@ public class UserInfo implements Serializable {
     public void setPhoneNumberVerified(boolean phoneNumberVerified) {
         this.phoneNumberVerified = phoneNumberVerified;
     }
+    
+    public String getLocale() {
+		return locale;
+	}
+    
+    public void setLocale(String locale) {
+		this.locale = locale;
+	}
+    
 }
