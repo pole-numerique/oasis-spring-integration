@@ -183,13 +183,18 @@ public class OpenIdCService {
         return body;
     }
 
-    public void saveUserInfo(String accessToken, Map<String, Serializable> userInfo) {
+    public void saveUserInfo(String accessToken, Map<String, Serializable> userInfo, String claim) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-Type", "application/json");
+    	
+    	UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getUserInfoEndpoint());
+		if (claim != null) {
+			builder.path("/" + claim);
+		}
         
         restTemplate.exchange(
-                configuration.getUserInfoEndpoint(),
+        		builder.build().encode().toUriString(),
                 HttpMethod.POST,
                 new HttpEntity<>(userInfo, headers),
                 Void.class);
