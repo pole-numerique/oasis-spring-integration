@@ -11,6 +11,7 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
 import org.oasis_eu.spring.kernel.model.UserInfo;
@@ -27,10 +28,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * User: schambon
@@ -178,6 +181,18 @@ public class OpenIdCService {
                 .getBody();
 
         return body;
+    }
+
+    public void saveUserInfo(String accessToken, Map<String, Serializable> userInfo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+        headers.add("Content-Type", "application/json");
+        
+        restTemplate.exchange(
+                configuration.getUserInfoEndpoint(),
+                HttpMethod.POST,
+                new HttpEntity<>(userInfo, headers),
+                Void.class);
     }
 
 }
