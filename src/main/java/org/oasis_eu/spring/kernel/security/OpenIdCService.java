@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Map;
+import java.util.List;
 
 /**
  * User: schambon
@@ -64,10 +67,18 @@ public class OpenIdCService {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.clientId, configuration.clientSecret).getBytes()));
 
-            HttpEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
+            LOGGER.debug("Token endpoint: {}", configuration.getTokenEndpoint());
+            ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+              LOGGER.error("Oops, got error {}", response.getStatusCode());
+              for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
+                LOGGER.debug("Header: {}: {}", header.getKey(), header.getValue());
+              }
+              // TODO throw an exception
+            }
             TokenResponse tokenResponse = response.getBody();
 
-            LOGGER.debug("Token response: " + tokenResponse);
+            LOGGER.debug("Token response: {}", tokenResponse);
 
             IdToken idToken = new IdToken();
             try {
