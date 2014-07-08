@@ -21,6 +21,7 @@
         <guava.version>14.0.1</guava.version>
         <apache-httpcomponents.version>4.3.1</apache-httpcomponents.version>
         <gson.version>2.2.4</gson.version>
+        <joda-time.version>2.2</joda-time.version>
 
         <!-- Test frameworks -->
         <junit.version>4.11</junit.version>
@@ -96,6 +97,13 @@
             <version>${slf4j.version}</version>
         </dependency>
 
+        <!-- Joda Time -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -114,6 +122,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
             <version>${jackson2.version}</version>
         </dependency>
         <dependency>

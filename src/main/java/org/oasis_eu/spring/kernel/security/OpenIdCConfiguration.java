@@ -2,139 +2,62 @@ package org.oasis_eu.spring.kernel.security;
 
 /**
  * User: schambon
- * Date: 1/30/14
+ * Date: 6/27/14
  */
-public class OpenIdCConfiguration {
+public interface OpenIdCConfiguration {
+    String getIssuer();
 
-    String issuer;
-    String authEndpoint;
-    String tokenEndpoint;
-    String keysEndpoint;
-    String revocationEndpoint;
-    String userInfoEndpoint;
+    void setIssuer(String issuer);
 
-    String applicationId;
-    String clientId;
-    String clientSecret;
+    String getAuthEndpoint();
 
-    String scopesToRequire;
+    void setAuthEndpoint(String authEndpoint);
 
-    String callbackUri;
+    String getTokenEndpoint();
 
-    boolean mocked;
-    String mockLoginPageUri;
-    String mockProfile;
+    void setTokenEndpoint(String tokenEndpoint);
 
-    public String getIssuer() {
-        return issuer;
-    }
+    String getKeysEndpoint();
 
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
-    }
+    void setKeysEndpoint(String keysEndpoint);
 
-    public String getAuthEndpoint() {
-        return authEndpoint;
-    }
+    String getRevocationEndpoint();
 
-    public void setAuthEndpoint(String authEndpoint) {
-        this.authEndpoint = authEndpoint;
-    }
+    void setRevocationEndpoint(String revocationEndpoint);
 
-    public String getTokenEndpoint() {
-        return tokenEndpoint;
-    }
+    String getUserInfoEndpoint();
 
-    public void setTokenEndpoint(String tokenEndpoint) {
-        this.tokenEndpoint = tokenEndpoint;
-    }
+    void setUserInfoEndpoint(String userInfoEndpoint);
 
-    public String getKeysEndpoint() {
-        return keysEndpoint;
-    }
+    String getApplicationId();
 
-    public void setKeysEndpoint(String keysEndpoint) {
-        this.keysEndpoint = keysEndpoint;
-    }
+    void setApplicationId(String applicationId);
 
-    public String getRevocationEndpoint() {
-        return revocationEndpoint;
-    }
+    String getClientId();
 
-    public void setRevocationEndpoint(String revocationEndpoint) {
-        this.revocationEndpoint = revocationEndpoint;
-    }
+    void setClientId(String clientId);
 
-    public String getUserInfoEndpoint() {
-        return userInfoEndpoint;
-    }
+    String getClientSecret();
 
-    public void setUserInfoEndpoint(String userInfoEndpoint) {
-        this.userInfoEndpoint = userInfoEndpoint;
-    }
+    void setClientSecret(String clientSecret);
 
-    public String getApplicationId() {
-        return applicationId;
-    }
+    String getCallbackUri();
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
+    void setCallbackUri(String callbackUri);
 
-    public String getClientId() {
-        return clientId;
-    }
+    String getScopesToRequire();
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
+    void setScopesToRequire(String scopesToRequire);
 
-    public String getClientSecret() {
-        return clientSecret;
-    }
+    boolean isMocked();
 
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
+    void setMocked(boolean mocked);
 
-    public String getCallbackUri() {
-        return callbackUri;
-    }
+    String getMockLoginPageUri();
 
-    public void setCallbackUri(String callbackUri) {
-        this.callbackUri = callbackUri;
-    }
+    void setMockLoginPageUri(String mockLoginPageUri);
 
-    public String getScopesToRequire() {
-        return scopesToRequire;
-    }
+    String getMockProfile();
 
-    public void setScopesToRequire(String scopesToRequire) {
-        this.scopesToRequire = scopesToRequire;
-    }
-
-    public boolean isMocked() {
-        return mocked;
-    }
-
-    public void setMocked(boolean mocked) {
-        this.mocked = mocked;
-    }
-
-    public String getMockLoginPageUri() {
-        return mockLoginPageUri;
-    }
-
-    public void setMockLoginPageUri(String mockLoginPageUri) {
-        this.mockLoginPageUri = mockLoginPageUri;
-    }
-
-    public String getMockProfile() {
-        return mockProfile;
-    }
-
-    public void setMockProfile(String mockProfile) {
-        this.mockProfile = mockProfile;
-    }
-
+    void setMockProfile(String mockProfile);
 }

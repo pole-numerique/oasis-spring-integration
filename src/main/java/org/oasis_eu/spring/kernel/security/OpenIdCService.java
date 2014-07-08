@@ -51,21 +51,18 @@ public class OpenIdCService {
     @Qualifier("kernelRestTemplate")
     private RestTemplate restTemplate;
 
-//    private Gson gson, userInfoGson;
-
-
     public OpenIdCAuthentication processAuthentication(String code, String state, String savedState, String savedNonce, String callbackUri) {
 
         if (savedState != null && savedState.equals(state)) {
 
-            MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+            MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
             form.add("grant_type", "authorization_code");
             form.add("client_id", configuration.getClientId());
             form.add("redirect_uri", callbackUri);
             form.add("code", code);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.clientId, configuration.clientSecret).getBytes()));
+            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()).getBytes()));
 
             LOGGER.debug("Token endpoint: {}", configuration.getTokenEndpoint());
             ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
