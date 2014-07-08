@@ -40,6 +40,8 @@ public class UserInfo implements Serializable {
     private boolean phoneNumberVerified;
     @JsonProperty("birthdate")
     private LocalDate birthdate;
+    @JsonProperty("picture")
+    private String pictureUrl;
 
     @JsonProperty("address")
     private Address address;
@@ -191,6 +193,14 @@ public class UserInfo implements Serializable {
     
     public void setLocale(String locale) {
 		this.locale = locale;
+	}
+    
+    public String getPictureUrl() {
+		return pictureUrl;
+	}
+    
+    public void setPictureUrl(String pictureUrl) {
+		this.pictureUrl = pictureUrl;
 	}
     
 }
