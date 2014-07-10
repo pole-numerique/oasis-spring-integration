@@ -46,6 +46,9 @@ public class ServiceCreated {
     @JsonProperty("notification_url")
     private String notificationUrl;
 
+    @JsonProperty("redirect_url")
+    private String redirectUrl;
+
     @JsonProperty("category_ids")
     private List<String> categoryIds = new ArrayList<>();
 
@@ -62,6 +65,8 @@ public class ServiceCreated {
     private String providerId;
 
     private boolean visible = false;
+
+
 
 
     public String getDefaultName() {
@@ -223,5 +228,13 @@ public class ServiceCreated {
         } else {
             return defaultIcon;
         }
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 }
