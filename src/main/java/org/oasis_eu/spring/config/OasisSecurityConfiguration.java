@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @EnableWebSecurity
 @Import(KernelConfiguration.class)
-public abstract class OASISSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     // inject configuration
     @Value("${application.url}")
@@ -46,7 +46,7 @@ public abstract class OASISSecurityConfiguration extends WebSecurityConfigurerAd
     @Bean
     @Qualifier("openIdConnectAuthenticationEntryPoint")
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        return new LoginUrlAuthenticationEntryPoint("/login");
+        return new OasisLoginUrlAuthenticationEntryPoint("/login");
     }
 
     @Bean
