@@ -51,6 +51,8 @@ public class UserInfo implements Serializable {
 
     @JsonProperty("locale")
     private String locale;
+    @JsonProperty("zoneinfo")
+    private String zoneInfo;
 
     public String getOrganizationId() {
         return organizationId;
@@ -195,7 +197,15 @@ public class UserInfo implements Serializable {
 		this.locale = locale;
 	}
     
-    public String getPictureUrl() {
+    public String getZoneInfo() {
+		return zoneInfo;
+	}
+
+	public void setZoneInfo(String zoneInfo) {
+		this.zoneInfo = zoneInfo;
+	}
+
+	public String getPictureUrl() {
 		return pictureUrl;
 	}
     
