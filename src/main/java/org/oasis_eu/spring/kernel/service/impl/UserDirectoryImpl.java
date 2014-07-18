@@ -1,8 +1,10 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
 import com.nimbusds.jose.util.Base64;
+
 import org.joda.time.Instant;
 import org.oasis_eu.spring.kernel.service.UserDirectory;
+import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.model.directory.AgentInfo;
 import org.oasis_eu.spring.kernel.model.directory.Group;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
@@ -34,6 +36,7 @@ public class UserDirectoryImpl implements UserDirectory {
     private static final String GROUPS_PATH = "/org/{organizationId}/groups";
     private static final String GROUP_PATH = "/group/{groupId}";
     private static final String GROUP_MEMBERS_PATH = "/group/{groupId}/members";
+    private static final String GROUP_MEMBER_REMOVE_PATH = "/group/{groupId}/members/{agentId}";
 
     @Autowired
     @Qualifier("kernelRestTemplate")
@@ -51,12 +54,10 @@ public class UserDirectoryImpl implements UserDirectory {
                 .buildAndExpand(organizationId)
                 .encode()
                 .toUriString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
 
         LOGGER.debug("Calling " + agentsUri);
 
-        HttpEntity<AgentInfo[]> response = kernelRestTemplate.exchange(agentsUri, HttpMethod.GET, new HttpEntity<>(headers), AgentInfo[].class);
+        HttpEntity<AgentInfo[]> response = kernelRestTemplate.exchange(agentsUri, HttpMethod.GET, new HttpEntity<>(initHeaders()), AgentInfo[].class);
         return Arrays.asList(response.getBody());
     }
 
@@ -67,13 +68,35 @@ public class UserDirectoryImpl implements UserDirectory {
                 .buildAndExpand(agentId)
                 .encode()
                 .toUriString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
 
-        HttpEntity<AgentInfo> response = kernelRestTemplate.exchange(agentUri, HttpMethod.GET, new HttpEntity<>(headers), AgentInfo.class);
+        HttpEntity<AgentInfo> response = kernelRestTemplate.exchange(agentUri, HttpMethod.GET, new HttpEntity<>(initHeaders()), AgentInfo.class);
         return response.getBody();
     }
 
+    @Override
+    public void createAgent(String organizationId, UserInfo userInfo) {
+        String groupMembersUri = UriComponentsBuilder.fromUriString(userDirectoryEndpoint)
+                .path(AGENTS_PATH)
+                .buildAndExpand(organizationId)
+                .encode()
+                .toUriString();
+        kernelRestTemplate.exchange(groupMembersUri, HttpMethod.POST, new HttpEntity<>(userInfo, initHeaders()), Void.class);
+    }
+
+    @Override
+    public void deleteAgent(AgentInfo agentInfo) {
+        String groupMembersUri = UriComponentsBuilder.fromUriString(userDirectoryEndpoint)
+                .path(AGENT_PATH)
+                .buildAndExpand(agentInfo.getId())
+                .encode()
+                .toUriString();
+        
+        HttpHeaders headers = initHeaders();
+        headers.set("If-Match", Long.toString(agentInfo.getModified()));
+        
+        kernelRestTemplate.exchange(groupMembersUri, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+    }
+    
     @Override
     public Group createGroup(String organizationId, String name) {
         String groupsUri = UriComponentsBuilder.fromUriString(userDirectoryEndpoint)
@@ -86,9 +109,8 @@ public class UserDirectoryImpl implements UserDirectory {
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
         
-        HttpEntity<Group> req = new HttpEntity<>(group, headers);
+        HttpEntity<Group> req = new HttpEntity<>(group, initHeaders());
         
         ResponseEntity<Void> resp = kernelRestTemplate.exchange(groupsUri, HttpMethod.POST, req, Void.class);
         
@@ -115,8 +137,7 @@ public class UserDirectoryImpl implements UserDirectory {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("If-Match", Long.toString(group.getModified().getMillis()));
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
-        kernelRestTemplate.exchange(groupUri, HttpMethod.DELETE, new HttpEntity<Void>(headers), Void.class);
+        kernelRestTemplate.exchange(groupUri, HttpMethod.DELETE, new HttpEntity<Void>(initHeaders()), Void.class);
     }
 
     @Override
@@ -126,10 +147,23 @@ public class UserDirectoryImpl implements UserDirectory {
                 .buildAndExpand(groupId)
                 .encode()
                 .toUriString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
-        kernelRestTemplate.exchange(groupMembersUri, HttpMethod.POST, new HttpEntity<>(agentId, headers), Void.class);
+        kernelRestTemplate.exchange(groupMembersUri, HttpMethod.POST, new HttpEntity<>(agentId, initHeaders()), Void.class);
     }
 
+    @Override
+    public void removeAgentfromGroup(String agentId, String groupId) {
+        String groupMembersUri = UriComponentsBuilder.fromUriString(userDirectoryEndpoint)
+                .path(GROUP_MEMBER_REMOVE_PATH)
+                .buildAndExpand(groupId, agentId)
+                .encode()
+                .toUriString();
+        kernelRestTemplate.exchange(groupMembersUri, HttpMethod.DELETE, new HttpEntity<>(initHeaders()), Void.class);
+    }
+
+	private HttpHeaders initHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
+		return headers;
+	}
 
 }

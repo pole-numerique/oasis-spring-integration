@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * User: schambon
  * Date: 2/12/14
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfo implements Serializable {
 
     @JsonProperty("sub")
@@ -21,7 +23,7 @@ public class UserInfo implements Serializable {
     @JsonProperty("organization_id")
     private String organizationId;
     @JsonProperty("organization_admin")
-    private boolean organizationAdmin;
+    private Boolean organizationAdmin;
     @JsonProperty("name")
     private String name; // full name
     @JsonProperty("given_name")
@@ -33,11 +35,11 @@ public class UserInfo implements Serializable {
     @JsonProperty("email")
     private String email;
     @JsonProperty("email_verified")
-    private boolean emailVerified;
+    private Boolean emailVerified;
     @JsonProperty("phone_number")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
-    private boolean phoneNumberVerified;
+    private Boolean phoneNumberVerified;
     @JsonProperty("birthdate")
     private LocalDate birthdate;
     @JsonProperty("picture")
@@ -47,7 +49,7 @@ public class UserInfo implements Serializable {
     private Address address;
 
     @JsonProperty("updated_at")
-    private long updatedAt;
+    private Long updatedAt;
 
     @JsonProperty("locale")
     private String locale;
@@ -62,11 +64,11 @@ public class UserInfo implements Serializable {
         this.organizationId = organizationId;
     }
 
-    public boolean isOrganizationAdmin() {
+    public Boolean isOrganizationAdmin() {
         return organizationAdmin;
     }
 
-    public void setOrganizationAdmin(boolean organizationAdmin) {
+    public void setOrganizationAdmin(Boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
     }
 
@@ -161,7 +163,7 @@ public class UserInfo implements Serializable {
         this.userId = userId;
     }
 
-    public long getUpdatedAt() {
+    public Long getUpdatedAt() {
         return updatedAt;
     }
 
@@ -170,10 +172,10 @@ public class UserInfo implements Serializable {
     }
 
     public Instant getUpdateInstant() {
-        return Instant.ofEpochSecond(updatedAt);
+        return updatedAt != null ? Instant.ofEpochSecond(updatedAt) : null;
     }
 
-    public boolean isEmailVerified() {
+    public Boolean isEmailVerified() {
         return emailVerified;
     }
 
@@ -181,7 +183,7 @@ public class UserInfo implements Serializable {
         this.emailVerified = emailVerified;
     }
 
-    public boolean isPhoneNumberVerified() {
+    public Boolean isPhoneNumberVerified() {
         return phoneNumberVerified;
     }
 
