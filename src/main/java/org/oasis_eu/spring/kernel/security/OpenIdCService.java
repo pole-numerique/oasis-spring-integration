@@ -1,16 +1,9 @@
 package org.oasis_eu.spring.kernel.security;
 
-import com.google.common.io.BaseEncoding;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
+import java.time.Instant;
 
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
@@ -28,12 +21,17 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Map;
+import com.google.common.io.BaseEncoding;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * User: schambon
@@ -183,19 +181,16 @@ public class OpenIdCService {
         return body;
     }
 
-    public void saveUserInfo(String accessToken, Map<String, Serializable> userInfo, String claim) {
+    public void saveUserInfo(String accessToken, UserInfo userInfo) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-Type", "application/json");
     	
-    	UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getUserInfoEndpoint());
-		if (claim != null) {
-			builder.path("/" + claim);
-		}
+    	String url = UriComponentsBuilder.fromUriString(configuration.getProfileEndpoint())
+    			.build().encode().toUriString();
         
-        restTemplate.exchange(
-        		builder.build().encode().toUriString(),
-                HttpMethod.POST,
+        restTemplate.exchange(url,
+                HttpMethod.PUT,
                 new HttpEntity<>(userInfo, headers),
                 Void.class);
     }

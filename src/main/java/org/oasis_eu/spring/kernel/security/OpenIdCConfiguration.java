@@ -29,6 +29,10 @@ public interface OpenIdCConfiguration {
 
     void setUserInfoEndpoint(String userInfoEndpoint);
 
+    String getProfileEndpoint();
+
+    void setProfileEndpoint(String profileEndpoint);
+
     String getApplicationId();
 
     void setApplicationId(String applicationId);

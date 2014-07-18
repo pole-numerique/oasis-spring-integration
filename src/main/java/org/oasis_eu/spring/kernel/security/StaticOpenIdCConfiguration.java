@@ -21,6 +21,8 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     protected String revocationEndpoint;
     @Value("${kernel.auth.userinfo_endpoint}")
     protected String userInfoEndpoint;
+    @Value("${kernel.auth.profile_endpoint}")
+    protected String profileEndpoint;
     @Value("${kernel.auth.callback_uri}")
     protected String callbackUri;
     @Value("${kernel.application_id}")
@@ -113,6 +115,16 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     }
 
     @Override
+	public String getProfileEndpoint() {
+		return this.profileEndpoint;
+	}
+
+	@Override
+	public void setProfileEndpoint(String profileEndpoint) {
+		this.profileEndpoint = profileEndpoint;
+	}
+
+	@Override
     public String getApplicationId() {
         return applicationId;
     }

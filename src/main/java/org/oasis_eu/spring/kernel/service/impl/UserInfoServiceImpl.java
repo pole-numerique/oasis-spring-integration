@@ -1,8 +1,5 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.security.OpenIdCService;
@@ -44,10 +41,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 	 * @see org.oasis_eu.spring.kernel.service.impl.UserInfoService#saveUserInfo(java.util.Map, java.lang.String)
 	 */
     @Override
-	public void saveUserInfo(Map<String, Serializable> userProperties, String claim) {
+	public void saveUserInfo(UserInfo userInfo) {
     	OpenIdCAuthentication authentication = getOpenIdCAuthentication();
         if (authentication != null) {
-            openIdCService.saveUserInfo(authentication.getAccessToken(), userProperties, claim);
+            openIdCService.saveUserInfo(authentication.getAccessToken(), userInfo);
             refreshCurrentUser();
         }
     	
