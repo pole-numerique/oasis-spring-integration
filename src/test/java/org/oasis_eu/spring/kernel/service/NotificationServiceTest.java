@@ -2,6 +2,7 @@ package org.oasis_eu.spring.kernel.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oasis_eu.spring.kernel.KernelTestConstants;
 import org.oasis_eu.spring.test.TestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,19 +18,17 @@ public class NotificationServiceTest {
     @Autowired
     private NotificationService service;
 
-    private static final String ALICE = "bb2c6f76-362f-46aa-982c-1fc60d54b8ef";
-    private static final String CITIZEN_KIN = "0a046fde-a20f-46eb-8252-48b78d89a9a2";
-
     @Test
     public void testGetNotifications() {
 
-        assertNotEquals(-1, service.getNotifications(ALICE).size());
+        assertNotEquals(-1, service.getNotifications(KernelTestConstants.USER_ALICE).size());
 
     }
 
     @Test
     public void testGetNotificationsForApp() {
-        assertNotEquals(-1, service.getAppNotifications(ALICE, CITIZEN_KIN).size());
+        assertNotEquals(-1, service.getAppNotifications(
+        		KernelTestConstants.USER_ALICE, KernelTestConstants.APP_CITIZEN_KIN).size());
     }
 
 //    @Test

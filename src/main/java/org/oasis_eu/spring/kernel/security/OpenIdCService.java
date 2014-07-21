@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,8 +32,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: schambon
@@ -189,6 +189,20 @@ public class OpenIdCService {
                 .getBody();
 
         return body;
+    }
+
+    public void saveUserInfo(String accessToken, UserInfo userInfo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+        headers.add("Content-Type", "application/json");
+    	
+    	String url = UriComponentsBuilder.fromUriString(configuration.getProfileEndpoint())
+    			.build().encode().toUriString();
+        
+        restTemplate.exchange(url,
+                HttpMethod.PUT,
+                new HttpEntity<>(userInfo, headers),
+                Void.class);
     }
 
 }

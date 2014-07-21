@@ -1,10 +1,11 @@
 package org.oasis_eu.spring.kernel.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -13,6 +14,7 @@ import java.time.LocalDate;
  * User: schambon
  * Date: 2/12/14
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfo implements Serializable {
 
     @JsonProperty("sub")
@@ -21,7 +23,7 @@ public class UserInfo implements Serializable {
     @JsonProperty("organization_id")
     private String organizationId;
     @JsonProperty("organization_admin")
-    private boolean organizationAdmin;
+    private Boolean organizationAdmin;
     @JsonProperty("name")
     private String name; // full name
     @JsonProperty("given_name")
@@ -33,20 +35,26 @@ public class UserInfo implements Serializable {
     @JsonProperty("email")
     private String email;
     @JsonProperty("email_verified")
-    private boolean emailVerified;
+    private Boolean emailVerified;
     @JsonProperty("phone_number")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
-    private boolean phoneNumberVerified;
+    private Boolean phoneNumberVerified;
     @JsonProperty("birthdate")
     private LocalDate birthdate;
+    @JsonProperty("picture")
+    private String pictureUrl;
 
     @JsonProperty("address")
     private Address address;
 
     @JsonProperty("updated_at")
-    private long updatedAt;
+    private Long updatedAt;
 
+    @JsonProperty("locale")
+    private String locale;
+    @JsonProperty("zoneinfo")
+    private String zoneInfo;
 
     public String getOrganizationId() {
         return organizationId;
@@ -56,11 +64,11 @@ public class UserInfo implements Serializable {
         this.organizationId = organizationId;
     }
 
-    public boolean isOrganizationAdmin() {
+    public Boolean isOrganizationAdmin() {
         return organizationAdmin;
     }
 
-    public void setOrganizationAdmin(boolean organizationAdmin) {
+    public void setOrganizationAdmin(Boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
     }
 
@@ -155,7 +163,7 @@ public class UserInfo implements Serializable {
         this.userId = userId;
     }
 
-    public long getUpdatedAt() {
+    public Long getUpdatedAt() {
         return updatedAt;
     }
 
@@ -164,10 +172,10 @@ public class UserInfo implements Serializable {
     }
 
     public Instant getUpdateInstant() {
-        return Instant.ofEpochSecond(updatedAt);
+        return updatedAt != null ? Instant.ofEpochSecond(updatedAt) : null;
     }
 
-    public boolean isEmailVerified() {
+    public Boolean isEmailVerified() {
         return emailVerified;
     }
 
@@ -175,11 +183,36 @@ public class UserInfo implements Serializable {
         this.emailVerified = emailVerified;
     }
 
-    public boolean isPhoneNumberVerified() {
+    public Boolean isPhoneNumberVerified() {
         return phoneNumberVerified;
     }
 
     public void setPhoneNumberVerified(boolean phoneNumberVerified) {
         this.phoneNumberVerified = phoneNumberVerified;
     }
+    
+    public String getLocale() {
+		return locale;
+	}
+    
+    public void setLocale(String locale) {
+		this.locale = locale;
+	}
+    
+    public String getZoneInfo() {
+		return zoneInfo;
+	}
+
+	public void setZoneInfo(String zoneInfo) {
+		this.zoneInfo = zoneInfo;
+	}
+
+	public String getPictureUrl() {
+		return pictureUrl;
+	}
+    
+    public void setPictureUrl(String pictureUrl) {
+		this.pictureUrl = pictureUrl;
+	}
+    
 }
