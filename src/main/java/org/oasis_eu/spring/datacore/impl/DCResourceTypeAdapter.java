@@ -23,21 +23,21 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
 
     private static final Map<String, PropertyHelper> BUILTIN_PROPERTIES = new HashMap<>();
     static {
-        BUILTIN_PROPERTIES.put("uri", new StringHelper());
-        BUILTIN_PROPERTIES.put("version", new VersionHelper());
-        BUILTIN_PROPERTIES.put("created", new DateHelper());
-        BUILTIN_PROPERTIES.put("lastModified", new DateHelper());
-        BUILTIN_PROPERTIES.put("createdBy", new StringHelper());
-        BUILTIN_PROPERTIES.put("lastModifiedBy", new StringHelper());
+        BUILTIN_PROPERTIES.put("@id", new StringHelper("uri"));
+        BUILTIN_PROPERTIES.put("o:version", new VersionHelper("version"));
+        BUILTIN_PROPERTIES.put("dc:created", new DateHelper("created"));
+        BUILTIN_PROPERTIES.put("dc:modified", new DateHelper("lastModified"));
+        BUILTIN_PROPERTIES.put("dc:creator", new StringHelper("createdBy"));
+        BUILTIN_PROPERTIES.put("dc:contributor", new StringHelper("lastModifiedBy"));
     }
 
     @Override
     public JsonElement serialize(DCResource resource, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject o = new JsonObject();
 
-        o.add("uri", new JsonPrimitive(resource.getUri()));
+        o.add("@id", new JsonPrimitive(resource.getUri()));
         if (! resource.isNew()) {
-            o.add("version", new JsonPrimitive(resource.getVersion()));
+            o.add("o:version", new JsonPrimitive(resource.getVersion()));
         }
 
         resource.getValues().forEach((k, v) -> {
@@ -64,7 +64,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
         JsonObject object = jsonElement.getAsJsonObject();
         for (Map.Entry<String, JsonElement> child : object.entrySet()) {
             if (BUILTIN_PROPERTIES.containsKey(child.getKey())) {
-                BUILTIN_PROPERTIES.get(child.getKey()).set(child.getValue(), resource, child.getKey());
+                BUILTIN_PROPERTIES.get(child.getKey()).set(child.getValue(), resource);
             } else {
                 setDataField(resource, child.getKey(), child.getValue());
             }
@@ -96,13 +96,24 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private static abstract class PropertyHelper<T> {
+
+        protected PropertyHelper(String propertyName) {
+            this.propertyName = propertyName;
+        }
+
+        public String propertyName;
+
+        public String getPropertyName() {
+            return propertyName;
+        }
+
         abstract T read(JsonElement input);
 
         abstract Class<T> getArgClass();
 
-        void set(JsonElement input, DCResource target, String name) {
+        void set(JsonElement input, DCResource target) {
             try {
-                Method method = DCResource.class.getMethod("set" + StringUtils.capitalize(name), getArgClass());
+                Method method = DCResource.class.getMethod("set" + StringUtils.capitalize(propertyName), getArgClass());
                 method.invoke(target, read(input));
             } catch (Exception nosuch) {
                 LOGGER.error("Cannot set builtin property", nosuch);
@@ -111,6 +122,10 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private static class DateHelper extends PropertyHelper<Instant> {
+        public DateHelper(String propertyName) {
+            super(propertyName);
+        }
+
         @Override
         public Instant read(JsonElement input) {
 
@@ -125,6 +140,10 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private static class StringHelper extends PropertyHelper<String> {
+        public StringHelper(String propertyName) {
+            super(propertyName);
+        }
+
         @Override
         public String read(JsonElement input) {
             return input.getAsString();
@@ -137,6 +156,10 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private static class VersionHelper extends PropertyHelper<Integer> {
+        public VersionHelper(String propertyName) {
+            super(propertyName);
+        }
+
         @Override
         public Integer read(JsonElement input) {
             return input.getAsInt();
