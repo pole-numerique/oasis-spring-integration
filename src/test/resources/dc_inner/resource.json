@@ -1,11 +1,11 @@
 {
-    "uri": "http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.electoral_roll_registration/0000_1111_2222",
-    "version": 0,
-    "created": "2014-01-02T11:38:18.662+01:00",
-    "lastModified": "2014-01-02T11:38:18.662+01:00",
-    "createdBy": "Administrator",
-    "lastModifiedBy": "Administrator",
-    "rdf:type": [
+    "@id": "http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.electoral_roll_registration/0000_1111_2222",
+    "o:version": 0,
+    "dc:created": "2014-01-02T11:38:18.662+01:00",
+    "dc:modified": "2014-01-02T11:38:18.662+01:00",
+    "dc:creator": "Administrator",
+    "dc:contributor": "Administrator",
+    "@type": [
         "citizenkin.procedure.electoral_roll_registration"
     ],
     "nom_de_famille": "Dupont",

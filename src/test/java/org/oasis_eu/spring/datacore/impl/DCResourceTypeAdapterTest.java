@@ -56,7 +56,7 @@ public class DCResourceTypeAdapterTest {
 
         // there should not be a version
         assertNull(o.get("version"));
-        assertEquals("http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/3333_4444_5555", o.get("uri").getAsString());
+        assertEquals("http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/3333_4444_5555", o.get("@id").getAsString());
         assertEquals("electoral_roll_registration", o.get("definition_name").getAsString());
     }
 
@@ -82,7 +82,7 @@ public class DCResourceTypeAdapterTest {
 
         String json = gson.toJson(resource);
         assertNotNull(json);
-        assertTrue(json.contains("\"uri\":\"http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/3333_4444_5555"));
+        assertTrue(json.contains("\"@id\":\"http://data-test.oasis_eu-eu.org/dc/type/citizenkin.procedure.envelope/3333_4444_5555"));
         assertTrue(json.contains("\"state\":\"SENT\""));
     }
 
