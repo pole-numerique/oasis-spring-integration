@@ -85,13 +85,6 @@ public class KernelConfiguration {
     public Gson dataCoreGson() {
         return new GsonBuilder().registerTypeAdapter(DCResource.class, new DCResourceTypeAdapter())
                 .registerTypeAdapter(DCRights.class, new DCRightsTypeAdapter())
-//                .registerTypeAdapter(AgentInfo.class, new AgentInfoTypeAdapter())
-//                .registerTypeAdapter(AgentInfoAddress.class, new AgentInfoAddressTypeAdapter())
-//                .registerTypeAdapter(AgentListWrapper.class, new AgentListWrapperTypeAdapter())
-//                .registerTypeAdapter(Group.class, new GroupTypeAdapter())
-//                .registerTypeAdapter(Event.class, new EventTypeAdapter())
-//                .registerTypeAdapter(ProcedurePublishedEventData.class, new ProcedurePublishedEventDataTypeAdapter())
-//                .registerTypeAdapter(Subscription.class, new SubscriptionTypeAdapter())
                 .create();
     }
 

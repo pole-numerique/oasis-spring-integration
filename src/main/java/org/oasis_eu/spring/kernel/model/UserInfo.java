@@ -6,6 +6,8 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -51,7 +53,7 @@ public class UserInfo implements Serializable {
     @JsonProperty("updated_at")
     private Long updatedAt;
 
-    @JsonProperty("locale")
+
     private String locale;
     @JsonProperty("zoneinfo")
     private String zoneInfo;
@@ -192,11 +194,12 @@ public class UserInfo implements Serializable {
     }
     
     public String getLocale() {
-		return locale;
+        return locale;
 	}
-    
+
+    @JsonProperty("locale")
     public void setLocale(String locale) {
-		this.locale = locale;
+		this.locale = locale != null ? locale.replace("-", "_") : null;
 	}
     
     public String getZoneInfo() {
