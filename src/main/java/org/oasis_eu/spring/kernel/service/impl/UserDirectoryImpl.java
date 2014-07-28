@@ -62,9 +62,16 @@ public class UserDirectoryImpl implements UserDirectory {
                 .encode()
                 .toUriString();
 
-        LOGGER.debug("Calling " + agentsUri);
-
         HttpEntity<AgentInfo[]> response = kernelRestTemplate.exchange(agentsUri, HttpMethod.GET, new HttpEntity<>(initHeaders()), AgentInfo[].class);
+
+        if (LOGGER.isDebugEnabled()) {
+            for (AgentInfo agentInfo : response.getBody()) {
+                LOGGER.debug("> {}", agentInfo);
+            }
+        }
+
+
+
         return Arrays.asList(response.getBody());
     }
 

@@ -246,4 +246,31 @@ public class AgentInfo {
     public void setId(String id) {
         this.id = id;
     }
+
+
+    @Override
+    public String toString() {
+        return "AgentInfo{" +
+                "name='" + name + '\'' +
+                ", familyName='" + familyName + '\'' +
+                ", givenName='" + givenName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", picture='" + picture + '\'' +
+                ", gender='" + gender + '\'' +
+                ", birthdate=" + birthdate +
+                ", zoneInfo='" + zoneInfo + '\'' +
+                ", locale='" + locale + '\'' +
+                ", updatedAt=" + updatedAt +
+                ", email='" + email + '\'' +
+                ", emailVerified=" + emailVerified +
+                ", address=" + address +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", phoneNumberVerified=" + phoneNumberVerified +
+                ", organizationId='" + organizationId + '\'' +
+                ", organizationAdmin=" + organizationAdmin +
+                ", modified=" + modified +
+                ", id='" + id + '\'' +
+                '}';
+    }
 }
