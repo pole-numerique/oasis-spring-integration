@@ -3,6 +3,8 @@ package org.oasis_eu.spring.kernel.service.impl;
 import com.nimbusds.jose.util.Base64;
 
 import org.joda.time.Instant;
+import org.oasis_eu.spring.kernel.model.directory.UserMembership;
+import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.service.UserDirectory;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.model.directory.AgentInfo;
@@ -14,11 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -166,4 +173,38 @@ public class UserDirectoryImpl implements UserDirectory {
 		return headers;
 	}
 
+
+    @Override
+    public List<UserMembership> getMemberships(String userId) {
+
+        HttpHeaders headers = new HttpHeaders();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication instanceof OpenIdCAuthentication) {
+            headers.set("Authorization", String.format("Bearer %s", ((OpenIdCAuthentication) authentication).getAccessToken()));
+        }
+
+        String uriString = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
+                .path("/memberships/user/{user_id}")
+                .queryParam("start", "0")
+                .queryParam("limit", "20")
+                .buildAndExpand(userId)
+                .toUriString();
+
+        ResponseEntity<UserMembership[]> response = kernelRestTemplate.exchange(uriString, HttpMethod.GET, new HttpEntity<>(headers), UserMembership[].class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            String orgs = "";
+            for (UserMembership m : response.getBody()) {
+                orgs += String.format("%s (%s)\n", m.getOrganizationName(), m.getOrganizationId());
+            }
+            LOGGER.debug("Found memberships in the following organizations:\n{}", orgs);
+
+            return Arrays.asList(response.getBody());
+        } else {
+            LOGGER.error("Cannot load user membership information: {}", response.getStatusCode());
+
+            return Collections.emptyList();
+        }
+
+
+    }
 }

@@ -1,7 +1,9 @@
 package org.oasis_eu.spring.kernel.service;
 
-import com.nimbusds.jose.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.oasis_eu.spring.kernel.model.instance.InstanceCreated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -22,24 +24,28 @@ import java.util.Map;
 @Service
 public class InstanceCreationCallback {
 
+    private static final Logger logger = LoggerFactory.getLogger(InstanceCreationCallback.class);
+
     @Autowired
     private RestTemplate kernelRestTemplate;
 
 
-    @Value("${kernel.instance_created_endpoint:''}")
-    private String endpoint;
-
     /**
      * Acquit the creation of the application instance, and provide the list of services to create
+     *
+     * @param endpoint
      * @param instanceCreated
      * @param clientId
      * @param clientSecret
      * @return the service identifiers that have been created
      * @throws org.oasis_eu.spring.kernel.service.InstanceCreationException if for some reason the services could not be created
      */
-    public Map<String, String> acquitInstanceCreated(InstanceCreated instanceCreated, String clientId, String clientSecret) {
+    public Map<String, String> acquitInstanceCreated(String endpoint, InstanceCreated instanceCreated, String clientId, String clientSecret) {
+
+        logger.info("Acquitting creation of instance with client id: {}\nFull instance is: {}", clientId, instanceCreated);
+
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", clientId, clientSecret))));
+        headers.set("Authorization", "BASIC " + new String(Base64.encodeBase64((clientId + ":" + clientSecret).getBytes())));
 
         HttpEntity<InstanceCreated> requestEntity = new HttpEntity<>(instanceCreated, headers);
 

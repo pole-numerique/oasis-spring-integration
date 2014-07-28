@@ -26,9 +26,11 @@ public class CreateInstanceRequest {
     @JsonProperty("organization_id")
     private String organizationId;
 
-    @JsonProperty("extra_data")
-    private Map<String, String> extraData;
+    @JsonProperty("organization_name")
+    private String organizationName;
 
+    @JsonProperty("instance_registration_uri")
+    private String instanceRegistrationUri;
 
     public String getInstanceId() {
         return instanceId;
@@ -70,12 +72,32 @@ public class CreateInstanceRequest {
         this.organizationId = organizationId;
     }
 
-    public Map<String, String> getExtraData() {
-        return extraData;
+    public String getInstanceRegistrationUri() {
+        return instanceRegistrationUri;
     }
 
-    public void setExtraData(Map<String, String> extraData) {
-        this.extraData = extraData;
+    public void setInstanceRegistrationUri(String instanceRegistrationUri) {
+        this.instanceRegistrationUri = instanceRegistrationUri;
     }
 
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    @Override
+    public String toString() {
+        return "CreateInstanceRequest{" +
+                "instanceId='" + instanceId + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", clientSecret='" + clientSecret + '\'' +
+                ", userId='" + userId + '\'' +
+                ", organizationId='" + organizationId + '\'' +
+                ", organizationName='" + organizationName + '\'' +
+                ", instanceRegistrationUri='" + instanceRegistrationUri + '\'' +
+                '}';
+    }
 }

@@ -13,21 +13,23 @@ import java.util.*;
  */
 public class ServiceCreated {
 
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
+    @JsonProperty("local_id")
     private String identifier;
 
+    @JsonProperty("service_uri")
+    private String url;
+
+    @JsonProperty("visible")
+    private boolean visible = false;
 
     @JsonProperty("name")
     private String defaultName;
+
     @JsonProperty("description")
     private String defaultDescription;
+
+    @JsonProperty("icon")
+    private String defaultIcon;
 
     private Map<String, String> localizedNames = new HashMap<>();
 
@@ -35,19 +37,8 @@ public class ServiceCreated {
 
     private Map<String, String> localizedIcons = new HashMap<>();
 
-    @JsonProperty("icon")
-    private String defaultIcon;
-
-    @JsonProperty("default_locale")
-    private Locale defaultLocale;
-
-    private String url;
-
-    @JsonProperty("notification_url")
+    @JsonProperty("notification_uri")
     private String notificationUrl;
-
-    @JsonProperty("redirect_url")
-    private String redirectUrl;
 
     @JsonProperty("category_ids")
     private List<String> categoryIds = new ArrayList<>();
@@ -55,17 +46,27 @@ public class ServiceCreated {
     @JsonProperty("payment_option")
     private PaymentOption paymentOption;
 
+    @JsonProperty("redirect_uris")
+    private List<String> redirectUris;
+
     @JsonProperty("target_audience")
-    private List<Audience> targetAudience;
+    private Audience targetAudience;
 
     @JsonProperty("territory_id")
     private String territoryId;
 
-    @JsonProperty("provider_organization_id")
+    @JsonProperty("provider_id")
     private String providerId;
 
-    private boolean visible = false;
 
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 
 
 
@@ -142,14 +143,6 @@ public class ServiceCreated {
         this.categoryIds = categoryIds;
     }
 
-    public Locale getDefaultLocale() {
-        return defaultLocale;
-    }
-
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -174,11 +167,11 @@ public class ServiceCreated {
         this.paymentOption = paymentOption;
     }
 
-    public List<Audience> getTargetAudience() {
+    public Audience getTargetAudience() {
         return targetAudience;
     }
 
-    public void setTargetAudience(List<Audience> targetAudience) {
+    public void setTargetAudience(Audience targetAudience) {
         this.targetAudience = targetAudience;
     }
 
@@ -230,11 +223,33 @@ public class ServiceCreated {
         }
     }
 
-    public String getRedirectUrl() {
-        return redirectUrl;
+    public List<String> getRedirectUris() {
+        return redirectUris;
     }
 
-    public void setRedirectUrl(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
+    public void setRedirectUris(List<String> redirectUris) {
+        this.redirectUris = redirectUris;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceCreated{" +
+                "identifier='" + identifier + '\'' +
+                ", url='" + url + '\'' +
+                ", visible=" + visible +
+                ", defaultName='" + defaultName + '\'' +
+                ", defaultDescription='" + defaultDescription + '\'' +
+                ", defaultIcon='" + defaultIcon + '\'' +
+                ", localizedNames=" + localizedNames +
+                ", localizedDescriptions=" + localizedDescriptions +
+                ", localizedIcons=" + localizedIcons +
+                ", notificationUrl='" + notificationUrl + '\'' +
+                ", categoryIds=" + categoryIds +
+                ", paymentOption=" + paymentOption +
+                ", redirectUris=" + redirectUris +
+                ", targetAudience=" + targetAudience +
+                ", territoryId='" + territoryId + '\'' +
+                ", providerId='" + providerId + '\'' +
+                '}';
     }
 }

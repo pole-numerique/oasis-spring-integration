@@ -29,12 +29,6 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Value("${kernel.user_directory_endpoint}")
     private String endpoint;
 
-//    @Override
-//    public Organization find(String id) {
-//        return kernelRestTemplate.getForObject(endpoint + "/org/{id}", Organization.class, id);
-//
-//
-//    }
 
     @Override
     public Organization find(String organizationId) {

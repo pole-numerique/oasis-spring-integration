@@ -12,6 +12,7 @@ import org.oasis_eu.spring.datacore.model.DCResource;
 import org.oasis_eu.spring.datacore.model.DCRights;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.oasis_eu.spring.kernel.security.StaticOpenIdCConfiguration;
+import org.oasis_eu.spring.util.KernelLoggingInterceptor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +52,9 @@ public class KernelConfiguration {
     @Qualifier("kernelRestTemplate")
     public RestTemplate kernelRestTemplate() {
         RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+
+        template.setInterceptors(Arrays.asList(new KernelLoggingInterceptor()));
+
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
         messageConverters.add(new FormHttpMessageConverter());

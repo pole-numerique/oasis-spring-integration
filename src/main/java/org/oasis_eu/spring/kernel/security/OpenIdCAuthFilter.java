@@ -55,7 +55,7 @@ public class OpenIdCAuthFilter extends AbstractAuthenticationProcessingFilter {
         String error = request.getParameter("error");
         String state = request.getParameter("state");
         if (error != null) {
-            LOGGER.debug("Got an error from server");
+            LOGGER.error("Got an error from server: {}", error);
             // TODO
         } else if (!Strings.isNullOrEmpty(code) && !Strings.isNullOrEmpty(state)) {
             // we got a code!
