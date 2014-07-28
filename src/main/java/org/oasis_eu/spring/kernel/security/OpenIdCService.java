@@ -87,9 +87,14 @@ public class OpenIdCService {
                 idToken.setExp(idClaims.getExpirationTime().getTime());
                 idToken.setIss(idClaims.getIssuer());
 
+                LOGGER.debug("Decoded ID Token: {}", idToken);
+                LOGGER.debug("Now is {}", System.currentTimeMillis());
+
                 if (!configuration.isMocked()) {
                     verifySignature(signedJWT);
                 }
+
+                LOGGER.debug("Signature verified");
 
             } catch (ParseException e) {
                 LOGGER.error("Cannot parse ID Token as JWS", e);

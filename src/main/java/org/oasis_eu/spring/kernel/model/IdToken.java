@@ -59,4 +59,16 @@ public class IdToken {
     public void setNonce(String nonce) {
         this.nonce = nonce;
     }
+
+    @Override
+    public String toString() {
+        return "IdToken{" +
+                "iss='" + iss + '\'' +
+                ", sub='" + sub + '\'' +
+                ", aud='" + aud + '\'' +
+                ", iat=" + iat +
+                ", exp=" + exp +
+                ", nonce='" + nonce + '\'' +
+                '}';
+    }
 }
