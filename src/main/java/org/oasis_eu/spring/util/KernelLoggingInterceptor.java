@@ -27,7 +27,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Intercepted request to: {}", request.getURI());
+            logger.debug("Intercepted {} request to: {}", request.getMethod(), request.getURI());
             StringBuilder headers = new StringBuilder("\n");
             request.getHeaders().entrySet().forEach(e -> headers.append(e.getKey() + ":\t" + e.getValue() + "\n"));
 
@@ -52,14 +52,19 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
                 try {
                     text = CharStreams.toString(reader);
                     threw = false;
-                }
-                finally {
+                } finally {
                     Closeables.close(reader, threw);
                 }
 
                 fullErrorLogger.debug("Full response body: {}", text);
             }
         }
+
+        // even if we're not logging all requests, log info on errors
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            logger.info("{} request to {} resulted in {} {}", request.getMethod(), request.getURI(), response.getStatusCode(), response.getStatusCode().getReasonPhrase());
+        }
+
 
         return response;
     }
