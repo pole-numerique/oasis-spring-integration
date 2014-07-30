@@ -4,7 +4,7 @@
 
     <groupId>org.oasis_eu.spring-integration</groupId>
     <artifactId>oasis-spring-integration</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
 
 
@@ -232,7 +232,7 @@
 
     <scm>
       <developerConnection>scm:git:git@github.com:pole-numerique/oasis-spring-integration.git</developerConnection>
-      <tag>oasis-spring-integration-0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <build>
