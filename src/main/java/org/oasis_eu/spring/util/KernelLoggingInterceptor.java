@@ -45,6 +45,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
             logger.debug("Request headers: {}", headers.toString());
 
             if (!response.getStatusCode().is2xxSuccessful() && fullErrorLogger.isDebugEnabled()) {
+                // Warning: this will unwind the input stream, rendering it unusable further down the stack. Use only in extreme debugging circumstances!
                 String text;
                 InputStreamReader reader = new InputStreamReader(response.getBody(),
                         Charsets.UTF_8);

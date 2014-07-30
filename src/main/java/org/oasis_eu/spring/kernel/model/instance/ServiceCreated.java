@@ -13,6 +13,9 @@ import java.util.*;
  */
 public class ServiceCreated {
 
+    @JsonProperty("id")
+    private String id;
+
     @JsonProperty("local_id")
     private String identifier;
 
@@ -48,6 +51,9 @@ public class ServiceCreated {
 
     @JsonProperty("redirect_uris")
     private List<String> redirectUris;
+
+    @JsonProperty("post_logout_redirect_uris")
+    private List<String> postLogoutRedirectUris;
 
     @JsonProperty("target_audience")
     private Audience targetAudience;
@@ -231,10 +237,27 @@ public class ServiceCreated {
         this.redirectUris = redirectUris;
     }
 
+    public List<String> getPostLogoutRedirectUris() {
+        return postLogoutRedirectUris;
+    }
+
+    public void setPostLogoutRedirectUris(List<String> postLogoutRedirectUris) {
+        this.postLogoutRedirectUris = postLogoutRedirectUris;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "ServiceCreated{" +
-                "identifier='" + identifier + '\'' +
+                "id='" + id + '\'' +
+                ", identifier='" + identifier + '\'' +
                 ", url='" + url + '\'' +
                 ", visible=" + visible +
                 ", defaultName='" + defaultName + '\'' +
@@ -247,6 +270,7 @@ public class ServiceCreated {
                 ", categoryIds=" + categoryIds +
                 ", paymentOption=" + paymentOption +
                 ", redirectUris=" + redirectUris +
+                ", postLogoutRedirectUris=" + postLogoutRedirectUris +
                 ", targetAudience=" + targetAudience +
                 ", territoryId='" + territoryId + '\'' +
                 ", providerId='" + providerId + '\'' +
