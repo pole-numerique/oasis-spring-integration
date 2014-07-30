@@ -232,6 +232,10 @@
 
     </dependencies>
 
+    <scm>
+      <developerConnection>scm:git:git@github.com:pole-numerique/oasis-spring-integration.git</developerConnection>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
@@ -272,7 +276,14 @@
                     <excludedGroups>org.oasis_eu.spring.test.IntegrationTest</excludedGroups>
                 </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-release-plugin</artifactId>
+              <version>2.5</version>
+            </plugin>
         </plugins>
     </build>
+
+
 
 </project>
