@@ -12,6 +12,7 @@ public class InboundNotification {
     long time;
     NotificationStatus status;
     long modified;
+    String data;
 
     public String getId() {
         return id;
@@ -67,5 +68,13 @@ public class InboundNotification {
 
     public void setModified(long modified) {
         this.modified = modified;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }
