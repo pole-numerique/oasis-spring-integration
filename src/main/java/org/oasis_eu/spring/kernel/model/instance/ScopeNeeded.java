@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class ScopeNeeded {
     private String motivation;
 
     @JsonIgnore
-    private Map<String, String> localizedMotivations;
+    private Map<String, String> localizedMotivations = new HashMap<>();
 
     public String getScopeId() {
         return scopeId;
