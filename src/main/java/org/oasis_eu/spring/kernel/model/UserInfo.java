@@ -58,18 +58,22 @@ public class UserInfo implements Serializable {
     @JsonProperty("zoneinfo")
     private String zoneInfo;
 
+    @Deprecated
     public String getOrganizationId() {
         return organizationId;
     }
 
+    @Deprecated
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
+    @Deprecated
     public Boolean isOrganizationAdmin() {
         return organizationAdmin;
     }
 
+    @Deprecated
     public void setOrganizationAdmin(Boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
     }

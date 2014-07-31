@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * User: schambon
@@ -78,6 +79,8 @@ public class OpenIdCService {
             LOGGER.debug("Token response: {}", tokenResponse);
 
             IdToken idToken = new IdToken();
+            boolean appUser;
+            boolean appAdmin;
             try {
                 SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
                 ReadOnlyJWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
@@ -86,6 +89,9 @@ public class OpenIdCService {
                 idToken.setSub(idClaims.getSubject());
                 idToken.setExp(idClaims.getExpirationTime().getTime());
                 idToken.setIss(idClaims.getIssuer());
+
+                appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
+                appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
 
                 LOGGER.debug("Decoded ID Token: {}", idToken);
                 LOGGER.debug("Now is {}", System.currentTimeMillis());
@@ -109,7 +115,7 @@ public class OpenIdCService {
             Instant issuedAt = Instant.ofEpochSecond(idToken.getIat());
             Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
 
-            return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), issuedAt, expires);
+            return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), issuedAt, expires, appUser, appAdmin);
 
         } else {
             LOGGER.error("Cannot match state with saved state; possible replay attack");
