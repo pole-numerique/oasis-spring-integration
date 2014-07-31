@@ -42,7 +42,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
             logger.debug("Response: {} {}", response.getStatusCode().value(), response.getStatusCode().getReasonPhrase());
             StringBuilder headers = new StringBuilder("\n");
             response.getHeaders().entrySet().forEach(e -> headers.append(e.getKey() + ":\t" + e.getValue() + "\n"));
-            logger.debug("Request headers: {}", headers.toString());
+            logger.debug("Response headers: {}", headers.toString());
 
             if (!response.getStatusCode().is2xxSuccessful() && fullErrorLogger.isDebugEnabled()) {
                 // Warning: this will unwind the input stream, rendering it unusable further down the stack. Use only in extreme debugging circumstances!
