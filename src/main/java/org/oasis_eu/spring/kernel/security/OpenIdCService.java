@@ -126,23 +126,19 @@ public class OpenIdCService {
         String keysAsJson = restTemplate.exchange(configuration.getKeysEndpoint(), HttpMethod.GET, new HttpEntity<>(headers), String.class).getBody();
 
         JWKSet jwkSet = JWKSet.parse(keysAsJson);
-        if (jwkSet.getKeys().size() == 1) {
-            // TODO do this better when there are more than one key
-            JWK key = jwkSet.getKeys().get(0);
-            JWSVerifier verifier = null;
-            try {
-                if (key instanceof RSAKey) {
-                    verifier = new RSASSAVerifier(((RSAKey) key).toRSAPublicKey());
-                } else if (key instanceof OctetSequenceKey) {
-                    verifier = new MACVerifier(((OctetSequenceKey) key).toByteArray());
-                }
-                if (verifier != null) {
-                    return signedJWT.verify(verifier);
-                }
-
-            } catch (JOSEException |InvalidKeySpecException |NoSuchAlgorithmException e) {
-                LOGGER.error("Cannot verify key", e);
+        JWK key = jwkSet.getKeyByKeyId(signedJWT.getHeader().getKeyID());
+        JWSVerifier verifier = null;
+        try {
+            if (key instanceof RSAKey) {
+                verifier = new RSASSAVerifier(((RSAKey) key).toRSAPublicKey());
+            } else if (key instanceof OctetSequenceKey) {
+                verifier = new MACVerifier(((OctetSequenceKey) key).toByteArray());
             }
+            if (verifier != null) {
+                return signedJWT.verify(verifier);
+            }
+        } catch (JOSEException |InvalidKeySpecException |NoSuchAlgorithmException e) {
+            LOGGER.error("Cannot verify key", e);
         }
 
         return false;
