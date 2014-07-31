@@ -10,6 +10,7 @@ import org.oasis_eu.spring.datacore.impl.DatacoreSecurityInterceptor;
 import org.oasis_eu.spring.datacore.impl.GsonMessageConverter;
 import org.oasis_eu.spring.datacore.model.DCResource;
 import org.oasis_eu.spring.datacore.model.DCRights;
+import org.oasis_eu.spring.kernel.rest.KernelResponseErrorHandler;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.oasis_eu.spring.kernel.security.StaticOpenIdCConfiguration;
 import org.oasis_eu.spring.util.KernelLoggingInterceptor;
@@ -65,6 +66,8 @@ public class KernelConfiguration {
         messageConverters.add(jacksonMessageConverter);
 
         template.setMessageConverters(messageConverters);
+
+        template.setErrorHandler(new KernelResponseErrorHandler());
 
         return template;
     }
