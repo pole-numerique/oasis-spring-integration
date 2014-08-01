@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OasisLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
-	@Autowired
+	@Autowired(required = false)
 	private LocaleResolver localeResolver;
 	
     public OasisLoginUrlAuthenticationEntryPoint(String loginFormUrl) {
@@ -27,11 +27,17 @@ public class OasisLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticatio
     protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) {
     	// Pass current locale to login service
-        return UriComponentsBuilder.fromUriString(super.getLoginFormUrl())
-        		.queryParam("ui_locales", localeResolver.resolveLocale(request))
-                .build()
-                .encode()
-                .toUriString();
+        if (localeResolver != null) {
+
+            return UriComponentsBuilder.fromUriString(super.getLoginFormUrl())
+                    .queryParam("ui_locales", localeResolver.resolveLocale(request))
+                    .build()
+                    .encode()
+                    .toUriString();
+        } else {
+            return super.getLoginFormUrl();
+        }
+
     }
     
 }
