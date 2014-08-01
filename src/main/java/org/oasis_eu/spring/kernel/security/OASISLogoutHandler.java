@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -59,13 +60,18 @@ public class OASISLogoutHandler implements LogoutSuccessHandler {
                 LOGGER.error("Payload is: " + entity.getBody());
             }
 
+            response.sendRedirect(UriComponentsBuilder.fromHttpUrl(logoutEndpoint)
+                    .queryParam("id_token_hint", token.getIdToken())
+                    .queryParam("post_logout_redirect_uri", afterLogoutUrl)
+                    .build()
+                    .toUriString());
+
         } else {
             String s = authentication != null ? authentication.getClass().toString() : "null";
             LOGGER.error("Authentication token " + s + " is not an OIDCAuthenticationToken; I don't know what to do with it");
+
+            response.sendRedirect(logoutEndpoint);
         }
-
-
-        response.sendRedirect(logoutEndpoint + "?continue=" + afterLogoutUrl);
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {
