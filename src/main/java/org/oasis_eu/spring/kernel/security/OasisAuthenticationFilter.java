@@ -15,6 +15,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -63,7 +64,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        logger.debug("Entering Oasis Auth filter");
+//        logger.debug("Entering Oasis Auth filter");
 
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
@@ -104,7 +105,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
             if (checkIfExternalReferrer) {
                 // if there is a referrer, and it is not from our application, then let's recheck auth.
                 String referrer = req.getHeader("Referer");
-                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(applicationUrl);
+                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(applicationUrl) && req.getParameter("override_referer") == null;
             }
         }
 
@@ -120,11 +121,17 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
             logger.error("Got an error from server: {}", error);
             // not necessarily a problem: it may mean we are not authenticated
             if (openIdCService.getStateType(state).equals(StateType.SIMPLE_CHECK)) {
+                if ("consent_required".equals(error)) {
+                    // special case: redirect to the kernel with explicit consent
+                    openIdCService.redirectToAuth(request, response, StateType.AUTH_REQUEST);
+                    return false;
+                }
+
                 SavedRequest savedRequest = requestCache.getRequest(request, response);
                 requestCache.removeRequest(request, response);
                 String redirectUrl = savedRequest.getRedirectUrl();
 
-                response.sendRedirect(redirectUrl);
+                response.sendRedirect(UriComponentsBuilder.fromHttpUrl(redirectUrl).queryParam("override_referer", true).build().toString());
 
             } else {
                 requestCache.removeRequest(request, response);
