@@ -3,6 +3,7 @@ package org.oasis_eu.spring.kernel.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -20,16 +21,15 @@ import java.io.IOException;
  * User: schambon
  * Date: 1/30/14
  */
-public class OASISExceptionTranslationFilter extends GenericFilterBean {
+public class OasisExceptionTranslationFilter extends GenericFilterBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OASISExceptionTranslationFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OasisExceptionTranslationFilter.class);
 
-    private RequestCache requestCache;
+    private RequestCache requestCache = new HttpSessionRequestCache();
     private AuthenticationEntryPoint authenticationEntryPoint;
 
 
-    public OASISExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint, RequestCache requestCache) {
-        this.requestCache = requestCache;
+    public OasisExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 

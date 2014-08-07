@@ -25,9 +25,9 @@ import java.io.IOException;
  * User: schambon
  * Date: 1/8/14
  */
-public class OASISLogoutHandler implements LogoutSuccessHandler {
+public class OasisLogoutHandler implements LogoutSuccessHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OASISLogoutHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OasisLogoutHandler.class);
 
     private RestTemplate restTemplate;
 

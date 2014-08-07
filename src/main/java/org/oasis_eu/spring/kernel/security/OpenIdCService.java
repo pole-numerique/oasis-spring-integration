@@ -1,5 +1,7 @@
 package org.oasis_eu.spring.kernel.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.BaseEncoding;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
@@ -28,7 +30,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Instant;
@@ -42,10 +50,15 @@ import java.util.Map;
 @Service
 public class OpenIdCService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenIdCService.class);
+    public static final String NONCE = "openid_connect_nonce";
+    public static final String STATE = "openid_connect_state";
+    private static final Logger logger = LoggerFactory.getLogger(OpenIdCService.class);
 
     @Autowired
     private OpenIdCConfiguration configuration;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     @Qualifier("kernelRestTemplate")
@@ -64,18 +77,18 @@ public class OpenIdCService {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()).getBytes()));
 
-            LOGGER.debug("Token endpoint: {}", configuration.getTokenEndpoint());
+            logger.debug("Token endpoint: {}", configuration.getTokenEndpoint());
             ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-              LOGGER.error("Oops, got error {}", response.getStatusCode());
+              logger.error("Oops, got error {}", response.getStatusCode());
               for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
-                LOGGER.debug("Header: {}: {}", header.getKey(), header.getValue());
+                logger.debug("Header: {}: {}", header.getKey(), header.getValue());
               }
               // TODO throw an exception
             }
             TokenResponse tokenResponse = response.getBody();
 
-            LOGGER.debug("Token response: {}", tokenResponse);
+            logger.debug("Token response: {}", tokenResponse);
 
             IdToken idToken = new IdToken();
             try {
@@ -87,22 +100,22 @@ public class OpenIdCService {
                 idToken.setExp(idClaims.getExpirationTime().getTime());
                 idToken.setIss(idClaims.getIssuer());
 
-                LOGGER.debug("Decoded ID Token: {}", idToken);
-                LOGGER.debug("Now is {}", System.currentTimeMillis());
+                logger.debug("Decoded ID Token: {}", idToken);
+                logger.debug("Now is {}", System.currentTimeMillis());
 
                 if (!configuration.isMocked()) {
                     verifySignature(signedJWT);
                 }
 
-                LOGGER.debug("Signature verified");
+                logger.debug("Signature verified");
 
             } catch (ParseException e) {
-                LOGGER.error("Cannot parse ID Token as JWS", e);
+                logger.error("Cannot parse ID Token as JWS", e);
                 return null;
             }
 
             if (!configuration.isMocked() && (idToken.getNonce() == null || !idToken.getNonce().equals(savedNonce))) {
-                LOGGER.error("Invalid nonce, possible replay attack");
+                logger.error("Invalid nonce, possible replay attack");
                 return null;
             }
 
@@ -112,7 +125,7 @@ public class OpenIdCService {
             return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), issuedAt, expires);
 
         } else {
-            LOGGER.error("Cannot match state with saved state; possible replay attack");
+            logger.error("Cannot match state with saved state; possible replay attack");
 
             return null;
         }
@@ -141,14 +154,14 @@ public class OpenIdCService {
                 }
 
             } catch (JOSEException |InvalidKeySpecException |NoSuchAlgorithmException e) {
-                LOGGER.error("Cannot verify key", e);
+                logger.error("Cannot verify key", e);
             }
         }
 
         return false;
     }
 
-    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, boolean forcePrompt) {
+    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, PromptType promptType) {
         if (configuration.isMocked()) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getMockLoginPageUri())
                     .queryParam("response_type", "code")
@@ -171,8 +184,10 @@ public class OpenIdCService {
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
     
-            if (forcePrompt) {
+            if (promptType.equals(PromptType.FORCED)) {
                 builder = builder.queryParam("prompt", "consent");
+            } else if (promptType.equals(PromptType.NONE)) {
+                builder = builder.queryParam("prompt", "none");
             }
             return builder
                         .build()
@@ -210,4 +225,53 @@ public class OpenIdCService {
                 Void.class);
     }
 
+
+    public String getStateString(StateType type) {
+        State state = new State();
+        state.setType(type);
+
+        byte[] bytes = new byte[32];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(bytes);
+        String rd = BaseEncoding.base64Url().encode(bytes);
+
+        state.setRandom(rd);
+
+        try {
+            String s = objectMapper.writeValueAsString(state);
+            return BaseEncoding.base64Url().encode(s.getBytes());
+        } catch (JsonProcessingException e) {
+            logger.error("Cannot serialize state", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public StateType getStateType(String stateString) {
+        try {
+            State s = objectMapper.readValue(BaseEncoding.base64Url().decode(stateString), State.class);
+            return s.getType();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void redirectToAuth(HttpServletRequest request, HttpServletResponse response, StateType stateType) throws IOException {
+        HttpSession session = request.getSession();
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32];
+        random.nextBytes(bytes);
+        String nonce = BaseEncoding.base64Url().encode(bytes);
+
+        String state = getStateString(stateType);
+
+        session.setAttribute(STATE, state);
+        session.setAttribute(NONCE, nonce);
+
+        String callbackUri = configuration.getCallbackUri();
+
+        String scopesToRequire = configuration.getScopesToRequire();
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT);
+        response.sendRedirect(authUri);
+    }
 }

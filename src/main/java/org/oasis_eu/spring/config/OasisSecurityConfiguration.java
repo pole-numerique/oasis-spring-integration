@@ -1,9 +1,6 @@
 package org.oasis_eu.spring.config;
 
-import org.oasis_eu.spring.kernel.security.OASISExceptionTranslationConfigurer;
-import org.oasis_eu.spring.kernel.security.OASISLogoutHandler;
-import org.oasis_eu.spring.kernel.security.OpenIdCAuthFilter;
-import org.oasis_eu.spring.kernel.security.OpenIdCAuthProvider;
+import org.oasis_eu.spring.kernel.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +11,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -50,16 +46,15 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
     }
 
     @Bean
-    public OpenIdCAuthFilter openIdCAuthFilter() throws Exception {
-        OpenIdCAuthFilter filter = new OpenIdCAuthFilter();
-        filter.setAuthenticationManager(authenticationManager());
-
-        return filter;
+    public OasisAuthenticationFilter oasisAuthenticationFilter() throws Exception {
+        OasisAuthenticationFilter oasisAuthenticationFilter = new OasisAuthenticationFilter();
+        oasisAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        return oasisAuthenticationFilter;
     }
 
     @Bean
-    protected OASISLogoutHandler logoutHandler() {
-        OASISLogoutHandler handler = new OASISLogoutHandler();
+    protected OasisLogoutHandler logoutHandler() {
+        OasisLogoutHandler handler = new OasisLogoutHandler();
         handler.setRestTemplate(kernelRestTemplate);
         handler.setAfterLogoutUrl(applicationUrl);
         return handler;
@@ -67,15 +62,20 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+
         auth.authenticationProvider(oasisAuthProvider());
+
     }
-
-
 
     @Bean
-    public OASISExceptionTranslationConfigurer oasisExceptionTranslationConfigurer() {
-        return new OASISExceptionTranslationConfigurer();
+    public OasisExceptionTranslationFilter oasisExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
+        return new OasisExceptionTranslationFilter(authenticationEntryPoint);
     }
+
+//    @Bean
+//    public OasisExceptionTranslationConfigurer oasisExceptionTranslationConfigurer() {
+//        return new OasisExceptionTranslationConfigurer();
+//    }
 
 
 }
