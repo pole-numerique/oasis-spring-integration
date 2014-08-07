@@ -15,6 +15,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -51,8 +52,13 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     @Value("${application.error.401:''}")
     private String unauthorizedPageUrl;
 
-    @Override
+    @Value("${application.security.check_if_external_referrer:false}")
+    private boolean checkIfExternalReferrer;
 
+    @Value("${application.url:''}")
+    private String applicationUrl;
+
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
@@ -77,8 +83,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     }
 
     private boolean doTransparent(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        HttpSession session = req.getSession();
-        if (session.isNew()) {
+        if (checkExternalAuth(req)) {
             logger.debug("Performing transparent auth query");
             requestCache.saveRequest(req, res);
 
@@ -87,6 +92,22 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         }
 
         return true;
+    }
+
+    private boolean checkExternalAuth(HttpServletRequest req) {
+        boolean newSession = req.getSession().isNew();
+
+        if (newSession) {
+            return true;
+        } else {
+            if (checkIfExternalReferrer) {
+                // if there is a referrer, and it is not from our application, then let's recheck auth.
+                String referrer = req.getHeader("Referer");
+                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(applicationUrl) && req.getParameter("override_referer") == null;
+            }
+        }
+
+        return false;
     }
 
     private boolean doVerify(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -98,11 +119,17 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
             logger.error("Got an error from server: {}", error);
             // not necessarily a problem: it may mean we are not authenticated
             if (openIdCService.getStateType(state).equals(StateType.SIMPLE_CHECK)) {
+                if ("consent_required".equals(error)) {
+                    // special case: redirect to the kernel with explicit consent
+                    openIdCService.redirectToAuth(request, response, StateType.AUTH_REQUEST);
+                    return false;
+                }
+
                 SavedRequest savedRequest = requestCache.getRequest(request, response);
                 requestCache.removeRequest(request, response);
                 String redirectUrl = savedRequest.getRedirectUrl();
 
-                response.sendRedirect(redirectUrl);
+                response.sendRedirect(UriComponentsBuilder.fromHttpUrl(redirectUrl).queryParam("override_referer", true).build().toString());
 
             } else {
                 requestCache.removeRequest(request, response);
