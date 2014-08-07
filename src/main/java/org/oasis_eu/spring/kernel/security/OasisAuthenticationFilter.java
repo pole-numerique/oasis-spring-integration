@@ -58,8 +58,6 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        logger.debug("Entering Oasis Auth filter");
-
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
             return;
