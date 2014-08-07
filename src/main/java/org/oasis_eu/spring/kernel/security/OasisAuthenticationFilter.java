@@ -51,8 +51,13 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     @Value("${application.error.401:''}")
     private String unauthorizedPageUrl;
 
-    @Override
+    @Value("${application.security.check_if_external_referrer:false}")
+    private boolean checkIfExternalReferrer;
 
+    @Value("${application.url:''}")
+    private String applicationUrl;
+
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
@@ -79,8 +84,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     }
 
     private boolean doTransparent(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        HttpSession session = req.getSession();
-        if (session.isNew()) {
+        if (checkExternalAuth(req)) {
             logger.debug("Performing transparent auth query");
             requestCache.saveRequest(req, res);
 
@@ -89,6 +93,22 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         }
 
         return true;
+    }
+
+    private boolean checkExternalAuth(HttpServletRequest req) {
+        boolean newSession = req.getSession().isNew();
+
+        if (newSession) {
+            return true;
+        } else {
+            if (checkIfExternalReferrer) {
+                // if there is a referrer, and it is not from our application, then let's recheck auth.
+                String referrer = req.getHeader("Referer");
+                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(applicationUrl);
+            }
+        }
+
+        return false;
     }
 
     private boolean doVerify(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
