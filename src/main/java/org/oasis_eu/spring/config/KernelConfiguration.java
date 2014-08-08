@@ -15,6 +15,7 @@ import org.oasis_eu.spring.kernel.rest.KernelResponseErrorHandler;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.oasis_eu.spring.kernel.security.StaticOpenIdCConfiguration;
 import org.oasis_eu.spring.util.KernelLoggingInterceptor;
+import org.oasis_eu.spring.util.NullConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +67,8 @@ public class KernelConfiguration {
         MappingJackson2HttpMessageConverter jacksonMessageConverter = new MappingJackson2HttpMessageConverter();
         jacksonMessageConverter.setObjectMapper(objectMapper());
         messageConverters.add(jacksonMessageConverter);
+
+        messageConverters.add(new NullConverter()); // prevent stupid errors
 
         template.setMessageConverters(messageConverters);
 
