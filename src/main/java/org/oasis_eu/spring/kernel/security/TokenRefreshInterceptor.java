@@ -21,7 +21,7 @@ public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
 
     // duration in seconds of the "red zone" for token expiry
     // ie we'll preemptively renew the token when we are less than this number of seconds away from actual token expiry
-    @Value("${kernel.token.expiry}")
+    @Value("${kernel.token.expiry:60}")
     long tokenExpiryThreshold;
 
     @Override
