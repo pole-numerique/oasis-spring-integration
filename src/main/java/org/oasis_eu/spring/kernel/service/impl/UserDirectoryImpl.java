@@ -3,6 +3,8 @@ package org.oasis_eu.spring.kernel.service.impl;
 import com.nimbusds.jose.util.Base64;
 
 import org.joda.time.Instant;
+import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
+import org.oasis_eu.spring.kernel.exception.WrongQueryException;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.service.UserDirectory;
@@ -209,7 +211,11 @@ public class UserDirectoryImpl implements UserDirectory {
         } else {
             LOGGER.error("Cannot load user membership information: {}", response.getStatusCode());
 
-            return Collections.emptyList();
+            if (response.getStatusCode().is4xxClientError()) {
+                throw new WrongQueryException();
+            } else {
+                throw new TechnicalErrorException();
+            }
         }
 
 
