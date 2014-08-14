@@ -119,7 +119,7 @@ public class OpenIdCService {
                 return null;
             }
 
-            Instant issuedAt = Instant.ofEpochSecond(idToken.getIat());
+            Instant issuedAt = Instant.ofEpochMilli(idToken.getIat());
             Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
 
             return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), issuedAt, expires);
