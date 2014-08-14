@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.Base64;
 import org.joda.time.Instant;
 import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.oasis_eu.spring.kernel.exception.WrongQueryException;
+import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.service.UserDirectory;
@@ -184,7 +185,7 @@ public class UserDirectoryImpl implements UserDirectory {
 
 
     @Override
-    public List<UserMembership> getMemberships(String userId) {
+    public List<UserMembership> getMembershipsOfUser(String userId) {
 
         HttpHeaders headers = new HttpHeaders();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -219,5 +220,26 @@ public class UserDirectoryImpl implements UserDirectory {
         }
 
 
+    }
+
+    @Override
+    public List<OrgMembership> getMembershipsOfOrganization(String organizationId) {
+        HttpHeaders headers = new HttpHeaders();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication instanceof OpenIdCAuthentication) {
+            headers.set("Authorization", String.format("Bearer %s", ((OpenIdCAuthentication) authentication).getAccessToken()));
+        }
+
+        ResponseEntity<OrgMembership[]> response = kernelRestTemplate.exchange(userDirectoryEndpoint + "/memberships/org/{organization_id}", HttpMethod.GET, new HttpEntity<Object>(headers), OrgMembership[].class, organizationId);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return Arrays.asList(response.getBody());
+        } else {
+            LOGGER.error("Cannot load organization memberships: {}", response.getStatusCode());
+            if (response.getStatusCode().is4xxClientError()) {
+                throw new WrongQueryException();
+            } else {
+                throw new TechnicalErrorException();
+            }
+        }
     }
 }

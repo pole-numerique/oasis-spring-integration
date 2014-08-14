@@ -3,6 +3,7 @@ package org.oasis_eu.spring.kernel.service;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.model.directory.AgentInfo;
 import org.oasis_eu.spring.kernel.model.directory.Group;
+import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public interface UserDirectory {
 
 	void removeAgentfromGroup(String agentId, String groupId);
 
-    List<UserMembership> getMemberships(String userId);
+    List<UserMembership> getMembershipsOfUser(String userId);
+
+    List<OrgMembership> getMembershipsOfOrganization(String organizationId);
 
 }
