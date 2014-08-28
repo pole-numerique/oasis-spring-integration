@@ -116,7 +116,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         String error = request.getParameter("error");
         String state = request.getParameter("state");
         if (error != null) {
-            logger.error("Got an error from server: {}", error);
+            logger.error("Got an error from server: {}; request was {}", error, request.getRequestURI());
             // not necessarily a problem: it may mean we are not authenticated
             if (openIdCService.getStateType(state).equals(StateType.SIMPLE_CHECK)) {
                 if ("consent_required".equals(error)) {

@@ -59,4 +59,13 @@ public class InstanceCreationCallback {
     }
 
 
+    public void fail(String endpoint, String clientId, String clientSecret) {
+        logger.info("Failing instance creation {}", endpoint);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "BASIC " + new String(Base64.encodeBase64((clientId + ":" + clientSecret).getBytes())));
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        kernelRestTemplate.exchange(endpoint, HttpMethod.DELETE, requestEntity, Void.class);
+    }
 }
