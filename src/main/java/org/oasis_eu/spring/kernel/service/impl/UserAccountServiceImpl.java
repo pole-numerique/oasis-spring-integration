@@ -4,6 +4,7 @@ import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.security.OpenIdCService;
+import org.oasis_eu.spring.kernel.service.UserAccountService;
 import org.oasis_eu.spring.kernel.service.UserInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,28 +14,36 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * User: schambon
- * Date: 6/13/14
+ * User: jdenanot
+ * Date: 8/29/14
  */
 @Service
-public class UserInfoServiceImpl implements UserInfoService {
+public class UserAccountServiceImpl implements UserAccountService {
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserAccountServiceImpl.class);
 
     @Autowired
     private OpenIdCService openIdCService;
-
+    
     /* (non-Javadoc)
-	 * @see org.oasis_eu.spring.kernel.service.impl.UserInfoService#currentUser()
+	 * @see org.oasis_eu.spring.kernel.service.impl.UserInfoService#saveUserInfo(java.util.Map, java.lang.String)
 	 */
     @Override
-	public UserInfo currentUser() {
+	public void saveUserAccount(UserAccount userAccount) {
     	OpenIdCAuthentication authentication = getOpenIdCAuthentication();
         if (authentication != null) {
-            return authentication.getUserInfo();
-        } else {
-            return null;
+            openIdCService.saveUserAccount(authentication.getAccessToken(), userAccount);
+            refreshCurrentUser();
+        }
+    	
+    }
+    
+    private void refreshCurrentUser() {
+    	OpenIdCAuthentication authentication = getOpenIdCAuthentication();
+        if (authentication != null) {
+            UserInfo userInfo = openIdCService.getUserInfo(authentication.getAccessToken());
+            authentication.setUserInfo(userInfo);
         }
     }
     

@@ -13,8 +13,10 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
+import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -211,18 +214,34 @@ public class OpenIdCService {
         return body;
     }
 
-    public void saveUserInfo(String accessToken, UserInfo userInfo) {
+    public void saveUserAccount(String accessToken, UserAccount userAccount) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-Type", "application/json");
     	
-    	String url = UriComponentsBuilder.fromUriString(configuration.getProfileEndpoint())
+    	String url = UriComponentsBuilder.fromUriString(configuration.getProfileEndpoint()+"/"+userAccount.getUserId())
     			.build().encode().toUriString();
+    	
+    	ResponseEntity<UserAccount> response = restTemplate.exchange(url,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                UserAccount.class);
         
-        restTemplate.exchange(url,
+        headers.set("If-Match", response.getHeaders().getETag());
+        
+        ResponseEntity<UserAccount> updateResponse = restTemplate.exchange(url,
                 HttpMethod.PUT,
-                new HttpEntity<>(userInfo, headers),
-                Void.class);
+                new HttpEntity<>(userAccount, headers),
+                UserAccount.class);
+        
+        headers.set("If-Match", updateResponse.getHeaders().getETag());
+        
+        /*UserAccount modifiedUserAccount = restTemplate.exchange(url,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                UserAccount.class).getBody();
+        
+        modifiedUserAccount.getGivenName();*/
     }
 
 
