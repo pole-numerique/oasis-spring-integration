@@ -17,7 +17,7 @@ import java.time.Instant;
  */
 public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TokenRefreshInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenRefreshInterceptor.class);
 
     // duration in seconds of the "red zone" for token expiry
     // ie we'll preemptively renew the token when we are less than this number of seconds away from actual token expiry
@@ -40,8 +40,8 @@ public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
 
 
 
-            if (openAuth.getAccessTokenExpires().isBefore(Instant.now().minusSeconds(tokenExpiryThreshold))) {
-                LOGGER.info("Token about to expire, at " + ((OpenIdCAuthentication) auth).getAccessTokenExpires());
+            if (openAuth.getAccessTokenExpires().isBefore(Instant.now().plusSeconds(tokenExpiryThreshold))) {
+                logger.info("Token about to expire, at " + ((OpenIdCAuthentication) auth).getAccessTokenExpires());
 
                 return true;
             }
