@@ -25,6 +25,11 @@ public class UserAccount extends BaseUserInfo implements Serializable {
     @JsonProperty("email_address")
     private String email;
     
+    public UserAccount() {
+    	
+    	super();
+    }
+    
     public UserAccount(UserInfo userInfo) {
     	
     	super();
@@ -38,7 +43,9 @@ public class UserAccount extends BaseUserInfo implements Serializable {
     	this.setLocale(userInfo.getLocale());
     	this.setName(userInfo.getName());
     	this.setPhoneNumber(userInfo.getPhoneNumber());
-    	this.setPhoneNumberVerified(userInfo.isPhoneNumberVerified());
+    	if(userInfo.isPhoneNumberVerified()!=null) {
+    		this.setPhoneNumberVerified(userInfo.isPhoneNumberVerified());
+    	}
     	this.setPictureUrl(userInfo.getPictureUrl());
     	this.setUpdatedAt(userInfo.getUpdatedAt());
     	this.setZoneInfo(userInfo.getZoneInfo());

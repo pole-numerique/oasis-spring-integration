@@ -111,35 +111,12 @@ public abstract class BaseUserInfo implements Serializable {
         this.address = address;
     }
 
-    public String getStreetAddress() {
-        return address != null ? address.getStreetAddress() : null;
-    }
-
-    public String getLocality() {
-        return address != null ? address.getLocality() : null;
-    }
-
-    public String getRegion() {
-        return address != null ? address.getRegion():null;
-    }
-
-    public String getPostalCode() {
-        return address!=null ? address.getPostalCode() : null;
-    }
-    public String getCountry() {
-        return address != null ? address.getCountry() : null;
-    }
-
     public Long getUpdatedAt() {
         return updatedAt;
     }
 
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Instant getUpdateInstant() {
-        return updatedAt != null ? Instant.ofEpochSecond(updatedAt) : null;
     }
 
     public Boolean isPhoneNumberVerified() {

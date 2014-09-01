@@ -234,14 +234,6 @@ public class OpenIdCService {
                 new HttpEntity<>(userAccount, headers),
                 UserAccount.class);
         
-        headers.set("If-Match", updateResponse.getHeaders().getETag());
-        
-        /*UserAccount modifiedUserAccount = restTemplate.exchange(url,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                UserAccount.class).getBody();
-        
-        modifiedUserAccount.getGivenName();*/
     }
 
 

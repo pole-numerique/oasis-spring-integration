@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,29 @@ public class UserInfo extends BaseUserInfo implements Serializable {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+    
+    public String getStreetAddress() {
+        return this.getAddress() != null ? this.getAddress().getStreetAddress() : null;
+    }
+
+    public String getLocality() {
+        return this.getAddress() != null ? this.getAddress().getLocality() : null;
+    }
+
+    public String getRegion() {
+        return this.getAddress() != null ? this.getAddress().getRegion():null;
+    }
+
+    public String getPostalCode() {
+        return this.getAddress()!=null ? this.getAddress().getPostalCode() : null;
+    }
+    public String getCountry() {
+        return this.getAddress() != null ? this.getAddress().getCountry() : null;
+    }
+    
+    public Instant getUpdateInstant() {
+        return this.getUpdatedAt()!= null ? Instant.ofEpochSecond(this.getUpdatedAt()) : null;
     }
     
 }
