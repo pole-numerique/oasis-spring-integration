@@ -4,8 +4,14 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +28,15 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("name")
     private String name; // full name
     @JsonProperty("given_name")
+    @NotNull @Size(min=2, max=30)
     private String givenName; // first name
     @JsonProperty("family_name")
+    @NotNull @Size(min=2, max=30)
     private String familyName; // last name
     @JsonProperty("gender")
     private String gender; // "male" or "female"
     @JsonProperty("phone_number")
+    @NotNull @Min(7) @Max(15)
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;

@@ -6,6 +6,9 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,7 @@ public class UserAccount extends BaseUserInfo implements Serializable {
     private String userId;
     
     @JsonProperty("email_address")
+    @NotEmpty @Email
     private String email;
     
     public UserAccount() {
