@@ -28,15 +28,15 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("name")
     private String name; // full name
     @JsonProperty("given_name")
-    @NotNull @Size(min=2, max=30)
+    @NotNull @Size(min=2, max=30) //, message=" {my.profile.personal.firstname.size}")
     private String givenName; // first name
     @JsonProperty("family_name")
-    @NotNull @Size(min=2, max=30)
+    @NotNull @Size(min=2, max=30) //, message="{my.profile.personal.lastname.size}")
     private String familyName; // last name
     @JsonProperty("gender")
     private String gender; // "male" or "female"
     @JsonProperty("phone_number")
-    @NotNull @Min(7) @Max(15)
+    @NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;
