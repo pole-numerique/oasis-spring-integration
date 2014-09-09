@@ -4,11 +4,11 @@ import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 
 /**
- * User: schambon
- * Date: 6/13/14
+ * User: jdenanot
+ * Date: 8/29/14
  */
-public interface UserInfoService {
+public interface UserAccountService {
 
-	public abstract UserInfo currentUser();
+	public abstract void saveUserAccount(UserAccount userAccount);
 	
 }

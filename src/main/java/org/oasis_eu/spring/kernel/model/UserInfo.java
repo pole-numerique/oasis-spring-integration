@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,47 +18,28 @@ import org.slf4j.LoggerFactory;
  * Date: 2/12/14
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfo implements Serializable {
+public class UserInfo extends BaseUserInfo implements Serializable {
 
     @JsonProperty("sub")
     private String userId;
 
-    @JsonProperty("organization_id")
+	@JsonProperty("organization_id")
     private String organizationId;
     @JsonProperty("organization_admin")
     private Boolean organizationAdmin;
-    @JsonProperty("name")
-    private String name; // full name
-    @JsonProperty("given_name")
-    private String givenName; // first name
-    @JsonProperty("family_name")
-    private String familyName; // last name
-    @JsonProperty("gender")
-    private String gender; // "male" or "female"
     @JsonProperty("email")
     private String email;
     @JsonProperty("email_verified")
     private Boolean emailVerified;
-    @JsonProperty("phone_number")
-    private String phoneNumber;
-    @JsonProperty("phone_number_verified")
-    private Boolean phoneNumberVerified;
-    @JsonProperty("birthdate")
-    private LocalDate birthdate;
-    @JsonProperty("picture")
-    private String pictureUrl;
 
-    @JsonProperty("address")
-    private Address address;
+    public String getUserId() {
+        return userId;
+    }
 
-    @JsonProperty("updated_at")
-    private Long updatedAt;
-
-
-    private String locale;
-    @JsonProperty("zoneinfo")
-    private String zoneInfo;
-
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    
     public String getOrganizationId() {
         return organizationId;
     }
@@ -73,39 +55,7 @@ public class UserInfo implements Serializable {
     public void setOrganizationAdmin(Boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String lastName) {
-        this.familyName = lastName;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
+    
     public String getEmail() {
         return email;
     }
@@ -113,70 +63,7 @@ public class UserInfo implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public LocalDate getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public String getStreetAddress() {
-        return address != null ? address.getStreetAddress() : null;
-    }
-
-    public String getLocality() {
-        return address != null ? address.getLocality() : null;
-    }
-
-    public String getRegion() {
-        return address != null ? address.getRegion():null;
-    }
-
-    public String getPostalCode() {
-        return address!=null ? address.getPostalCode() : null;
-    }
-    public String getCountry() {
-        return address != null ? address.getCountry() : null;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Instant getUpdateInstant() {
-        return updatedAt != null ? Instant.ofEpochSecond(updatedAt) : null;
-    }
-
+    
     public Boolean isEmailVerified() {
         return emailVerified;
     }
@@ -184,38 +71,28 @@ public class UserInfo implements Serializable {
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
     }
-
-    public Boolean isPhoneNumberVerified() {
-        return phoneNumberVerified;
+    
+    public String getStreetAddress() {
+        return this.getAddress() != null ? this.getAddress().getStreetAddress() : null;
     }
 
-    public void setPhoneNumberVerified(boolean phoneNumberVerified) {
-        this.phoneNumberVerified = phoneNumberVerified;
+    public String getLocality() {
+        return this.getAddress() != null ? this.getAddress().getLocality() : null;
+    }
+
+    public String getRegion() {
+        return this.getAddress() != null ? this.getAddress().getRegion():null;
+    }
+
+    public String getPostalCode() {
+        return this.getAddress()!=null ? this.getAddress().getPostalCode() : null;
+    }
+    public String getCountry() {
+        return this.getAddress() != null ? this.getAddress().getCountry() : null;
     }
     
-    public String getLocale() {
-        return locale;
-	}
-
-    @JsonProperty("locale")
-    public void setLocale(String locale) {
-		this.locale = locale != null ? locale.replace("-", "_") : null;
-	}
-    
-    public String getZoneInfo() {
-		return zoneInfo;
-	}
-
-	public void setZoneInfo(String zoneInfo) {
-		this.zoneInfo = zoneInfo;
-	}
-
-	public String getPictureUrl() {
-		return pictureUrl;
-	}
-    
-    public void setPictureUrl(String pictureUrl) {
-		this.pictureUrl = pictureUrl;
-	}
+    public Instant getUpdateInstant() {
+        return this.getUpdatedAt()!= null ? Instant.ofEpochSecond(this.getUpdatedAt()) : null;
+    }
     
 }
