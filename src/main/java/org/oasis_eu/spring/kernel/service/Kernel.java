@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * User: schambon
@@ -47,5 +46,13 @@ public class Kernel {
         }
 
         return kernelRestTemplate.exchange(endpoint, method, request, responseClass, pathVariables);
+    }
+
+    public <T> T getForObject(String endpoint, Class<T> responseClass, Authentication auth, Object... uriParameters) {
+        return exchange(endpoint, HttpMethod.GET, null, responseClass, auth, uriParameters).getBody();
+    }
+
+    public <T> ResponseEntity<T> getForEntity(String endpoint, Class<T> responseClass, Authentication auth, Object... uriParameters) {
+        return exchange(endpoint, HttpMethod.GET, null, responseClass, auth, uriParameters);
     }
 }
