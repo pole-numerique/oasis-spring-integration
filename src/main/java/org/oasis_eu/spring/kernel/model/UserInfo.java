@@ -40,18 +40,22 @@ public class UserInfo extends BaseUserInfo implements Serializable {
         this.userId = userId;
     }
     
+    @Deprecated
     public String getOrganizationId() {
         return organizationId;
     }
 
+    @Deprecated
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
+    @Deprecated
     public Boolean isOrganizationAdmin() {
         return organizationAdmin;
     }
 
+    @Deprecated
     public void setOrganizationAdmin(Boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
     }

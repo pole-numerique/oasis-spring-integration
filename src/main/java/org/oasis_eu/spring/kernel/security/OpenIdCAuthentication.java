@@ -24,9 +24,11 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
     private boolean agent = false;
     private String organizationOasisId;
     private boolean organizationAdmin;
+    private boolean appUser;
+    private boolean appAdmin;
     private UserInfo userInfo;
 
-    public OpenIdCAuthentication(String subject, String accessToken, String idToken, Instant iat, Instant exp) {
+    public OpenIdCAuthentication(String subject, String accessToken, String idToken, Instant iat, Instant exp, boolean appUser, boolean appAdmin) {
         super(authorities);
 
         this.subject = subject;
@@ -34,7 +36,8 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
         this.idToken = idToken;
         this.accessTokenIssuedAt = iat;
         this.accessTokenExpires = exp;
-
+        this.appUser = appUser;
+        this.appAdmin = appAdmin;
     }
 
     @Override
@@ -67,28 +70,42 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
         return accessTokenExpires;
     }
 
+    @Deprecated
     public boolean isAgent() {
         return agent;
     }
 
+    @Deprecated
     public void setAgent(boolean agent) {
         this.agent = agent;
     }
 
+    @Deprecated
     public String getOrganizationOasisId() {
         return organizationOasisId;
     }
 
+    @Deprecated
     public void setOrganizationOasisId(String organizationOasisId) {
         this.organizationOasisId = organizationOasisId;
     }
 
+    @Deprecated
     public boolean isOrganizationAdmin() {
         return organizationAdmin;
     }
 
+    @Deprecated
     public void setOrganizationAdmin(boolean organizationAdmin) {
         this.organizationAdmin = organizationAdmin;
+    }
+
+    public boolean isAppUser() {
+        return appUser;
+    }
+
+    public boolean isAppAdmin() {
+        return appAdmin;
     }
 
     public UserInfo getUserInfo() {
@@ -107,6 +124,8 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
                 "  subject='" + subject + "\'\n" +
                 "  accessTokenIssuedAt=" + accessTokenIssuedAt + "\n" +
                 "  accessTokenExpires=" + accessTokenExpires + "\n" +
+                "  appUser=" + appUser + "\n" +
+                "  appAdmin=" + appAdmin + "\n" +
                 '}';
     }
 }

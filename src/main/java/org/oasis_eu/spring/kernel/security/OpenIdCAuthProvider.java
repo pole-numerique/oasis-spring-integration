@@ -28,6 +28,7 @@ public class OpenIdCAuthProvider implements AuthenticationProvider {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         if (authentication == null || !supports(authentication.getClass())) {
