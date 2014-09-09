@@ -38,6 +38,7 @@ public class InstanceCreationCallback {
      * @return the service identifiers that have been created
      * @throws org.oasis_eu.spring.kernel.service.InstanceCreationException if for some reason the services could not be created
      */
+    @SuppressWarnings("unchecked")
     public Map<String, String> acquitInstanceCreated(String endpoint, InstanceCreated instanceCreated, String clientId, String clientSecret) {
 
         logger.info("Acquitting creation of instance with client id: {}\nFull instance is: {}", clientId, instanceCreated);
