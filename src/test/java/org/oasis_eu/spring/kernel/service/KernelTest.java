@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,8 +22,7 @@ import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.junit.Assert.*;
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.none;
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.anything;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 
@@ -67,6 +67,25 @@ public class KernelTest {
         kernel.exchange("http://whatever", HttpMethod.GET, null, ScopeNeeded.class, none());
 
         mock.verify();
+    }
+
+    @Test
+    public void testWithExisting() throws Exception {
+        String response = "{\"scope_id\":\"test\", \"motivation\":\"some reason\"}";
+
+        MockRestServiceServer mock = MockRestServiceServer.createServer(kernelRestTemplate);
+        mock.expect(anything())
+                .andExpect(header("Authorization", "Bearer accesstoken"))
+                .andExpect(jsonPath("$.scope_id").value("tagada"))
+                .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
+
+        ScopeNeeded scope = new ScopeNeeded();
+        scope.setScopeId("tagada");
+
+        kernel.exchange("http://whatever", HttpMethod.GET, new HttpEntity<ScopeNeeded>(scope), ScopeNeeded.class, user("accesstoken"));
+
+        mock.verify();
+
     }
 
 }
