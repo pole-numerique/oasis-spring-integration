@@ -1,19 +1,17 @@
 package org.oasis_eu.spring.kernel.service;
 
-import org.apache.commons.codec.binary.Base64;
 import org.oasis_eu.spring.kernel.model.instance.InstanceCreated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
 
 /**
  * Used to notify the Kernel that an instance has been created
@@ -27,7 +25,7 @@ public class InstanceCreationCallback {
     private static final Logger logger = LoggerFactory.getLogger(InstanceCreationCallback.class);
 
     @Autowired
-    private RestTemplate kernelRestTemplate;
+    private Kernel kernel;
 
 
     /**
@@ -44,12 +42,7 @@ public class InstanceCreationCallback {
 
         logger.info("Acquitting creation of instance with client id: {}\nFull instance is: {}", clientId, instanceCreated);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "BASIC " + new String(Base64.encodeBase64((clientId + ":" + clientSecret).getBytes())));
-
-        HttpEntity<InstanceCreated> requestEntity = new HttpEntity<>(instanceCreated, headers);
-
-        ResponseEntity<Map> result = kernelRestTemplate.exchange(endpoint, HttpMethod.POST, requestEntity, Map.class);
+        ResponseEntity<Map> result = kernel.exchange(endpoint, HttpMethod.POST, new HttpEntity<>(instanceCreated), Map.class, client(clientId, clientSecret));
 
         if (result.getStatusCode().is2xxSuccessful()) {
             return result.getBody();
@@ -62,10 +55,6 @@ public class InstanceCreationCallback {
     public void fail(String endpoint, String clientId, String clientSecret) {
         logger.info("Failing instance creation {}", endpoint);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "BASIC " + new String(Base64.encodeBase64((clientId + ":" + clientSecret).getBytes())));
-
-        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-        kernelRestTemplate.exchange(endpoint, HttpMethod.DELETE, requestEntity, Void.class);
+        kernel.exchange(endpoint, HttpMethod.DELETE, null, Void.class, client(clientId, clientSecret));
     }
 }

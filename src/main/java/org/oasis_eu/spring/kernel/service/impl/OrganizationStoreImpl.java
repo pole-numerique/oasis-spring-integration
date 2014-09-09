@@ -1,6 +1,7 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
 import com.nimbusds.jose.util.Base64;
+import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
 import org.oasis_eu.spring.kernel.model.Organization;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+
 /**
  * User: schambon
  * Date: 6/25/14
@@ -21,7 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class OrganizationStoreImpl implements OrganizationStore {
 
     @Autowired
-    private RestTemplate kernelRestTemplate;
+    private Kernel kernel;
 
     @Autowired
     private OpenIdCConfiguration configuration;
@@ -38,9 +41,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
                 .encode()
                 .toUriString();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
-        return kernelRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), Organization.class).getBody();
+        return kernel.exchange(uri, HttpMethod.GET, null, Organization.class, user()).getBody();
 
     }
 }
