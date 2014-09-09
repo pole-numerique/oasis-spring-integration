@@ -49,13 +49,13 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 
 
-    @Value("${application.error.401:''}")
+    @Value("${application.error.401:}")
     private String unauthorizedPageUrl;
 
     @Value("${application.security.check_if_external_referrer:false}")
     private boolean checkIfExternalReferrer;
 
-    @Value("${application.url:''}")
+    @Value("${application.url:}")
     private String applicationUrl;
 
     @Override

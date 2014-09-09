@@ -9,29 +9,29 @@ import org.springframework.beans.factory.annotation.Value;
 public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
     // inject configuration
-    @Value("${kernel.auth.issuer:''}")
+    @Value("${kernel.auth.issuer:}")
     protected String issuer;
-    @Value("${kernel.auth.auth_endpoint:''}")
+    @Value("${kernel.auth.auth_endpoint:}")
     protected String authEndpoint;
-    @Value("${kernel.auth.token_endpoint:''}")
+    @Value("${kernel.auth.token_endpoint:}")
     protected String tokenEndpoint;
-    @Value("${kernel.auth.keys_endpoint:''}")
+    @Value("${kernel.auth.keys_endpoint:}")
     protected String keysEndpoint;
-    @Value("${kernel.auth.revoke_endpoint:''}")
+    @Value("${kernel.auth.revoke_endpoint:}")
     protected String revocationEndpoint;
-    @Value("${kernel.auth.userinfo_endpoint:''}")
+    @Value("${kernel.auth.userinfo_endpoint:}")
     protected String userInfoEndpoint;
-    @Value("${kernel.auth.profile_endpoint:''}")
+    @Value("${kernel.auth.profile_endpoint:}")
     protected String profileEndpoint;
-    @Value("${kernel.auth.callback_uri:''}")
+    @Value("${kernel.auth.callback_uri:}")
     protected String callbackUri;
-    @Value("${kernel.application_id:''}")
+    @Value("${kernel.application_id:}")
     protected String applicationId;
-    @Value("${kernel.client_id:''}")
+    @Value("${kernel.client_id:}")
     protected String clientId;
-    @Value("${kernel.client_secret:''}")
+    @Value("${kernel.client_secret:}")
     protected String clientSecret;
-    @Value("${kernel.scopes_to_require:''}")
+    @Value("${kernel.scopes_to_require:}")
     protected String scopesToRequire;
 
 
