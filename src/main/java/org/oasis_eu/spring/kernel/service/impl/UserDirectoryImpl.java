@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -41,9 +42,8 @@ public class UserDirectoryImpl implements UserDirectory {
 
 
     @Override
+    @Cacheable("user-memberships")
     public List<UserMembership> getMembershipsOfUser(String userId) {
-
-
 
         String uriString = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
                 .path("/memberships/user/{user_id}")
@@ -75,6 +75,7 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
+    @Cacheable("org-memberships")
     public List<OrgMembership> getMembershipsOfOrganization(String organizationId) {
 
         ResponseEntity<OrgMembership[]> response = kernel.exchange(userDirectoryEndpoint + "/memberships/org/{organization_id}", HttpMethod.GET, null, OrgMembership[].class, user(), organizationId);
