@@ -22,6 +22,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
     private static final Logger logger = LoggerFactory.getLogger(KernelLoggingInterceptor.class);
 
     private static final Logger fullErrorLogger = LoggerFactory.getLogger("kernelLogging.logFullErrorResponses");
+    private static final Logger performanceLogger = LoggerFactory.getLogger("kernelLogging.logRequestTimings");
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
@@ -35,8 +36,16 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
             logger.debug("Request body: {}", new String(body));
         }
 
+        long before = System.currentTimeMillis();
 
         ClientHttpResponse response = execution.execute(request, body);
+
+        long after = System.currentTimeMillis();
+
+        if (performanceLogger.isDebugEnabled()) {
+            long diff = after - before;
+            performanceLogger.debug("Request to {} took {} ms", request.getURI(), diff);
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Response: {} {}", response.getStatusCode().value(), response.getStatusCode().getReasonPhrase());
