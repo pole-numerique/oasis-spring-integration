@@ -36,7 +36,7 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("gender")
     private String gender; // "male" or "female"
     @JsonProperty("phone_number")
-    @NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
+    //@NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;
