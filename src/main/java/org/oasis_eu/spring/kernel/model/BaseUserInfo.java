@@ -36,7 +36,7 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("gender")
     private String gender; // "male" or "female"
     @JsonProperty("phone_number")
-    @NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
+    //@NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;
@@ -160,5 +160,19 @@ public abstract class BaseUserInfo implements Serializable {
     public void setPictureUrl(String pictureUrl) {
 		this.pictureUrl = pictureUrl;
 	}
+    
+    /*
+     * computes ${modelObject.__${widget.id}__} before applying if rendering condition,
+     * then would fail with password field not found.
+     * <div class="col-sm-10" data-th-if="${'text'.equals(widget.type)}"
+                data-th-include="includes/my-profile-fragments :: text-widget (${widget.id}, ${modelObject.__${widget.id}__}, ${layout.mode})">?</div>
+     * http://www.captaindebug.com/2012/01/autowiring-using-value-and-optional.html#.VBG9QtbAOR8
+     * http://stackoverflow.com/questions/20431344/is-it-possible-to-make-spring-ignore-a-bean-property-that-is-not-writable-or-has
+     * http://stackoverflow.com/questions/11773122/how-to-define-not-mandatory-property-in-spring
+     */
+    public String getPassword() {
+    	
+    	return null;
+    }
     
 }
