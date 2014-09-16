@@ -1,5 +1,6 @@
 package org.oasis_eu.spring.kernel.service;
 
+import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
 
@@ -13,4 +14,8 @@ public interface UserDirectory {
 
     List<OrgMembership> getMembershipsOfOrganization(String organizationId);
 
+
+    void saveUserAccount(UserAccount userAccount);
+
+    UserAccount findUserAccount(String id);
 }

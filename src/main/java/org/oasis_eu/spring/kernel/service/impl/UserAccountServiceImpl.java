@@ -5,7 +5,7 @@ import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.security.OpenIdCService;
 import org.oasis_eu.spring.kernel.service.UserAccountService;
-import org.oasis_eu.spring.kernel.service.UserInfoService;
+import org.oasis_eu.spring.kernel.service.UserDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 	private static final Logger logger = LoggerFactory.getLogger(UserAccountServiceImpl.class);
 
     @Autowired
+    private UserDirectory userDirectory;
+
+    @Autowired
     private OpenIdCService openIdCService;
     
     /* (non-Javadoc)
@@ -31,12 +34,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 	 */
     @Override
 	public void saveUserAccount(UserAccount userAccount) {
-    	OpenIdCAuthentication authentication = getOpenIdCAuthentication();
-        if (authentication != null) {
-            openIdCService.saveUserAccount(authentication.getAccessToken(), userAccount);
-            refreshCurrentUser();
-        }
-    	
+        userDirectory.saveUserAccount(userAccount);
+        refreshCurrentUser();
     }
     
     private void refreshCurrentUser() {

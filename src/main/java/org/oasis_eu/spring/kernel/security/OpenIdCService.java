@@ -217,27 +217,7 @@ public class OpenIdCService {
         return body;
     }
 
-    public void saveUserAccount(String accessToken, UserAccount userAccount) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-Type", "application/json");
-    	
-    	String url = UriComponentsBuilder.fromUriString(configuration.getProfileEndpoint()+"/"+userAccount.getUserId())
-    			.build().encode().toUriString();
-    	
-    	ResponseEntity<UserAccount> response = restTemplate.exchange(url,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                UserAccount.class);
-        
-        headers.set("If-Match", response.getHeaders().getETag());
-        
-        ResponseEntity<UserAccount> updateResponse = restTemplate.exchange(url,
-                HttpMethod.PUT,
-                new HttpEntity<>(userAccount, headers),
-                UserAccount.class);
-        
-    }
+
 
 
     public String getStateString(StateType type) {

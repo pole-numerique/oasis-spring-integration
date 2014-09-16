@@ -2,9 +2,9 @@ package org.oasis_eu.spring.kernel.service.impl;
 
 import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.oasis_eu.spring.kernel.exception.WrongQueryException;
+import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
-import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.UserDirectory;
 import org.slf4j.Logger;
@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -25,17 +27,10 @@ import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 @Repository
 public class UserDirectoryImpl implements UserDirectory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserDirectoryImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserDirectoryImpl.class);
 
     @Value("${kernel.user_directory_endpoint}")
     private String userDirectoryEndpoint;
-
-    private static final String AGENTS_PATH = "/org/{organizationId}/agents";
-    private static final String AGENT_PATH = "/agent/{agentId}";
-    private static final String GROUPS_PATH = "/org/{organizationId}/groups";
-    private static final String GROUP_PATH = "/group/{groupId}";
-    private static final String GROUP_MEMBERS_PATH = "/group/{groupId}/members";
-    private static final String GROUP_MEMBER_REMOVE_PATH = "/group/{groupId}/members/{agentId}";
 
     @Autowired
     private Kernel kernel;
@@ -58,11 +53,11 @@ public class UserDirectoryImpl implements UserDirectory {
             for (UserMembership m : response.getBody()) {
                 orgs += String.format("%s (%s)\n", m.getOrganizationName(), m.getOrganizationId());
             }
-            LOGGER.debug("Found memberships in the following organizations:\n{}", orgs);
+            logger.debug("Found memberships in the following organizations:\n{}", orgs);
 
             return Arrays.asList(response.getBody());
         } else {
-            LOGGER.error("Cannot load user membership information: {}", response.getStatusCode());
+            logger.error("Cannot load user membership information: {}", response.getStatusCode());
 
             if (response.getStatusCode().is4xxClientError()) {
                 throw new WrongQueryException();
@@ -82,7 +77,7 @@ public class UserDirectoryImpl implements UserDirectory {
         if (response.getStatusCode().is2xxSuccessful()) {
             return Arrays.asList(response.getBody());
         } else {
-            LOGGER.error("Cannot load organization memberships: {}", response.getStatusCode());
+            logger.error("Cannot load organization memberships: {}", response.getStatusCode());
             if (response.getStatusCode().is4xxClientError()) {
                 throw new WrongQueryException();
             } else {
@@ -92,4 +87,29 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
 
+    @Override
+    public void saveUserAccount(UserAccount userAccount) {
+
+        ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), userAccount.getUserId());
+        String etag = entity.getHeaders().getETag();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", etag);
+
+        kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.POST, new HttpEntity<Object>(userAccount, headers), UserAccount.class, user(), userAccount.getUserId());
+
+    }
+
+    @Override
+    public UserAccount findUserAccount(String id) {
+
+        ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), id);
+        if (entity.getStatusCode().is2xxSuccessful()) {
+
+            return entity.getBody();
+        } else {
+            logger.error("Cannot load user account {}, status is: {}", id, entity.getStatusCode());
+            throw new WrongQueryException();
+        }
+    }
 }
