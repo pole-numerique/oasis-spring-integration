@@ -56,7 +56,7 @@ public class ServiceCreated {
     private List<String> postLogoutRedirectUris;
 
     @JsonProperty("target_audience")
-    private Audience targetAudience;
+    private List<Audience> targetAudience;
 
     @JsonProperty("territory_id")
     private String territoryId;
@@ -173,11 +173,11 @@ public class ServiceCreated {
         this.paymentOption = paymentOption;
     }
 
-    public Audience getTargetAudience() {
+    public List<Audience> getTargetAudience() {
         return targetAudience;
     }
 
-    public void setTargetAudience(Audience targetAudience) {
+    public void setTargetAudience(List<Audience> targetAudience) {
         this.targetAudience = targetAudience;
     }
 
