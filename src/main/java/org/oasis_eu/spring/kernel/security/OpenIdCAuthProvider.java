@@ -38,23 +38,12 @@ public class OpenIdCAuthProvider implements AuthenticationProvider {
         if (isFetchUserInfo()) {
             OpenIdCAuthentication auth = (OpenIdCAuthentication) authentication;
 
-
             String accessToken = auth.getAccessToken();
 
-            UserInfo ui = openIdCService.getUserInfo(accessToken);
-
-            if (ui.getOrganizationId() != null) {
-                auth.setAgent(true);
-                auth.setOrganizationOasisId(ui.getOrganizationId());
-                auth.setOrganizationAdmin(ui.isOrganizationAdmin());
-            }
-
-            auth.setUserInfo(ui);
+            auth.setUserInfo(openIdCService.getUserInfo(accessToken));
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Fetched user info: " + auth.getSubject()
-                        + " isAgent: " + auth.isAgent()
-                        + " of organization: " + auth.getOrganizationOasisId());
+                LOGGER.debug("Fetched user info: {}", auth.getSubject());
             }
         } else {
             LOGGER.debug("User info fetching disabled in configuration");

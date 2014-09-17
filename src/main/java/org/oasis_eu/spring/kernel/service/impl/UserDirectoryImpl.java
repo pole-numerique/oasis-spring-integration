@@ -67,10 +67,28 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    @Cacheable("org-memberships")
     public List<OrgMembership> getMembershipsOfOrganization(String organizationId) {
 
-        ResponseEntity<OrgMembership[]> response = kernel.exchange(userDirectoryEndpoint + "/memberships/org/{organization_id}", HttpMethod.GET, null, OrgMembership[].class, user(), organizationId);
+        return getMembershipsOfOrganization(organizationId, -1, -1);
+    }
+
+    @Override
+    @Cacheable("org-memberships")
+    public List<OrgMembership> getMembershipsOfOrganization(String organizationId, int start, int limit) {
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
+                .path("/memberships/org/{organization_id}");
+
+        if (start != -1) {
+            builder = builder.queryParam("start", start);
+        }
+        if (limit != -1) {
+            builder = builder.queryParam("limit", limit);
+        }
+
+        String uri = builder.buildAndExpand(organizationId).toUriString();
+
+        ResponseEntity<OrgMembership[]> response = kernel.exchange(uri, HttpMethod.GET, null, OrgMembership[].class, user());
         if (response.getStatusCode().is2xxSuccessful()) {
             return Arrays.asList(response.getBody());
         } else {
@@ -82,7 +100,6 @@ public class UserDirectoryImpl implements UserDirectory {
             }
         }
     }
-
 
     @Override
     public void saveUserAccount(UserAccount userAccount) {
@@ -99,6 +116,7 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
+    @Cacheable("accounts")
     public UserAccount findUserAccount(String id) {
 
         ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), id);
