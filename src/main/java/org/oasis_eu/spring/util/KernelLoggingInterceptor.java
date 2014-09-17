@@ -44,7 +44,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
 
         if (performanceLogger.isDebugEnabled()) {
             long diff = after - before;
-            performanceLogger.debug("Request to {} took {} ms", request.getURI(), diff);
+            performanceLogger.debug("{} Request to {} took {} ms", request.getMethod(), request.getURI(), diff);
         }
 
         if (logger.isDebugEnabled()) {
