@@ -13,6 +13,7 @@ public interface UserDirectory {
     List<UserMembership> getMembershipsOfUser(String userId);
 
     List<OrgMembership> getMembershipsOfOrganization(String organizationId);
+    List<OrgMembership> getMembershipsOfOrganization(String organizationId, int start, int limit);
 
 
     void saveUserAccount(UserAccount userAccount);

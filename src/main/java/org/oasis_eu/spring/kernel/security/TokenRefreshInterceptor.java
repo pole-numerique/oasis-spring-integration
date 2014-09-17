@@ -41,7 +41,7 @@ public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
 
 
             if (openAuth.getAccessTokenExpires().isBefore(Instant.now().plusSeconds(tokenExpiryThreshold))) {
-                logger.info("Token about to expire, at " + ((OpenIdCAuthentication) auth).getAccessTokenExpires());
+                logger.info("Token about to expire, at {} while now+threshold is {}", openAuth.getAccessTokenExpires(), Instant.now().plusSeconds(tokenExpiryThreshold));
 
                 return true;
             }

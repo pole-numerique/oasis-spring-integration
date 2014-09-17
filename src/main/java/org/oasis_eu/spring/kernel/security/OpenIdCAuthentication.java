@@ -21,9 +21,6 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
     private String subject;
     private Instant accessTokenIssuedAt;
     private Instant accessTokenExpires;
-    private boolean agent = false;
-    private String organizationOasisId;
-    private boolean organizationAdmin;
     private boolean appUser;
     private boolean appAdmin;
     private UserInfo userInfo;
@@ -68,36 +65,6 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
 
     public Instant getAccessTokenExpires() {
         return accessTokenExpires;
-    }
-
-    @Deprecated
-    public boolean isAgent() {
-        return agent;
-    }
-
-    @Deprecated
-    public void setAgent(boolean agent) {
-        this.agent = agent;
-    }
-
-    @Deprecated
-    public String getOrganizationOasisId() {
-        return organizationOasisId;
-    }
-
-    @Deprecated
-    public void setOrganizationOasisId(String organizationOasisId) {
-        this.organizationOasisId = organizationOasisId;
-    }
-
-    @Deprecated
-    public boolean isOrganizationAdmin() {
-        return organizationAdmin;
-    }
-
-    @Deprecated
-    public void setOrganizationAdmin(boolean organizationAdmin) {
-        this.organizationAdmin = organizationAdmin;
     }
 
     public boolean isAppUser() {
