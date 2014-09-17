@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class BaseUserInfo implements Serializable {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @JsonProperty("name")
     private String name; // full name
@@ -174,5 +177,9 @@ public abstract class BaseUserInfo implements Serializable {
     	
     	return null;
     }
-    
+
+    @JsonAnySetter
+    public void anySetter(String key, String value) {
+        logger.debug("Discarding unknow key {} with value {}", key, value);
+    }
 }
