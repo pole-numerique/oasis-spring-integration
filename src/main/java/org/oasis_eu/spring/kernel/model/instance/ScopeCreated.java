@@ -25,8 +25,8 @@ public class ScopeCreated {
     @JsonProperty("description")
     private String defaultDescription;
 
-    private Map<String, String> localizedNames;
-    private Map<String, String> localizedDescriptions;
+    private Map<String, String> localizedNames = new HashMap<>();
+    private Map<String, String> localizedDescriptions = new HashMap<>();
 
 
     public String getScopeId() {
