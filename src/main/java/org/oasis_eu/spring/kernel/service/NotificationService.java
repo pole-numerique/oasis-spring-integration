@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
@@ -38,7 +39,9 @@ public class NotificationService {
     }
 
     public List<InboundNotification> getNotifications(String userId) {
-        return Arrays.asList(kernel.getForObject(endpoint + "/{user_id}/messages", InboundNotification[].class, user(), userId));
+        InboundNotification[] notifs = kernel.getForObject(endpoint + "/{user_id}/messages", InboundNotification[].class, user(), userId);
+
+        return notifs == null ? Collections.emptyList() : Arrays.asList(notifs);
     }
 
     public List<InboundNotification> getAppNotifications(String userId, String appId) {

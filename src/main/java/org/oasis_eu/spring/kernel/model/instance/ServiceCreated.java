@@ -1,9 +1,6 @@
 package org.oasis_eu.spring.kernel.model.instance;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.*;
 
@@ -11,6 +8,7 @@ import java.util.*;
  * User: schambon
  * Date: 7/1/14
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceCreated {
 
     @JsonProperty("id")
@@ -64,6 +62,19 @@ public class ServiceCreated {
     @JsonProperty("provider_id")
     private String providerId;
 
+    @JsonProperty("tos_uri")
+    private String defaultTosUri;
+
+    private Map<String, String> localizedTosUris = new HashMap<>();
+
+    @JsonProperty("screenshot_uris")
+    private List<String> screenshotUris = new ArrayList<>();
+
+    @JsonProperty("contacts")
+    private List<String> contacts = new ArrayList<>();
+
+    @JsonProperty("subscription_uri")
+    private String subscriptionUri;
 
 
     public String getIdentifier() {
@@ -118,6 +129,8 @@ public class ServiceCreated {
             localizedDescriptions.put(key.substring("description#".length()), value);
         } else if (key.startsWith("icon#")) {
             localizedIcons.put(key.substring("icon#".length()), value);
+        } else if (key.startsWith("tos_uri#")) {
+            localizedTosUris.put(key.substring("tos_uri#".length()), value);
         }
 
     }
@@ -129,6 +142,7 @@ public class ServiceCreated {
         localizedNames.entrySet().forEach(e -> result.put("name#" + e.getKey(), e.getValue()));
         localizedDescriptions.entrySet().forEach(e -> result.put("description#" + e.getKey(), e.getValue()));
         localizedIcons.entrySet().forEach(e -> result.put("icon#" + e.getKey(), e.getValue()));
+        localizedTosUris.entrySet().forEach(e -> result.put("tos_uri#" + e.getKey(), e.getValue()));
 
         return result;
     }
@@ -251,6 +265,38 @@ public class ServiceCreated {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getDefaultTosUri() {
+        return defaultTosUri;
+    }
+
+    public void setDefaultTosUri(String defaultTosUri) {
+        this.defaultTosUri = defaultTosUri;
+    }
+
+    public List<String> getScreenshotUris() {
+        return screenshotUris;
+    }
+
+    public void setScreenshotUris(List<String> screenshotUris) {
+        this.screenshotUris = screenshotUris;
+    }
+
+    public List<String> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<String> contacts) {
+        this.contacts = contacts;
+    }
+
+    public String getSubscriptionUri() {
+        return subscriptionUri;
+    }
+
+    public void setSubscriptionUri(String subscriptionUri) {
+        this.subscriptionUri = subscriptionUri;
     }
 
     @Override
