@@ -67,11 +67,11 @@ public class ServiceCreated {
 
     private Map<String, String> localizedTosUris = new HashMap<>();
 
-    @JsonProperty("screenshot_uris")
-    private List<String> screenshotUris = new ArrayList<>();
+//    @JsonProperty("screenshot_uris")
+//    private List<String> screenshotUris = new ArrayList<>();
 
-    @JsonProperty("contacts")
-    private List<String> contacts = new ArrayList<>();
+//    @JsonProperty("contacts")
+//    private List<String> contacts = new ArrayList<>();
 
     @JsonProperty("subscription_uri")
     private String subscriptionUri;
@@ -275,21 +275,21 @@ public class ServiceCreated {
         this.defaultTosUri = defaultTosUri;
     }
 
-    public List<String> getScreenshotUris() {
-        return screenshotUris;
-    }
+//    public List<String> getScreenshotUris() {
+//        return screenshotUris;
+//    }
+//
+//    public void setScreenshotUris(List<String> screenshotUris) {
+//        this.screenshotUris = screenshotUris;
+//    }
 
-    public void setScreenshotUris(List<String> screenshotUris) {
-        this.screenshotUris = screenshotUris;
-    }
-
-    public List<String> getContacts() {
-        return contacts;
-    }
-
-    public void setContacts(List<String> contacts) {
-        this.contacts = contacts;
-    }
+//    public List<String> getContacts() {
+//        return contacts;
+//    }
+//
+//    public void setContacts(List<String> contacts) {
+//        this.contacts = contacts;
+//    }
 
     public String getSubscriptionUri() {
         return subscriptionUri;
