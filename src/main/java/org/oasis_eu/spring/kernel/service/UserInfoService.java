@@ -1,6 +1,5 @@
 package org.oasis_eu.spring.kernel.service;
 
-import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 
 /**
@@ -9,6 +8,8 @@ import org.oasis_eu.spring.kernel.model.UserInfo;
  */
 public interface UserInfoService {
 
-	public abstract UserInfo currentUser();
+	UserInfo currentUser();
+    boolean isAuthenticated();
+
 	
 }
