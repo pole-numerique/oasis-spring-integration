@@ -62,20 +62,12 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
         auth.authenticationProvider(oasisAuthProvider());
-
     }
 
     @Bean
     public OasisExceptionTranslationFilter oasisExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
         return new OasisExceptionTranslationFilter(authenticationEntryPoint);
     }
-
-//    @Bean
-//    public OasisExceptionTranslationConfigurer oasisExceptionTranslationConfigurer() {
-//        return new OasisExceptionTranslationConfigurer();
-//    }
-
 
 }
