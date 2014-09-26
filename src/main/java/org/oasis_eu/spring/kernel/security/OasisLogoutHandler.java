@@ -43,6 +43,8 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
+        request.getSession().invalidate();
+
         // Okay, at this stage we have logged out from CK, we want to log out from OASIS too (otherwise it doesn't make sense to log out from CK)
         if (authentication instanceof OpenIdCAuthentication) {
             OpenIdCAuthentication token = (OpenIdCAuthentication) authentication;
@@ -53,7 +55,7 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
 
-            ResponseEntity < String > entity = restTemplate.exchange(configuration.getRevocationEndpoint(), HttpMethod.POST, new HttpEntity<>(revocationRequest, headers), String.class);
+            ResponseEntity<String> entity = restTemplate.exchange(configuration.getRevocationEndpoint(), HttpMethod.POST, new HttpEntity<>(revocationRequest, headers), String.class);
 
             if (entity.getStatusCode().value() != 200) { // RFC 7009 says the response should be 200 unless we provided an unknown token type
                 LOGGER.error("Cannot handle revocation response with code: " + entity.getStatusCode());

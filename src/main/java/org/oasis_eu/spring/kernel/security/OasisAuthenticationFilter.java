@@ -195,12 +195,16 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         }
 
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(authResult));
-
+        request.changeSessionId();
 
         successHandler.onAuthenticationSuccess(request, response, authResult);
     }
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
+    }
+
+    public void setSuccessHandler(AuthenticationSuccessHandler successHandler) {
+        this.successHandler = successHandler;
     }
 }
