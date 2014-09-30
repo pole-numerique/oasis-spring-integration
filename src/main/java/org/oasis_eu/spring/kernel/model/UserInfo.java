@@ -23,10 +23,7 @@ public class UserInfo extends BaseUserInfo implements Serializable {
     @JsonProperty("sub")
     private String userId;
 
-	@JsonProperty("organization_id")
-    private String organizationId;
-    @JsonProperty("organization_admin")
-    private Boolean organizationAdmin;
+
     @JsonProperty("email")
     private String email;
     @JsonProperty("email_verified")
@@ -39,26 +36,7 @@ public class UserInfo extends BaseUserInfo implements Serializable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    
-    @Deprecated
-    public String getOrganizationId() {
-        return organizationId;
-    }
 
-    @Deprecated
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
-
-    @Deprecated
-    public Boolean isOrganizationAdmin() {
-        return organizationAdmin;
-    }
-
-    @Deprecated
-    public void setOrganizationAdmin(Boolean organizationAdmin) {
-        this.organizationAdmin = organizationAdmin;
-    }
     
     public String getEmail() {
         return email;
