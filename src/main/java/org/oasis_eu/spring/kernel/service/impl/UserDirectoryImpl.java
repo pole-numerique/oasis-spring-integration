@@ -161,4 +161,24 @@ public class UserDirectoryImpl implements UserDirectory {
 
         kernel.exchange(orgMembership.getMembershipUri(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class, user());
     }
+
+    @Override
+    public void createMembership(String email, String organizationId) {
+        class MembershipRequest {
+            @JsonProperty String email;
+            @JsonProperty boolean admin = false;
+        }
+
+        String uriString = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
+                .path("/memberships/org/{organization_id}")
+                .build()
+                .expand(organizationId)
+                .toUriString();
+
+
+        MembershipRequest request = new MembershipRequest();
+        request.email = email;
+
+        kernel.exchange(uriString, HttpMethod.POST, new HttpEntity<Object>(request), Void.class, user());
+    }
 }

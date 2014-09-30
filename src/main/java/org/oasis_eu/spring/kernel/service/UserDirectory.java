@@ -24,4 +24,6 @@ public interface UserDirectory {
     UserAccount findUserAccount(String id);
 
     void removeMembership(OrgMembership orgMembership);
+
+    void createMembership(String email, String organizationId);
 }
