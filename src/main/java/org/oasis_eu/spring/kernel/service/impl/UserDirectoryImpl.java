@@ -1,5 +1,6 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.oasis_eu.spring.kernel.exception.WrongQueryException;
 import org.oasis_eu.spring.kernel.model.UserAccount;
@@ -127,5 +128,29 @@ public class UserDirectoryImpl implements UserDirectory {
             logger.error("Cannot load user account {}, status is: {}", id, entity.getStatusCode());
             throw new WrongQueryException();
         }
+    }
+
+    private void updateMembership(String membershipUri, String membershipEtag, boolean admin) {
+        class MembershipRequest {
+            @JsonProperty boolean admin;
+        }
+
+        MembershipRequest r = new MembershipRequest();
+        r.admin = admin;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", membershipEtag);
+        HttpEntity<MembershipRequest> request = new HttpEntity<>(r, headers);
+        kernel.exchange(membershipUri, HttpMethod.PUT, request, Void.class, user());
+    }
+
+    @Override
+    public void updateMembership(UserMembership um, boolean admin) {
+        updateMembership(um.getMembershipUri(), um.getMembershipEtag(), admin);
+    }
+
+    @Override
+    public void updateMembership(OrgMembership om, boolean admin) {
+        updateMembership(om.getMembershipUri(), om.getMembershipEtag(), admin);
     }
 }
