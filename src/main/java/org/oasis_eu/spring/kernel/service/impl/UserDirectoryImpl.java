@@ -153,4 +153,12 @@ public class UserDirectoryImpl implements UserDirectory {
     public void updateMembership(OrgMembership om, boolean admin) {
         updateMembership(om.getMembershipUri(), om.getMembershipEtag(), admin);
     }
+
+    @Override
+    public void removeMembership(OrgMembership orgMembership) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", orgMembership.getMembershipEtag());
+
+        kernel.exchange(orgMembership.getMembershipUri(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class, user());
+    }
 }

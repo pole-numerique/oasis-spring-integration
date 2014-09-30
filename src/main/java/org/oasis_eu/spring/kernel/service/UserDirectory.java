@@ -22,4 +22,6 @@ public interface UserDirectory {
     void saveUserAccount(UserAccount userAccount);
 
     UserAccount findUserAccount(String id);
+
+    void removeMembership(OrgMembership orgMembership);
 }
