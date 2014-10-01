@@ -1,6 +1,9 @@
 package org.oasis_eu.spring.kernel.service;
 
+import org.oasis_eu.spring.kernel.exception.AuthenticationRequiredException;
 import org.oasis_eu.spring.kernel.model.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +21,8 @@ import java.util.Map;
  */
 @Service
 public class Kernel {
+
+    private static final Logger logger = LoggerFactory.getLogger(Kernel.class);
 
     @Autowired
     private RestTemplate kernelRestTemplate;
@@ -45,7 +50,12 @@ public class Kernel {
             }
         }
 
-        return kernelRestTemplate.exchange(endpoint, method, request, responseClass, pathVariables);
+        ResponseEntity<RES> entity = kernelRestTemplate.exchange(endpoint, method, request, responseClass, pathVariables);
+        if (entity.getStatusCode().value() == 401) {
+            logger.error("Cannot call kernel endpoint {}, invalid token", endpoint);
+            throw new AuthenticationRequiredException();
+        }
+        return entity;
     }
 
     public <T> T getForObject(String endpoint, Class<T> responseClass, Authentication auth, Object... uriParameters) {
