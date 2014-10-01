@@ -24,4 +24,10 @@ public class AuthenticationBuilder {
     public static Authentication none() {
         return new PublicAuthentication();
     }
+
+    public static Authentication userIfExists() {
+        if (SecurityContextHolder.getContext().getAuthentication() instanceof OpenIdCAuthentication) {
+            return user();
+        } else return none();
+    }
 }
