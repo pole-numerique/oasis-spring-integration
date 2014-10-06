@@ -28,8 +28,8 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Autowired
     private Kernel kernel;
 
-//    @Value("${kernel.user_directory_endpoint}")
-    @Value("${kernel.base_uri}")
+    @Value("${kernel.user_directory_endpoint}")
+//    @Value("${kernel.base_uri}")
     private String endpoint;
 
 
@@ -47,7 +47,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
     }
 
     @Override
-    @CachePut(value = "organizations", key = "id")
+    @CachePut(value = "organizations", key = "#result.id")
     public Organization create(Organization organization) {
 
         String uri = UriComponentsBuilder.fromUriString(endpoint)
