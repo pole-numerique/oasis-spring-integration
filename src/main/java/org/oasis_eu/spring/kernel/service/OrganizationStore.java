@@ -11,4 +11,6 @@ public interface OrganizationStore {
     Organization find(String id);
 
     Organization create(Organization organization);
+
+    void delete(String organizationId);
 }
