@@ -1,16 +1,19 @@
 package org.oasis_eu.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.Instant;
 
 /**
  * User: schambon
  * Date: 6/25/14
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Organization {
 
     String id;
     String name;
     Instant modified;
+    OrganizationType type;
 
     public Instant getModified() {
         return modified;
@@ -34,5 +37,13 @@ public class Organization {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public OrganizationType getType() {
+        return type;
+    }
+
+    public void setType(OrganizationType type) {
+        this.type = type;
     }
 }

@@ -7,6 +7,7 @@ import org.oasis_eu.spring.kernel.model.Organization;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +28,8 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Autowired
     private Kernel kernel;
 
-    @Value("${kernel.user_directory_endpoint}")
+//    @Value("${kernel.user_directory_endpoint}")
+    @Value("${kernel.base_uri}")
     private String endpoint;
 
 
@@ -42,5 +44,17 @@ public class OrganizationStoreImpl implements OrganizationStore {
 
         return kernel.exchange(uri, HttpMethod.GET, null, Organization.class, user()).getBody();
 
+    }
+
+    @Override
+    @CachePut(value = "organizations", key = "id")
+    public Organization create(Organization organization) {
+
+        String uri = UriComponentsBuilder.fromUriString(endpoint)
+                .path("/org")
+                .build()
+                .toUriString();
+
+        return kernel.exchange(uri, HttpMethod.POST, new HttpEntity<>(organization), Organization.class, user()).getBody();
     }
 }
