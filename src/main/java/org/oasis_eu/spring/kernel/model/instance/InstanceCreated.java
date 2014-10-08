@@ -14,6 +14,12 @@ public class InstanceCreated {
     @JsonProperty("instance_id")
     private String instanceId;
 
+    @JsonProperty("destruction_uri")
+    private String destructionUri;
+
+    @JsonProperty("destruction_secret")
+    private String destructionSecret;
+
     @JsonProperty("services")
     private List<ServiceCreated> services = new ArrayList<>();
 
@@ -55,13 +61,21 @@ public class InstanceCreated {
         this.neededScopes = neededScopes;
     }
 
-    @Override
-    public String toString() {
-        return "InstanceCreated{" +
-                "instanceId='" + instanceId + '\'' +
-                ", services=" + services +
-                ", scopes=" + scopes +
-                ", neededScopes=" + neededScopes +
-                '}';
+    public String getDestructionUri() {
+        return destructionUri;
     }
+
+    public void setDestructionUri(String destructionUri) {
+        this.destructionUri = destructionUri;
+    }
+
+    public String getDestructionSecret() {
+        return destructionSecret;
+    }
+
+    public void setDestructionSecret(String destructionSecret) {
+        this.destructionSecret = destructionSecret;
+    }
+
+
 }

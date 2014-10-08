@@ -31,7 +31,6 @@ public class OrganizationStoreImpl implements OrganizationStore {
     private Kernel kernel;
 
     @Value("${kernel.user_directory_endpoint}")
-//    @Value("${kernel.base_uri}")
     private String endpoint;
 
 
