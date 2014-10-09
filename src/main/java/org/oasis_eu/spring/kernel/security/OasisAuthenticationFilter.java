@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * User: schambon
@@ -59,11 +60,17 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     @Value("${application.url:}")
     private String applicationUrl;
 
+    @Value("#{'${application.security.unauthenticatedPrefixes:}'.split(',')}")
+    private List<String> unauthenticatedPrefixes;
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
+        boolean unauthenticated = unauthenticatedPrefixes.stream().filter(p -> ! Strings.isNullOrEmpty(p))
+                .anyMatch(p -> req.getServletPath().startsWith(p));
 
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
@@ -73,7 +80,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
                 chain.doFilter(req, res);
             }
             return;
-        } else if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        } else if ((!unauthenticated) && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (doTransparent(req, res)) {
                 chain.doFilter(req, res);
             }
