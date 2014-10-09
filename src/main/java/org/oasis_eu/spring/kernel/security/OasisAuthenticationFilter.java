@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 /**
  * User: schambon
@@ -195,7 +196,13 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         }
 
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(authResult));
-        request.changeSessionId();
+
+        try {
+            request.getClass().getMethod("changeSessionId");
+            request.changeSessionId();
+        } catch (NoSuchMethodException e) {
+            logger.debug("server does not support Servlet 3.1");
+        }
 
         successHandler.onAuthenticationSuccess(request, response, authResult);
     }
