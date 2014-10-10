@@ -25,8 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * User: schambon
@@ -37,6 +35,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     private static final Logger logger = LoggerFactory.getLogger(OasisAuthenticationFilter.class);
 
     private static final String LOGIN = "/login";
+    public static final String CALLBACK = "/callback";
 
     @Autowired
     private OpenIdCConfiguration configuration;
@@ -60,22 +59,18 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     @Value("${application.url:}")
     private String applicationUrl;
 
-    @Value("#{'${application.security.unauthenticatedPrefixes:}'.split(',')}")
-    private List<String> unauthenticatedPrefixes;
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        boolean unauthenticated = unauthenticatedPrefixes.stream().filter(p -> ! Strings.isNullOrEmpty(p))
-                .anyMatch(p -> req.getServletPath().startsWith(p));
+        boolean unauthenticated = configuration.skipAuthenticationForUrl(req.getServletPath());
 
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
             return;
-        } else if ("/callback".equals(req.getServletPath())) {
+        } else if (CALLBACK.equals(req.getServletPath())) {
             if (doVerify(req, res)) {
                 chain.doFilter(req, res);
             }

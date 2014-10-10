@@ -64,4 +64,8 @@ public interface OpenIdCConfiguration {
     String getMockProfile();
 
     void setMockProfile(String mockProfile);
+
+    default boolean skipAuthenticationForUrl(String url) {
+        return false;
+    }
 }
