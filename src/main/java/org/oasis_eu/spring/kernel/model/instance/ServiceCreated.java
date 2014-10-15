@@ -65,13 +65,18 @@ public class ServiceCreated {
     @JsonProperty("tos_uri")
     private String defaultTosUri;
 
+    @JsonProperty("policy_uri")
+    private String defaultPolicyUri;
+
     private Map<String, String> localizedTosUris = new HashMap<>();
 
-//    @JsonProperty("screenshot_uris")
-//    private List<String> screenshotUris = new ArrayList<>();
+    private Map<String, String> localizedPolicyUris = new HashMap<>();
 
-//    @JsonProperty("contacts")
-//    private List<String> contacts = new ArrayList<>();
+    @JsonProperty("screenshot_uris")
+    private List<String> screenshotUris = new ArrayList<>();
+
+    @JsonProperty("contacts")
+    private List<String> contacts = new ArrayList<>();
 
     @JsonProperty("subscription_uri")
     private String subscriptionUri;
@@ -131,6 +136,8 @@ public class ServiceCreated {
             localizedIcons.put(key.substring("icon#".length()), value);
         } else if (key.startsWith("tos_uri#")) {
             localizedTosUris.put(key.substring("tos_uri#".length()), value);
+        } else if (key.startsWith("policy_uri#")) {
+            localizedPolicyUris.put(key.substring("policy_uri#".length()), value);
         }
 
     }
@@ -143,6 +150,7 @@ public class ServiceCreated {
         localizedDescriptions.entrySet().forEach(e -> result.put("description#" + e.getKey(), e.getValue()));
         localizedIcons.entrySet().forEach(e -> result.put("icon#" + e.getKey(), e.getValue()));
         localizedTosUris.entrySet().forEach(e -> result.put("tos_uri#" + e.getKey(), e.getValue()));
+        localizedPolicyUris.entrySet().forEach(e -> result.put("policy_uri#" + e.getKey(), e.getValue()));
 
         return result;
     }
@@ -275,21 +283,29 @@ public class ServiceCreated {
         this.defaultTosUri = defaultTosUri;
     }
 
-//    public List<String> getScreenshotUris() {
-//        return screenshotUris;
-//    }
-//
-//    public void setScreenshotUris(List<String> screenshotUris) {
-//        this.screenshotUris = screenshotUris;
-//    }
+    public List<String> getScreenshotUris() {
+        return screenshotUris;
+    }
 
-//    public List<String> getContacts() {
-//        return contacts;
-//    }
-//
-//    public void setContacts(List<String> contacts) {
-//        this.contacts = contacts;
-//    }
+    public void setScreenshotUris(List<String> screenshotUris) {
+        this.screenshotUris = screenshotUris;
+    }
+
+    public List<String> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<String> contacts) {
+        this.contacts = contacts;
+    }
+
+    public String getDefaultPolicyUri() {
+        return defaultPolicyUri;
+    }
+
+    public void setDefaultPolicyUri(String defaultPolicyUri) {
+        this.defaultPolicyUri = defaultPolicyUri;
+    }
 
     public String getSubscriptionUri() {
         return subscriptionUri;
@@ -297,6 +313,14 @@ public class ServiceCreated {
 
     public void setSubscriptionUri(String subscriptionUri) {
         this.subscriptionUri = subscriptionUri;
+    }
+
+    public void setLocalizedTosUris(Map<String, String> localizedTosUris) {
+        this.localizedTosUris = localizedTosUris;
+    }
+
+    public void setLocalizedPolicyUris(Map<String, String> localizedPolicyUris) {
+        this.localizedPolicyUris = localizedPolicyUris;
     }
 
     @Override
