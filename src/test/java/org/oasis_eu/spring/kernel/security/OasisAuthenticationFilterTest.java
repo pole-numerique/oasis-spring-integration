@@ -10,7 +10,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -24,7 +23,7 @@ public class OasisAuthenticationFilterTest {
         stub(req.getServletPath()).toReturn(url);
 
         OpenIdCConfiguration conf = mock(OpenIdCConfiguration.class);
-        when(conf.skipAuthenticationForUrl(url)).thenReturn(true);
+        when(conf.skipAuthenticationForPath(url)).thenReturn(true);
 
         FilterChain chain = mock(FilterChain.class);
 
@@ -34,7 +33,7 @@ public class OasisAuthenticationFilterTest {
         filter.doFilter(req, null, chain);
 
         verify(chain).doFilter(req, null);
-        verify(conf).skipAuthenticationForUrl(url);
+        verify(conf).skipAuthenticationForPath(url);
     }
 
     @Test
@@ -66,7 +65,7 @@ public class OasisAuthenticationFilterTest {
 
         filter.doFilter(req, null, chain);
 
-        verify(conf).skipAuthenticationForUrl(url);
+        verify(conf).skipAuthenticationForPath(url);
         verify(cache).saveRequest(req, null);
         verify(service).redirectToAuth(req, null, StateType.SIMPLE_CHECK);
 

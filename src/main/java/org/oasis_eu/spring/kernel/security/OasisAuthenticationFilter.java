@@ -65,7 +65,10 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        boolean unauthenticated = configuration.skipAuthenticationForUrl(req.getServletPath());
+        logger.debug("Filtering request for {}", req.getServletPath());
+
+        boolean onlyIfAuthenticated = configuration.requireAuthenticationForPath(req.getServletPath());
+        boolean unauthenticated = configuration.skipAuthenticationForPath(req.getServletPath());
 
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
@@ -75,11 +78,14 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
                 chain.doFilter(req, res);
             }
             return;
+        } else if (onlyIfAuthenticated && SecurityContextHolder.getContext().getAuthentication() == null) {
+            logger.debug("Path {} requires pre-authentication, aborting", req.getServletPath());
+            res.setStatus(401);
         } else if ((!unauthenticated) && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (doTransparent(req, res)) {
                 chain.doFilter(req, res);
             }
-        } else {
+        }else {
             chain.doFilter(request, response);
         }
 

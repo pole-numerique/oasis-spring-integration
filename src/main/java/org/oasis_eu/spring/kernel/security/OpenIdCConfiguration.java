@@ -65,7 +65,11 @@ public interface OpenIdCConfiguration {
 
     void setMockProfile(String mockProfile);
 
-    default boolean skipAuthenticationForUrl(String url) {
+    default boolean skipAuthenticationForPath(String path) {
+        return false;
+    }
+
+    default boolean requireAuthenticationForPath(String path) {
         return false;
     }
 }
