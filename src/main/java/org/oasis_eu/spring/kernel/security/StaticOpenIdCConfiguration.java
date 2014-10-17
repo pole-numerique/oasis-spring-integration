@@ -194,7 +194,7 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     }
 
     @Override
-    public boolean skipAuthenticationForUrl(String url) {
+    public boolean skipAuthenticationForPath(String url) {
         return skippedPaths.stream().anyMatch(path -> url.startsWith(path));
     }
 
