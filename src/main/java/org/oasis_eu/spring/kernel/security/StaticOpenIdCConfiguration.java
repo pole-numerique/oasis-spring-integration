@@ -2,6 +2,9 @@ package org.oasis_eu.spring.kernel.security;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * User: schambon
  * Date: 1/30/14
@@ -34,25 +37,11 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     @Value("${kernel.scopes_to_require:}")
     protected String scopesToRequire;
 
-
-//    private String issuer;
-//    private String authEndpoint;
-//    private String tokenEndpoint;
-//    private String keysEndpoint;
-//    private String revocationEndpoint;
-//    private String userInfoEndpoint;
-//
-//    private String applicationId;
-//    private String clientId;
-//    private String clientSecret;
-//
-//    private String scopesToRequire;
-//
-//    private String callbackUri;
-
     private boolean mocked;
     private String mockLoginPageUri;
     private String mockProfile;
+
+    private List<String> skippedPaths = new ArrayList<String>();
 
     @Override
     public String getIssuer() {
@@ -204,4 +193,12 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
         this.mockProfile = mockProfile;
     }
 
+    @Override
+    public boolean skipAuthenticationForUrl(String url) {
+        return skippedPaths.stream().anyMatch(path -> url.startsWith(path));
+    }
+
+    public void addSkippedPaths(List<String> urls) {
+        skippedPaths.addAll(urls);
+    }
 }
