@@ -4,7 +4,7 @@
 
     <groupId>org.oasis_eu.spring-integration</groupId>
     <artifactId>oasis-spring-integration</artifactId>
-    <version>0.11</version>
+    <version>0.12-SNAPSHOT</version>
 
 
 
