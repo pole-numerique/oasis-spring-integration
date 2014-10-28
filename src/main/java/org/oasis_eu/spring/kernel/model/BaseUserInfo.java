@@ -1,20 +1,12 @@
 package org.oasis_eu.spring.kernel.model;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -31,15 +23,16 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("name")
     private String name; // full name
     @JsonProperty("given_name")
-    @NotNull @Size(min=2, max=30) //, message=" {my.profile.personal.firstname.size}")
     private String givenName; // first name
     @JsonProperty("family_name")
-    @NotNull @Size(min=2, max=30) //, message="{my.profile.personal.lastname.size}")
     private String familyName; // last name
     @JsonProperty("gender")
     private String gender; // "male" or "female"
+
+    @JsonProperty("phone")
+    private String phone;
+
     @JsonProperty("phone_number")
-    //@NotNull @Size(min=7, max=15) //, message="{my.profile.personal.phoneNumber.size}")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;
@@ -105,6 +98,14 @@ public abstract class BaseUserInfo implements Serializable {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPhone() {
+        return phoneNumber;
+    }
+
+    public void setPhone(String phone) {
+        setPhoneNumber(phone);
     }
 
     public LocalDate getBirthdate() {
@@ -178,8 +179,4 @@ public abstract class BaseUserInfo implements Serializable {
     	return null;
     }
 
-    @JsonAnySetter
-    public void anySetter(String key, String value) {
-        logger.debug("Discarding unknow key {} with value {}", key, value);
-    }
 }

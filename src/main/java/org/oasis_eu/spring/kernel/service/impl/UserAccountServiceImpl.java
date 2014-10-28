@@ -35,6 +35,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
 	public void saveUserAccount(UserAccount userAccount) {
         userDirectory.saveUserAccount(userAccount);
+
         refreshCurrentUser();
     }
     
