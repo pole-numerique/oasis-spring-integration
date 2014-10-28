@@ -1,10 +1,8 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
-import com.nimbusds.jose.util.Base64;
+import org.oasis_eu.spring.kernel.model.Organization;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
-import org.oasis_eu.spring.kernel.model.Organization;
-import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
@@ -56,11 +53,11 @@ public class OrganizationStoreImpl implements OrganizationStore {
                 .build()
                 .toUriString();
 
-        return kernel.exchange(uri, HttpMethod.POST, new HttpEntity<>(organization), Organization.class, user()).getBody();
+        return kernel.exchange(uri, HttpMethod.POST, new HttpEntity<Organization>(organization), Organization.class, user()).getBody();
     }
 
     @Override
-    @CacheEvict(value = "organizations")
+    @CacheEvict(value = "organizations", key = "#organizationId")
     public void delete(String organizationId) {
 
         String uri = UriComponentsBuilder.fromUriString(endpoint)
@@ -75,5 +72,22 @@ public class OrganizationStoreImpl implements OrganizationStore {
         headers.add("If-Match", eTag);
 
         kernel.exchange(uri, HttpMethod.DELETE, new HttpEntity<Object>(headers), Void.class, user());
+    }
+
+    @Override
+    @CacheEvict(value = "organizations", key = "#org.id")
+    public void update(Organization org) {
+        String uri = UriComponentsBuilder.fromUriString(endpoint)
+                .path("/org/{organizationId}")
+                .buildAndExpand(org.getId())
+                .encode()
+                .toUriString();
+
+        String eTag = kernel.exchange(uri, HttpMethod.GET, null, Organization.class, user()).getHeaders().getETag();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", eTag);
+
+        kernel.exchange(uri, HttpMethod.PUT, new HttpEntity<Organization>(org, headers), Void.class, user());
     }
 }

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Repository;
@@ -74,7 +75,7 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    @Cacheable("org-memberships")
+    @Cacheable(value = "org-memberships", key = "#organizationId")
     public List<OrgMembership> getMembershipsOfOrganization(String organizationId, int start, int limit) {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
@@ -103,6 +104,7 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
+    @CacheEvict(value = "accounts", key = "#userAccount.userId")
     public void saveUserAccount(UserAccount userAccount) {
 
         ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), userAccount.getUserId());
@@ -145,21 +147,32 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    public void updateMembership(UserMembership um, boolean admin) {
+    @CacheEvict(value = "user-memberships", key = "#userId")
+    public void updateMembership(UserMembership um, boolean admin, String userId) {
         updateMembership(um.getMembershipUri(), um.getMembershipEtag(), admin);
     }
 
     @Override
-    public void updateMembership(OrgMembership om, boolean admin) {
+    @CacheEvict(value = "org-memberships", key = "#organizationId")
+    public void updateMembership(OrgMembership om, boolean admin, String organizationId) {
         updateMembership(om.getMembershipUri(), om.getMembershipEtag(), admin);
     }
 
     @Override
-    public void removeMembership(OrgMembership orgMembership) {
+    @CacheEvict(value = "org-memberships", key = "#organizationId")
+    public void removeMembership(OrgMembership orgMembership, String organizationId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("If-Match", orgMembership.getMembershipEtag());
 
         kernel.exchange(orgMembership.getMembershipUri(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class, user());
+    }
+
+    @Override
+    @CacheEvict(value = "user-memberships", key = "#userId")
+    public void removeMembership(UserMembership userMembership, String userId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", userMembership.getMembershipEtag());
+        kernel.exchange(userMembership.getMembershipUri(), HttpMethod.DELETE, new HttpEntity<Object>(headers), Void.class, user());
     }
 
     @Override

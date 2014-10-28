@@ -9,21 +9,23 @@ import java.util.List;
 public interface UserDirectory {
 
 
-
     List<UserMembership> getMembershipsOfUser(String userId);
 
     List<OrgMembership> getMembershipsOfOrganization(String organizationId);
+
     List<OrgMembership> getMembershipsOfOrganization(String organizationId, int start, int limit);
 
-    void updateMembership(UserMembership um, boolean admin);
+    void updateMembership(UserMembership um, boolean admin, String userId);
 
-    void updateMembership(OrgMembership om, boolean admin);
+    void updateMembership(OrgMembership om, boolean admin, String organizationId);
 
     void saveUserAccount(UserAccount userAccount);
 
     UserAccount findUserAccount(String id);
 
-    void removeMembership(OrgMembership orgMembership);
+    void removeMembership(OrgMembership orgMembership, String organizationId);
 
     void createMembership(String email, String organizationId);
+
+    void removeMembership(UserMembership userMembership, String userId);
 }
