@@ -4,10 +4,13 @@ import org.oasis_eu.spring.kernel.model.InboundNotification;
 import org.oasis_eu.spring.kernel.model.NotificationStatus;
 import org.oasis_eu.spring.kernel.model.OutboundNotification;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -24,6 +27,8 @@ import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
  */
 @Service
 public class NotificationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @Autowired
     private Kernel kernel;
@@ -51,7 +56,14 @@ public class NotificationService {
                 .buildAndExpand(userId)
                 .toUriString();
 
-        return Arrays.asList(kernel.getForObject(uri, InboundNotification[].class, user()));
+        ResponseEntity<InboundNotification[]> notifsEntity = kernel.exchange(uri, HttpMethod.GET, null, InboundNotification[].class, user());
+
+        if (!notifsEntity.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Getting app notifications resulted in {} {}", notifsEntity.getStatusCode().value(), notifsEntity.getStatusCode().getReasonPhrase());
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(notifsEntity.getBody());
     }
 
     public void setMessageStatus(String userId, List<String> messageIds, NotificationStatus status) {
