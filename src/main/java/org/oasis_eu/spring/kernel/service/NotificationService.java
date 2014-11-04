@@ -1,5 +1,6 @@
 package org.oasis_eu.spring.kernel.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.oasis_eu.spring.kernel.model.InboundNotification;
 import org.oasis_eu.spring.kernel.model.NotificationStatus;
 import org.oasis_eu.spring.kernel.model.OutboundNotification;
@@ -43,23 +44,30 @@ public class NotificationService {
         kernel.exchange(endpoint + "/publish", HttpMethod.POST, new HttpEntity<Object>(outboundNotification), Void.class, client(configuration.getClientId(), configuration.getClientSecret()));
     }
 
-    public List<InboundNotification> getNotifications(String userId) {
-        InboundNotification[] notifs = kernel.getForObject(endpoint + "/{user_id}/messages", InboundNotification[].class, user(), userId);
-
-        return notifs == null ? Collections.emptyList() : Arrays.asList(notifs);
+    public List<InboundNotification> getNotifications(String userId, NotificationStatus status) {
+        return getInstanceNotifications(userId, null, status);
     }
 
-    public List<InboundNotification> getAppNotifications(String userId, String appId) {
-        String uri = UriComponentsBuilder.fromHttpUrl(endpoint)
-                .path("/{user_id}/messages")
-                .queryParam("appId", appId)
+    public List<InboundNotification> getInstanceNotifications(String userId, String instanceId, NotificationStatus status) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(endpoint)
+                .path("/{user_id}/messages");
+
+        if (instanceId != null) {
+            builder.queryParam("instance", instanceId);
+        }
+
+        if (!status.equals(NotificationStatus.ANY)) {
+            builder.queryParam("status", status.toString());
+        }
+
+        String uri = builder
                 .buildAndExpand(userId)
                 .toUriString();
 
         ResponseEntity<InboundNotification[]> notifsEntity = kernel.exchange(uri, HttpMethod.GET, null, InboundNotification[].class, user());
 
         if (!notifsEntity.getStatusCode().is2xxSuccessful()) {
-            logger.warn("Getting app notifications resulted in {} {}", notifsEntity.getStatusCode().value(), notifsEntity.getStatusCode().getReasonPhrase());
+            logger.warn("Getting notifications resulted in {} {}", notifsEntity.getStatusCode().value(), notifsEntity.getStatusCode().getReasonPhrase());
             return Collections.emptyList();
         }
 
@@ -75,6 +83,7 @@ public class NotificationService {
 
     static class MessageStatus {
         NotificationStatus status;
+        @JsonProperty("message_ids")
         List<String> messageIds;
 
         public NotificationStatus getStatus() {

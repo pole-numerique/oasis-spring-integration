@@ -6,5 +6,6 @@ package org.oasis_eu.spring.kernel.model;
  */
 public enum NotificationStatus {
     READ,
-    UNREAD
+    UNREAD,
+    ANY
 }

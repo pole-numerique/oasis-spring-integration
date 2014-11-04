@@ -1,33 +1,26 @@
 package org.oasis_eu.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * User: schambon
  * Date: 6/13/14
  */
 public class OutboundNotification {
-    private String id;
-    private String message;
-    private String data;
+    @JsonProperty("user_ids")
     private String[] userIds;
-    private String[] groupIds;
-    private String applicationId;
 
-    public String getId() {
-        return id;
-    }
+    @JsonProperty("service_id")
+    private String serviceId;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    @JsonProperty("message")
+    private String message;
 
-    public String getApplicationId() {
-        return applicationId;
-    }
+    @JsonProperty("action_uri")
+    private String actionUri;
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
+    @JsonProperty("action_label")
+    private String actionLabel;
 
     public String getMessage() {
         return message;
@@ -35,14 +28,6 @@ public class OutboundNotification {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
     }
 
     public String[] getUserIds() {
@@ -53,11 +38,27 @@ public class OutboundNotification {
         this.userIds = userIds;
     }
 
-    public String[] getGroupIds() {
-        return groupIds;
+    public String getServiceId() {
+        return serviceId;
     }
 
-    public void setGroupIds(String[] groupIds) {
-        this.groupIds = groupIds;
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getActionUri() {
+        return actionUri;
+    }
+
+    public void setActionUri(String actionUri) {
+        this.actionUri = actionUri;
+    }
+
+    public String getActionLabel() {
+        return actionLabel;
+    }
+
+    public void setActionLabel(String actionLabel) {
+        this.actionLabel = actionLabel;
     }
 }

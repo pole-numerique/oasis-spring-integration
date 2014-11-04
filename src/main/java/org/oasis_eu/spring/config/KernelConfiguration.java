@@ -3,6 +3,7 @@ package org.oasis_eu.spring.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,7 +19,6 @@ import org.oasis_eu.spring.kernel.security.StaticOpenIdCConfiguration;
 import org.oasis_eu.spring.util.KernelLoggingInterceptor;
 import org.oasis_eu.spring.util.NullConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +49,8 @@ public class KernelConfiguration {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JSR310Module());
+        objectMapper.registerModule(new JodaModule());
+
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper;
@@ -101,7 +103,6 @@ public class KernelConfiguration {
                 .registerTypeAdapter(DCRights.class, new DCRightsTypeAdapter())
                 .create();
     }
-
 
 
     @Bean

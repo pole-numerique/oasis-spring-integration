@@ -1,18 +1,37 @@
 package org.oasis_eu.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.joda.time.Instant;
+
 /**
  * User: schambon
  * Date: 6/13/14
  */
 public class InboundNotification {
+    @JsonProperty("id")
     String id;
+    @JsonProperty("user_id")
     String userId;
-    String applicationId;
+
+    @JsonProperty("instance_id")
+    String instanceId;
+    @JsonProperty("service_id")
+    String serviceId;
+
+    @JsonProperty("message")
     String message;
-    long time;
+
+    @JsonProperty("action_uri")
+    String actionUri;
+
+    @JsonProperty("action_label")
+    String actionLabel;
+
+    @JsonProperty("status")
     NotificationStatus status;
-    long modified;
-    String data;
+
+    @JsonProperty("time")
+    Instant time;
 
     public String getId() {
         return id;
@@ -30,12 +49,20 @@ public class InboundNotification {
         this.userId = userId;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getMessage() {
@@ -46,12 +73,20 @@ public class InboundNotification {
         this.message = message;
     }
 
-    public long getTime() {
-        return time;
+    public String getActionUri() {
+        return actionUri;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setActionUri(String actionUri) {
+        this.actionUri = actionUri;
+    }
+
+    public String getActionLabel() {
+        return actionLabel;
+    }
+
+    public void setActionLabel(String actionLabel) {
+        this.actionLabel = actionLabel;
     }
 
     public NotificationStatus getStatus() {
@@ -62,19 +97,11 @@ public class InboundNotification {
         this.status = status;
     }
 
-    public long getModified() {
-        return modified;
+    public Instant getTime() {
+        return time;
     }
 
-    public void setModified(long modified) {
-        this.modified = modified;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public void setTime(Instant time) {
+        this.time = time;
     }
 }
