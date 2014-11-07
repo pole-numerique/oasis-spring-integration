@@ -13,10 +13,8 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
-import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -74,7 +70,6 @@ public class OpenIdCService {
 
             MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
             form.add("grant_type", "authorization_code");
-            form.add("client_id", configuration.getClientId());
             form.add("redirect_uri", callbackUri);
             form.add("code", code);
 
