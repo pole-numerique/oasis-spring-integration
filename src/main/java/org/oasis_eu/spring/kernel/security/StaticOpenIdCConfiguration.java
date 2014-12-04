@@ -37,6 +37,9 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     @Value("${kernel.scopes_to_require:}")
     protected String scopesToRequire;
 
+    @Value("${kernel.auth.home_uri}")
+    protected String homeUri;
+
     private boolean mocked;
     private String mockLoginPageUri;
     private String mockProfile;
@@ -200,5 +203,14 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
     public void addSkippedPaths(List<String> urls) {
         skippedPaths.addAll(urls);
+    }
+
+    @Override
+    public String getHomeUri() {
+        return homeUri;
+    }
+
+    public void setHomeUri(String homeUri) {
+        this.homeUri = homeUri;
     }
 }

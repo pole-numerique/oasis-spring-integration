@@ -72,4 +72,8 @@ public interface OpenIdCConfiguration {
     default boolean requireAuthenticationForPath(String path) {
         return false;
     }
+
+    default String getHomeUri() {
+        return null;
+    }
 }

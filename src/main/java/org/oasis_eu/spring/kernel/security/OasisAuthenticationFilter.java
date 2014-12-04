@@ -136,9 +136,18 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
 
                 SavedRequest savedRequest = requestCache.getRequest(request, response);
                 requestCache.removeRequest(request, response);
-                String redirectUrl = savedRequest.getRedirectUrl();
+                String redirectUrl;
+                if (savedRequest != null) {
+                    redirectUrl = savedRequest.getRedirectUrl();
+                } else {
+                    String homeUri = configuration.getHomeUri();
+                    if (homeUri != null) redirectUrl = homeUri;
+                    else redirectUrl = "/";
+
+                }
 
                 response.sendRedirect(UriComponentsBuilder.fromHttpUrl(redirectUrl).queryParam("override_referer", true).build().toString());
+
 
             } else {
                 requestCache.removeRequest(request, response);
