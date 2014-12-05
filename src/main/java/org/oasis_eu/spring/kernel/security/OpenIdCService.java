@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -162,7 +163,7 @@ public class OpenIdCService {
         return false;
     }
 
-    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, PromptType promptType) {
+    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, PromptType promptType, String uiLocales) {
         if (configuration.isMocked()) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getMockLoginPageUri())
                     .queryParam("response_type", "code")
@@ -184,6 +185,10 @@ public class OpenIdCService {
                     .queryParam("redirect_uri", callbackUri)
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
+
+            if (uiLocales != null) {
+                builder = builder.queryParam("ui_locales", uiLocales);
+            }
     
             if (promptType.equals(PromptType.FORCED)) {
                 builder = builder.queryParam("prompt", "consent");
@@ -258,9 +263,15 @@ public class OpenIdCService {
         session.setAttribute(NONCE, nonce);
 
         String callbackUri = configuration.getCallbackUri();
-
         String scopesToRequire = configuration.getScopesToRequire();
-        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT);
+        String uiLocales = request.getParameter("ui_locales");
+        if (uiLocales == null) {
+            uiLocales = RequestContextUtils.getLocale(request).getLanguage();
+        }
+
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT, uiLocales);
+
+        logger.debug("Auth uri is: {}", authUri);
         response.sendRedirect(authUri);
     }
 }
