@@ -37,7 +37,7 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     @Value("${kernel.scopes_to_require:}")
     protected String scopesToRequire;
 
-    @Value("${kernel.auth.home_uri}")
+    @Value("${kernel.auth.home_uri:}")
     protected String homeUri;
 
     private boolean mocked;
