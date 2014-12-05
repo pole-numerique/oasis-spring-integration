@@ -1,14 +1,10 @@
 package org.oasis_eu.spring.kernel.model;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -19,6 +15,29 @@ import org.slf4j.LoggerFactory;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfo extends BaseUserInfo implements Serializable {
+
+    public static UserInfo from(UserInfo in) {
+        UserInfo out = new UserInfo();
+        out.setName(in.getName());
+        out.setNickname(in.getNickname());
+        out.setLocale(in.getLocale());
+        out.setEmail(in.getEmail());
+        out.setEmailVerified(in.isEmailVerified());
+        out.setUserId(in.getUserId());
+        out.setAddress(in.getAddress()); // mmm, it'd be better to deepclone, but let's not worry too much right now (we'll fix it when we see weird bugs)
+        out.setBirthdate(in.getBirthdate());
+        out.setFamilyName(in.getFamilyName());
+        out.setGivenName(in.getGivenName());
+        out.setGender(in.getGender());
+        out.setPhone(in.getPhone());
+        out.setPhoneNumber(in.getPhoneNumber());
+        out.setPhoneNumberVerified(in.isPhoneNumberVerified() != null ? in.isPhoneNumberVerified() : false);
+        out.setPictureUrl(in.getPictureUrl());
+        out.setUpdatedAt(in.getUpdatedAt());
+        out.setZoneInfo(in.getZoneInfo());
+
+        return out;
+    }
 
     @JsonProperty("sub")
     private String userId;

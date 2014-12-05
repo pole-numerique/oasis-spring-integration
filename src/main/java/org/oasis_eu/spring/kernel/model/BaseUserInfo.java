@@ -52,6 +52,9 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("zoneinfo")
     private String zoneInfo;
 
+    @JsonProperty("nickname")
+    private String nickname;
+
     public abstract String getUserId();
 
     public abstract void setUserId(String userId);
@@ -179,4 +182,12 @@ public abstract class BaseUserInfo implements Serializable {
     	return null;
     }
 
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }

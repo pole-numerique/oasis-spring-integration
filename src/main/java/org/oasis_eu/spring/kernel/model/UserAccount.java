@@ -1,16 +1,11 @@
 package org.oasis_eu.spring.kernel.model;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
@@ -45,14 +40,15 @@ public class UserAccount extends BaseUserInfo implements Serializable {
     	this.setGender(userInfo.getGender());
     	this.setGivenName(userInfo.getGivenName());
     	this.setLocale(userInfo.getLocale());
-    	this.setName(userInfo.getName());
-    	this.setPhoneNumber(userInfo.getPhoneNumber());
+        this.setName(userInfo.getNickname());
+        this.setPhoneNumber(userInfo.getPhoneNumber());
     	if(userInfo.isPhoneNumberVerified()!=null) {
     		this.setPhoneNumberVerified(userInfo.isPhoneNumberVerified());
     	}
     	this.setPictureUrl(userInfo.getPictureUrl());
     	this.setUpdatedAt(userInfo.getUpdatedAt());
     	this.setZoneInfo(userInfo.getZoneInfo());
+        this.setNickname(userInfo.getNickname());
     }
 
     public String getUserId() {
