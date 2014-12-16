@@ -104,6 +104,26 @@ public class UserDirectoryImpl implements UserDirectory {
     }
 
     @Override
+    public List<OrgMembership> getAdminsOfOrganization(String organizationId) {
+        String uri = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
+                .path("/memberships/org/{organization_id}/admins")
+                .buildAndExpand(organizationId)
+                .toUriString();
+
+        ResponseEntity<OrgMembership[]> response = kernel.exchange(uri, HttpMethod.GET, null, OrgMembership[].class, user());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return Arrays.asList(response.getBody());
+        } else {
+            logger.error("Cannot load organization memberships: {}", response.getStatusCode());
+            if (response.getStatusCode().is4xxClientError()) {
+                throw new WrongQueryException();
+            } else {
+                throw new TechnicalErrorException();
+            }
+        }
+    }
+
+    @Override
     @CacheEvict(value = "accounts", key = "#userAccount.userId")
     public void saveUserAccount(UserAccount userAccount) {
 

@@ -15,6 +15,8 @@ public interface UserDirectory {
 
     List<OrgMembership> getMembershipsOfOrganization(String organizationId, int start, int limit);
 
+    List<OrgMembership> getAdminsOfOrganization(String organizationId);
+
     void updateMembership(UserMembership um, boolean admin, String userId);
 
     void updateMembership(OrgMembership om, boolean admin, String organizationId);
