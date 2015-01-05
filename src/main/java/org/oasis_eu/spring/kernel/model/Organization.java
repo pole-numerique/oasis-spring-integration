@@ -3,12 +3,14 @@ package org.oasis_eu.spring.kernel.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.Instant;
 
+import java.io.Serializable;
+
 /**
  * User: schambon
  * Date: 6/25/14
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Organization {
+public class Organization implements Serializable {
 
     String id;
     String name;
