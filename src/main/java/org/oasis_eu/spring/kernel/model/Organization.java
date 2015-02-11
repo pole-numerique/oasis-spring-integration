@@ -1,9 +1,12 @@
 package org.oasis_eu.spring.kernel.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serializable;
+import java.net.URI;
+
 import org.joda.time.Instant;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * User: schambon
@@ -16,8 +19,10 @@ public class Organization implements Serializable {
     String name;
     Instant modified;
     OrganizationType type;
+    @JsonProperty("territory_id")
+    URI territoryId;
 
-    public Instant getModified() {
+   public Instant getModified() {
         return modified;
     }
 
@@ -47,5 +52,13 @@ public class Organization implements Serializable {
 
     public void setType(OrganizationType type) {
         this.type = type;
+    }
+
+    public URI getTerritoryId() {
+        return territoryId;
+    }
+
+    public void setTerritoryId(URI territoryId) {
+        this.territoryId = territoryId;
     }
 }

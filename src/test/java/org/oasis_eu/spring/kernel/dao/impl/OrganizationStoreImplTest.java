@@ -1,5 +1,8 @@
 package org.oasis_eu.spring.kernel.dao.impl;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.joda.time.Instant;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -31,20 +34,24 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @DirtiesContext
 public class OrganizationStoreImplTest {
 
+    private static final String DC_CONTAINER_URL = "http://data.oasis-eu.org";
+
     @Autowired
     private OrganizationStore store;
 
     @Autowired
     private RestTemplate kernelRestTemplate;
 
+    private static final String LYON_TERRITORY_ID = DC_CONTAINER_URL + "/dc/type/geofr:Commune_0/FR/FR-69/Lyon";
     private static final String RESPONSE = "{\n" +
             "  \"id\": \"6dccdb8d-ec46-4675-9965-806ea37b73e1\",\n" +
             "  \"name\": \"openwide-ck\",\n" +
-            "  \"modified\": 1386859649613\n" +
+            "  \"modified\": 1386859649613,\n" +
+            "  \"territory_id\": \"" + LYON_TERRITORY_ID + "\"\n" +
             "}";
 
     @Test
-    public void testFind() {
+    public void testFind() throws URISyntaxException {
 
         OpenIdCAuthentication authentication = new OpenIdCAuthentication("test", "accesstoken", "idtoken", java.time.Instant.now(), java.time.Instant.now(), true, false);
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
@@ -58,6 +65,7 @@ public class OrganizationStoreImplTest {
         Organization openwide = store.find("6dccdb8d-ec46-4675-9965-806ea37b73e1");
         assertEquals("openwide-ck", openwide.getName());
         assertEquals(new Instant(1386859649613l), openwide.getModified());
+        assertEquals(new URI(LYON_TERRITORY_ID), openwide.getTerritoryId());
 
         server.verify();
     }

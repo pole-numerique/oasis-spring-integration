@@ -1,17 +1,26 @@
 package org.oasis_eu.spring.datacore.impl;
 
-import com.google.gson.*;
-import org.oasis_eu.spring.datacore.model.DCResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.oasis_eu.spring.datacore.model.DCResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 /**
  * User: schambon
@@ -54,6 +63,10 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
             JsonArray array = new JsonArray();
             value.asArray().forEach(val -> array.add(toJson(val)));
             return array;
+        } else if (value.isMap()) {
+            JsonObject object = new JsonObject();
+            value.asMap().forEach((key,val) -> object.add(key, toJson(val)));
+            return object;
         } else return new JsonPrimitive(value.asString());
     }
 
@@ -75,7 +88,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private void setDataField(DCResource resource, String name, JsonElement value) {
-        if (value.isJsonArray()) {
+        if (value.isJsonArray() || value.isJsonObject()) {
             resource.getValues().put(name, getValue(value));
         } else {
             resource.getValues().put(name, new DCResource.StringValue(value.getAsString()));
@@ -89,6 +102,11 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
             for (JsonElement element : value.getAsJsonArray()) {
                 v.asArray().add(getValue(element));
             }
+            return v;
+        } else if (value.isJsonObject()) {
+            DCResource.MapValue v = new DCResource.MapValue();
+            for (Map.Entry<String,JsonElement> entry : value.getAsJsonObject().entrySet()) { v.asMap().put(entry.getKey(), getValue(entry.getValue())); }
+            //value.getAsJsonObject().entrySet().stream().map(entry -> v.asMap().put(entry.getKey(), getValue(entry.getValue())));
             return v;
         } else {
             return new DCResource.StringValue(value.getAsString());

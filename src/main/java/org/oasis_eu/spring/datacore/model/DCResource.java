@@ -143,16 +143,45 @@ public class DCResource {
 
     }
 
+    public Map<String, String> getAsStringMap(String key) {
+        Value val = getValues().get(key);
+        if (val.isMap()) {
+            Map<String, String> map = new HashMap<String,String>();
+            val.asMap().entrySet().stream().map(entry -> map.put(entry.getKey(), entry.getValue().asString()));
+            return map;
+
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    public Object get(String key) {
+        return toObject(getValues().get(key));
+    }
+    
+    private Object toObject(Value val) {
+        if (val.isMap()) {
+            return val.asMap().entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> toObject(entry.getValue())));
+        } else if (val.isArray()) {
+            return val.asArray().stream().map(this::toObject).collect(Collectors.toList());
+        } else {
+            return val.asString();
+        }
+    }
+
     // poor design, but it's just for convenience anyway
     public abstract static class Value {
         public abstract boolean isArray();
+        public abstract boolean isMap();
         public abstract String asString();
         public abstract List<Value> asArray();
+        public abstract Map<String,Value> asMap();
         public boolean isNull() {
             return false;
         }
         public boolean isString() {
-            return !isArray();
+            return !isArray() && !isMap();
         }
     }
 
@@ -166,12 +195,22 @@ public class DCResource {
         }
 
         @Override
+        public boolean isMap() {
+            return false;
+        }
+
+        @Override
         public String asString() {
             return value;
         }
 
         @Override
         public List<Value> asArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String,Value> asMap() {
             throw new UnsupportedOperationException();
         }
 
@@ -206,6 +245,11 @@ public class DCResource {
         }
 
         @Override
+        public boolean isMap() {
+            return false;
+        }
+
+        @Override
         public String asString() {
             throw new UnsupportedOperationException();
         }
@@ -213,6 +257,11 @@ public class DCResource {
         @Override
         public List<Value> asArray() {
             return values;
+        }
+
+        @Override
+        public Map<String,Value> asMap() {
+            throw new UnsupportedOperationException();
         }
 
         public void setValues(List<Value> values) {
@@ -232,4 +281,52 @@ public class DCResource {
             return values.toString();
         }
     }
+
+    public static class MapValue extends Value {
+
+        Map<String,Value> values = new HashMap<>();
+
+        @Override
+        public boolean isArray() {
+            return false;
+        }
+
+        @Override
+        public boolean isMap() {
+            return true;
+        }
+
+        @Override
+        public String asString() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Value> asArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String,Value> asMap() {
+            return values;
+        }
+
+        public void setValues(Map<String,Value> values) {
+            this.values = values;
+        }
+
+        public MapValue(Map<String,Value> values) {
+            this.values = values;
+
+        }
+        public MapValue() {
+            this.values = new HashMap<>();
+        }
+
+        @Override
+        public String toString() {
+            return values.toString();
+        }
+    }
+    
 }
