@@ -20,7 +20,7 @@ public class UserAccount extends BaseUserInfo implements Serializable {
     @JsonProperty("id")
     private String userId;
     
-    @JsonProperty("email_address")
+    @JsonProperty("email_address") // TODO upgrade : email_verified
     @NotEmpty @Email
     private String email;
     

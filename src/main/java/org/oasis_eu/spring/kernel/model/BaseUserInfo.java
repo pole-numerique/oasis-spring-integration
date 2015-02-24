@@ -22,7 +22,7 @@ public abstract class BaseUserInfo implements Serializable {
 
     @JsonProperty("name")
     private String name; // full name
-    @JsonProperty("given_name")
+    @JsonProperty("given_name") // TODO upgrade : middle_name
     private String givenName; // first name
     @JsonProperty("family_name")
     private String familyName; // last name
@@ -44,7 +44,7 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("address")
     private Address address;
 
-    @JsonProperty("updated_at")
+    @JsonProperty("updated_at") // TODO upgrade : created_at
     private Long updatedAt;
 
 

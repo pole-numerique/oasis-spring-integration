@@ -1,6 +1,8 @@
 package org.oasis_eu.spring.kernel.service;
 
 import org.oasis_eu.spring.kernel.exception.AuthenticationRequiredException;
+import org.oasis_eu.spring.kernel.exception.ForbiddenException;
+import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.oasis_eu.spring.kernel.model.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +53,18 @@ public class Kernel {
         }
 
         ResponseEntity<RES> entity = kernelRestTemplate.exchange(endpoint, method, request, responseClass, pathVariables);
-        if (entity.getStatusCode().value() == 401) {
+        if (entity.getStatusCode().value() == 401) { // new since 20150224 at least
             logger.error("Cannot call kernel endpoint {}, invalid token", endpoint);
             throw new AuthenticationRequiredException();
+        } else if (entity.getStatusCode().value() == 403) { // new since 20150224 at least
+            logger.error("Cannot call kernel endpoint {}, invalid token", endpoint);
+            throw new ForbiddenException();
+        } else if (entity.getStatusCode().value() / 100 == 4) {
+            logger.error("Unknown server error calling kernel endpoint {}", endpoint);
+            throw new TechnicalErrorException();
+        } else if (entity.getStatusCode().value() / 100 == 5) {
+            logger.error("Unknown server error calling kernel endpoint {}", endpoint);
+            throw new TechnicalErrorException();
         }
         return entity;
     }
