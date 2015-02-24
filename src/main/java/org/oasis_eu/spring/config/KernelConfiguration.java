@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.oasis_eu.spring.datacore.impl.DCResourceTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DCRightsTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DatacoreSecurityInterceptor;
@@ -19,11 +20,14 @@ import org.oasis_eu.spring.kernel.security.StaticOpenIdCConfiguration;
 import org.oasis_eu.spring.util.KernelLoggingInterceptor;
 import org.oasis_eu.spring.util.NullConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -38,6 +42,7 @@ import java.util.List;
 @ComponentScan(basePackages = {"org.oasis_eu.spring.kernel", "org.oasis_eu.spring.datacore"})
 public class KernelConfiguration {
 
+    @Value("${rest.revertToApacheHttpComponentsClient:false}") private boolean revertToApacheHttpComponentsClient = false;
 
     @Bean
     public OpenIdCConfiguration openIdCConfiguration() {
@@ -55,11 +60,22 @@ public class KernelConfiguration {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper;
     }
+    
+    private ClientHttpRequestFactory newRequestFactory() {
+        if (revertToApacheHttpComponentsClient) {
+            // revert to using Apache HTTPComponents Client :
+            // old default, would have required specific conf for enabling SNI (which should be possible since 4.3.2)
+            return new HttpComponentsClientHttpRequestFactory();
+        } else {
+            // use mere HttpURLConnection, better : https://jira.spring.io/browse/ANDROID-54 http://stackoverflow.com/questions/25698072/simpleclienthttprequestfactory-vs-httpcomponentsclienthttprequestfactory-for-htt
+            return new SimpleClientHttpRequestFactory();
+        }
+    }
 
     @Bean
     @Qualifier("kernelRestTemplate")
     public RestTemplate kernelRestTemplate() {
-        RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        RestTemplate template = new RestTemplate(newRequestFactory());
 
         template.setInterceptors(Arrays.asList(new KernelLoggingInterceptor()));
 
@@ -86,7 +102,7 @@ public class KernelConfiguration {
     @Bean
     @Qualifier("dataCore")
     public RestTemplate dataCoreRestTemplate(Gson dataCoreGson) {
-        RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        RestTemplate template = new RestTemplate(newRequestFactory());
 
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
         messageConverters.add(new GsonMessageConverter(dataCoreGson));
