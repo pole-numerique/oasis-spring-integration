@@ -1,5 +1,8 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.userIfExists;
+
 import org.oasis_eu.spring.kernel.model.Organization;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
@@ -13,9 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.userIfExists;
 
 /**
  * User: schambon
@@ -36,12 +36,10 @@ public class OrganizationStoreImpl implements OrganizationStore {
     public Organization find(String organizationId) {
         String uri = UriComponentsBuilder.fromUriString(endpoint)
                 .path("/org/{organizationId}")
-                .buildAndExpand(organizationId)
-                .encode()
+                .build()
                 .toUriString();
 
-        return kernel.exchange(uri, HttpMethod.GET, null, Organization.class, userIfExists()).getBody();
-
+        return kernel.getEntityOrNull(uri, Organization.class, userIfExists(), organizationId);
     }
 
     @Override
