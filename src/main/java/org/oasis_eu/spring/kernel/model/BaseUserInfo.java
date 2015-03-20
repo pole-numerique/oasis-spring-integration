@@ -1,24 +1,28 @@
 package org.oasis_eu.spring.kernel.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
  * Based on: http://openid.net/specs/openid-connect-basic-1_0-28.html#StandardClaims
+ * 
+ * Also provides user locale negociation helpers
  *
  * User: jdenanot
  * Date: 8/29/14
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class BaseUserInfo implements Serializable {
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private static final long serialVersionUID = -5272426743544132097L;
 
     @JsonProperty("name")
     private String name; // full name
@@ -47,7 +51,10 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("updated_at") // TODO upgrade : created_at
     private Long updatedAt;
 
-
+    /** OpenID Connect's ui_locales ex. "en-GB fr", to be parsed by get*Locale*() methods
+     * or further by UserInfoService methods
+     * (or by Locale methods, ex. forLanguageTag() to get the first one) */
+    @JsonProperty("locale")
     private String locale;
     @JsonProperty("zoneinfo")
     private String zoneInfo;
@@ -143,13 +150,78 @@ public abstract class BaseUserInfo implements Serializable {
         this.phoneNumberVerified = phoneNumberVerified;
     }
     
+    /**
+     * 
+     * @return locale ex. "en-GB fr"parsed as Locales
+     */
+    public List<Locale> getLocales() {
+        if (locale == null) {
+            return null;
+        }
+        return Arrays.stream(locale.split(" ")) // NB. uses fastpath when single char pattern http://stackoverflow.com/questions/5965767/performance-of-stringtokenizer-class-vs-split-method-in-java
+            .map(localeString -> Locale.forLanguageTag(localeString))
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * shortcut ; ideally rather use getBestLocale()
+     * @return
+     */
+    public Locale getFirstLocale() {
+        if (locale == null) {
+            return null;
+        }
+        return getLocales().get(0);
+    }
+    
+    /**
+     * Negociates the best locale for the user among the given available ones
+     * @param localeList
+     * @return null if null, "und" Locale if none, best otherwise
+     */
+    public Locale getBestLocale(List<Locale> localeList) {
+        if (locale == null) {
+            return null;
+        }
+        return undefinedLocaleIfNull(Locale.lookup(getLocaleAsLanguageRanges(), localeList));
+    }
+    
+    public static Locale undefinedLocaleIfNull(Locale locale) {
+        return (locale != null) ? locale : Locale.forLanguageTag("und");
+    }
+
+    /**
+     * Negociates the best language tag for the user among the given available ones
+     * (same as getBestLocale)
+     * @param languageTagList
+     * @return
+     */
+    public String getBestLanguageTag(List<String> languageTagList) {
+        if (locale == null) {
+            return null;
+        }
+        return Locale.lookupTag(getLocaleAsLanguageRanges(), languageTagList);
+    }
+    
+    /**
+     * Allows to do what getBestLocale/LanguageTag does using Locale.lookup(Tag)()
+     * @return locale parsed as LanguageRanges, locale being ex. "fr-FR en-GB es"
+     * (actually "fr-FR,en-GB", "en-US;q=1.0,en-GB;q=0.5,fr-FR;q=0.0" also works)
+     */
+    public List<LanguageRange> getLocaleAsLanguageRanges() {
+        if (locale == null) {
+            return null;
+        }
+        return Locale.LanguageRange.parse(locale); // works with "fr-FR en-GB"
+        // (actually also with "fr-FR,en-GB", "en-US;q=1.0,en-GB;q=0.5,fr-FR;q=0.0" http://docs.oracle.com/javase/tutorial/i18n/locale/matching.html
+    }
+    
     public String getLocale() {
         return locale;
 	}
 
-    @JsonProperty("locale")
     public void setLocale(String locale) {
-		this.locale = locale != null ? locale.replace("-", "_") : null;
+        this.locale = locale;
 	}
     
     public String getZoneInfo() {
