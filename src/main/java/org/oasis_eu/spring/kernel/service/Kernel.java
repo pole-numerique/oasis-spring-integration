@@ -18,11 +18,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
  * User: schambon
  * Date: 9/9/14
+ * 
+ * Configured in KernelConfiguration with KernelErrorHandler...
  */
 @Service
 public class Kernel {
@@ -42,7 +45,8 @@ public class Kernel {
      * @param pathVariables
      * @return entity that may be 404 Not Found (deleted app instance, service ?) or 403 Forbidden (when service.visible:false)
      * see #179 Bug with notifications referring destroyed app instances
-     * @throws AuthenticationRequiredException if invalid token (ex. expired)
+     * @throws AuthenticationRequiredException if invalid token (i.e. error 401 from Kernel, ex. expired),
+     * HttpServerErrorException if error 500 from Kernel (according to KernelErrorHandler)
      */
     public <REQ, RES> ResponseEntity<RES> exchange(String endpoint,
             HttpMethod method, HttpEntity<REQ> request, Class<RES> responseClass, Authentication auth, Object... pathVariables)
