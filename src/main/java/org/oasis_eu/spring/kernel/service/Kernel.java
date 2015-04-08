@@ -18,7 +18,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -51,7 +50,7 @@ public class Kernel {
     public <REQ, RES> ResponseEntity<RES> exchange(String endpoint,
             HttpMethod method, HttpEntity<REQ> request, Class<RES> responseClass, Authentication auth, Object... pathVariables)
             throws AuthenticationRequiredException, ForbiddenException {
-        
+
         if (auth != null && auth.hasAuthenticationHeader()) {
             if (request == null) {
                 HttpHeaders headers = new HttpHeaders();
@@ -71,7 +70,6 @@ public class Kernel {
                 request = new HttpEntity<>(request.getBody(), newHeaders);
             }
         }
-
         ResponseEntity<RES> entity = kernelRestTemplate.exchange(endpoint, method, request, responseClass, pathVariables);
         if (entity.getStatusCode().value() == 401) {
             logger.error("Cannot call kernel endpoint {}, invalid token (401 Unauthorized, ex. expired token)", endpoint);

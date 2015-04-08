@@ -14,13 +14,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Organization implements Serializable {
-
+    private static final long serialVersionUID = 5334020951283823727L;
+    
     String id;
     String name;
     Instant modified;
     OrganizationType type;
+    /** optional */
     @JsonProperty("territory_id")
     URI territoryId;
+    /** optional */
+    OrganizationStatus status;
+    /** optional */
+    @JsonProperty("status_changed")
+    Instant statusChanged;
+    /** optional */
+    @JsonProperty("status_change_requester_id")
+    String statusChangeRequesterId;
 
    public Instant getModified() {
         return modified;
@@ -61,4 +71,29 @@ public class Organization implements Serializable {
     public void setTerritoryId(URI territoryId) {
         this.territoryId = territoryId;
     }
+
+    public OrganizationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrganizationStatus status) {
+        this.status = status;
+    }
+
+    public Instant getStatusChanged() {
+        return statusChanged;
+    }
+
+    public void setStatusChanged(Instant statusChanged) {
+        this.statusChanged = statusChanged;
+    }
+
+    public String getStatusChangeRequesterId() {
+        return statusChangeRequesterId;
+    }
+
+    public void setStatusChangeRequesterId(String statusChangeRequesterId) {
+        this.statusChangeRequesterId = statusChangeRequesterId;
+    }
+
 }

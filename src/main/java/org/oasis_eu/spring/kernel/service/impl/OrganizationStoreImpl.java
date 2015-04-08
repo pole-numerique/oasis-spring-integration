@@ -3,7 +3,10 @@ package org.oasis_eu.spring.kernel.service.impl;
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.userIfExists;
 
+import java.util.Map;
+
 import org.oasis_eu.spring.kernel.model.Organization;
+import org.oasis_eu.spring.kernel.model.OrganizationStatus;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +17,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * User: schambon
@@ -55,24 +61,6 @@ public class OrganizationStoreImpl implements OrganizationStore {
     }
 
     @Override
-    @CacheEvict(value = "organizations", key = "#organizationId")
-    public void delete(String organizationId) {
-
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org/{organizationId}")
-                .buildAndExpand(organizationId)
-                .encode()
-                .toUriString();
-
-        String eTag = kernel.exchange(uri, HttpMethod.GET, null, Organization.class, user()).getHeaders().getETag();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("If-Match", eTag);
-
-        kernel.exchange(uri, HttpMethod.DELETE, new HttpEntity<Object>(headers), Void.class, user());
-    }
-
-    @Override
     @CacheEvict(value = "organizations", key = "#org.id")
     public void update(Organization org) {
         String uri = UriComponentsBuilder.fromUriString(endpoint)
@@ -88,4 +76,30 @@ public class OrganizationStoreImpl implements OrganizationStore {
 
         kernel.exchange(uri, HttpMethod.PUT, new HttpEntity<Organization>(org, headers), Void.class, user());
     }
+
+    @Override
+    @CacheEvict(value = "organizations", key = "#organizationId")
+    public String setStatus(String organizationId, OrganizationStatus status) {
+        String uri = UriComponentsBuilder.fromUriString(endpoint)
+                .path("/org/{organizationId}")
+                .buildAndExpand(organizationId)
+                .encode()
+                .toUriString();
+
+        String eTag = kernel.exchange(uri, HttpMethod.GET, null, Organization.class, user()).getHeaders().getETag();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("If-Match", eTag);
+
+        Map<String,String> statusMap = new ImmutableMap.Builder<String, String>().put("status", status.toString()) .build();
+        ResponseEntity<String> resEntity = kernel.exchange(uri, HttpMethod.POST, new HttpEntity<Map<String,String>>(statusMap, headers), String.class, user());
+        if (resEntity.getStatusCode().is4xxClientError() || resEntity.getStatusCode().is5xxServerError()) {
+            String res = resEntity.getBody();
+            if (res != null && !res.trim().isEmpty()) {
+                return res; // error message if any
+            }
+        }
+        return null;
+    }
+    
 }
