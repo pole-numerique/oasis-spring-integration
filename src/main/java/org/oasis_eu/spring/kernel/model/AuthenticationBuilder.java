@@ -10,7 +10,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class AuthenticationBuilder {
 
     public static Authentication user() {
-        return new UserAuthentication(((OpenIdCAuthentication)SecurityContextHolder.getContext().getAuthentication()).getAccessToken());
+        OpenIdCAuthentication openIdCAuth = ((OpenIdCAuthentication)SecurityContextHolder.getContext().getAuthentication());
+        if (openIdCAuth == null) {
+            return null; // happens on notifications REST call, when just logged out from notifications page
+        }
+        return new UserAuthentication(openIdCAuth.getAccessToken());
     }
 
     public static Authentication user(String accessToken) {
