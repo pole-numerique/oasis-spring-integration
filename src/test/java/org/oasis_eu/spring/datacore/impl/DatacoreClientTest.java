@@ -1,22 +1,12 @@
 package org.oasis_eu.spring.datacore.impl;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.oasis_eu.spring.datacore.DatacoreClient;
 import org.oasis_eu.spring.datacore.model.DCOperator;
 import org.oasis_eu.spring.datacore.model.DCQueryParameters;
 import org.oasis_eu.spring.datacore.model.DCResource;
-import org.oasis_eu.spring.test.TestConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -36,17 +26,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * User: schambon
  * Date: 1/3/14
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class}, loader = AnnotationConfigContextLoader.class)
-@DirtiesContext /* further tests should be made in a new application context */
-public class DatacoreClientTest {
 
-    @Autowired
-    @Qualifier("dataCore")
-    private RestTemplate dataCoreRestTemplate;
-
-    @Autowired
-    private DatacoreClient datacoreClient;
+public class DatacoreClientTest extends BaseDatacoreClientTest {
 
     @Test
     public void testUriBuilder() {
@@ -78,24 +59,6 @@ public class DatacoreClientTest {
         assertEquals("33333_4444_5555", resources[0].getIri());
 
         mockRestServiceServer.verify();
-    }
-
-    private MockRestServiceServer setupMockServerForGetResources() throws IOException {
-        MockRestServiceServer mockServer = MockRestServiceServer.createServer(dataCoreRestTemplate);
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json")));
-        String line = reader.readLine();
-        StringBuilder b = new StringBuilder();
-        while (line != null) {
-            b.append(line);
-            b.append("\n");
-            line = reader.readLine();
-        }
-
-        String response = b.toString();
-
-        mockServer.expect(requestTo("http://localhost:8080/dc/type/citizenkin.procedure.envelope")).andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
-        return mockServer;
     }
 
     @Test

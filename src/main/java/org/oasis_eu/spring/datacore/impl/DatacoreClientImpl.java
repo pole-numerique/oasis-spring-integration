@@ -1,7 +1,9 @@
 package org.oasis_eu.spring.datacore.impl;
 
+import com.google.gson.Gson;
 import org.oasis_eu.spring.datacore.DatacoreClient;
 import org.oasis_eu.spring.datacore.model.*;
+import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,18 +88,16 @@ public class DatacoreClientImpl implements DatacoreClient {
 
         }
 
-        List<DCResource> resources = Arrays.asList(dataCoreRestTemplate.getForObject(uriString, DCResource[].class));
+        try {
+            return Arrays.asList(dataCoreRestTemplate.getForObject(uriString, DCResource[].class));
+        } catch(HttpClientErrorException ex) {
+            LOGGER.error("Error caught while querying data core", ex);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Found " + resources.size() + " results");
-            for (DCResource r : resources) {
-                LOGGER.debug("\t" + r.getIri());
-                for (Map.Entry<String, DCResource.Value> entry : r.getValues().entrySet()) {
-                    LOGGER.debug("\t\t" + entry.getKey() + "\t" + entry.getValue().toString());
-                }
-            }
+            LOGGER.debug("Response body: {}", ex.getResponseBodyAsString());
+
+            throw ex;
         }
-        return resources;
+
     }
 
     @Override

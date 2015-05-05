@@ -161,6 +161,7 @@ public class DCResource {
     }
     
     private Object toObject(Value val) {
+        if (val == null) return val;
         if (val.isMap()) {
             return val.asMap().entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> toObject(entry.getValue())));
         } else if (val.isArray()) {

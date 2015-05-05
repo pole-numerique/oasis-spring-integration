@@ -6,7 +6,7 @@ package org.oasis_eu.spring.datacore.model;
  */
 public enum DCOperator {
 
-
+    EMPTY(""),
     EQ(""),
     GT(">"),
     GTE(">="),

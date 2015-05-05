@@ -19,18 +19,22 @@ public class DCQueryParameters implements Iterable<DCQueryParameters.DCQueryPara
     public static class DCQueryParam {
         String subject;
         DCOperator operator;
-        String objectAsString;
-        List<String> objectAsArray;
+        DCOrdering ordering = null;
+        String objectAsString = null;
+        List<String> objectAsArray = null;
 
-        DCQueryParam(String subject, DCOperator operator, String object) {
+
+        DCQueryParam(String subject, DCOperator operator, DCOrdering ordering, String object) {
             this.subject = subject;
             this.operator = operator;
+            this.ordering = ordering;
             this.objectAsString = object;
         }
 
-        DCQueryParam(String subject, DCOperator operator, List<String> objectAsArray) {
+        DCQueryParam(String subject, DCOperator operator, DCOrdering ordering, List<String> objectAsArray) {
             this.subject = subject;
             this.operator = operator;
+            this.ordering = ordering;
             this.objectAsArray = objectAsArray;
         }
 
@@ -43,15 +47,25 @@ public class DCQueryParameters implements Iterable<DCQueryParameters.DCQueryPara
         }
 
         public String getObject() {
-            if (objectAsString != null) {
-                return "\"" + objectAsString + "\"";
+            StringBuilder builder = new StringBuilder();
+
+            if ((objectAsString == null || "".equals(objectAsString)) && objectAsArray == null) {
+                // nothing
+            } else if (objectAsString != null) {
+                builder.append("\"" + objectAsString + "\"");
             } else if (objectAsArray != null) {
                 Joiner joiner = Joiner.on("\",\"");
-                return "[\"" + joiner.join(objectAsArray) + "\"]";
+                builder.append("[\"" + joiner.join(objectAsArray) + "\"]");
             } else {
                 LOGGER.error("Cannot serialize parameter that has neither string nor stringarray object");
                 return "";
             }
+
+            if (ordering != null) {
+                builder.append(ordering.representation());
+            }
+
+            return builder.toString();
         }
 
 
@@ -61,21 +75,39 @@ public class DCQueryParameters implements Iterable<DCQueryParameters.DCQueryPara
 
     public DCQueryParameters() {}
 
+    public DCQueryParameters(String subject, DCOrdering order) {
+        params.add(new DCQueryParam(subject, DCOperator.EQ, order, ""));
+    }
+
+    public DCQueryParameters(String subject, DCOrdering order, DCOperator operator, String object) {
+        params.add(new DCQueryParam(subject, operator, order, object));
+    }
+
     public DCQueryParameters(String subject, DCOperator operator, String object) {
-        params.add(new DCQueryParam(subject, operator, object));
+        params.add(new DCQueryParam(subject, operator, null, object));
     }
     public DCQueryParameters(String subject, DCOperator operator, List<String> object) {
-        params.add(new DCQueryParam(subject, operator, object));
+        params.add(new DCQueryParam(subject, operator, null, object));
     }
 
     public DCQueryParameters and(String subject, DCOperator operator, String object) {
-        params.add(new DCQueryParam(subject, operator, object));
+        params.add(new DCQueryParam(subject, operator, null, object));
         return this;
     }
     public DCQueryParameters and(String subject, DCOperator operator, List<String> object) {
-        params.add(new DCQueryParam(subject, operator, object));
+        params.add(new DCQueryParam(subject, operator, null, object));
         return this;
     }
+    public DCQueryParameters and(String subject, DCOrdering order) {
+        params.add(new DCQueryParam(subject, DCOperator.EQ, order, ""));
+        return this;
+    }
+
+    public DCQueryParameters and(String subject, DCOrdering order, DCOperator operator, String object) {
+        params.add(new DCQueryParam(subject, operator, order, object));
+        return this;
+    }
+
 
     @Override
     public Iterator<DCQueryParam> iterator() {
