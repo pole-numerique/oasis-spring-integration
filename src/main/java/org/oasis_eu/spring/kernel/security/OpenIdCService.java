@@ -13,9 +13,11 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
 import org.oasis_eu.spring.kernel.model.UserInfo;
+import org.oasis_eu.spring.kernel.service.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -43,6 +46,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 
 /**
  * User: schambon
@@ -61,9 +66,13 @@ public class OpenIdCService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /** used in auth process (NOT once auth'd) */
     @Autowired
     @Qualifier("kernelRestTemplate")
     private RestTemplate restTemplate;
+    
+    @Autowired
+    private Kernel kernel;
 
     public OpenIdCAuthentication processAuthentication(String code, String state, String savedState, String savedNonce, String callbackUri) {
 
@@ -202,21 +211,22 @@ public class OpenIdCService {
         }
     }
 
-    public UserInfo getUserInfo(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Accept", "application/json");
-
-        UserInfo body = restTemplate.exchange(
-                configuration.getUserInfoEndpoint(),
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                UserInfo.class)
+    public UserInfo getUserInfo(OpenIdCAuthentication openIdCAuthentication) {
+    	// possibly nothing yet in SecurityContextHolder.getContext() (if within authenticate()),
+    	// so using access token instead :
+    	String accessToken = openIdCAuthentication.getAccessToken();    	
+       
+        UserInfo body = kernel.exchange(
+	                configuration.getUserInfoEndpoint(),
+	                HttpMethod.GET,
+	                null,
+	                UserInfo.class, 
+	                user(accessToken)) //Oasis kernel User Authentication Impl
                 .getBody();
 
         return body;
     }
-
+  
 
 
 

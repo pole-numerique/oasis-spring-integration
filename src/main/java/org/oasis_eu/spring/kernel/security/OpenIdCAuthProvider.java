@@ -37,10 +37,8 @@ public class OpenIdCAuthProvider implements AuthenticationProvider {
 
         if (isFetchUserInfo()) {
             OpenIdCAuthentication auth = (OpenIdCAuthentication) authentication;
-
-            String accessToken = auth.getAccessToken();
-
-            auth.setUserInfo(openIdCService.getUserInfo(accessToken));
+            
+            auth.setUserInfo(openIdCService.getUserInfo(auth));
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Fetched user info: {}", auth.getSubject());

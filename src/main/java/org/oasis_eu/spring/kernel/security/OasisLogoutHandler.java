@@ -1,6 +1,11 @@
 package org.oasis_eu.spring.kernel.security;
 
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
+
 import com.nimbusds.jose.util.Base64;
+
+import org.oasis_eu.spring.kernel.model.UserInfo;
+import org.oasis_eu.spring.kernel.service.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 /**
@@ -40,6 +46,9 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
 
     private String afterLogoutUrl;
 
+    @Autowired
+    private Kernel kernel;
+    
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
@@ -52,11 +61,14 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
             MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
             revocationRequest.add("token", token.getAccessToken());
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", String.format("Basic %s", Base64.encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()))));
-
-            ResponseEntity<String> entity = restTemplate.exchange(configuration.getRevocationEndpoint(), HttpMethod.POST, new HttpEntity<>(revocationRequest, headers), String.class);
-
+            // Direct Kernel API call kernel.exchange...
+            ResponseEntity<String> entity = kernel.exchange(
+            									configuration.getRevocationEndpoint(), 
+            									HttpMethod.POST, 
+            									new HttpEntity<>(revocationRequest), //, headers), 
+            									String.class, 
+            									client(configuration.getClientId(), configuration.getClientSecret() ) );
+            
             if (entity.getStatusCode().value() != 200) { // RFC 7009 says the response should be 200 unless we provided an unknown token type
                 LOGGER.error("Cannot handle revocation response with code: " + entity.getStatusCode());
                 LOGGER.error("Payload is: " + entity.getBody());

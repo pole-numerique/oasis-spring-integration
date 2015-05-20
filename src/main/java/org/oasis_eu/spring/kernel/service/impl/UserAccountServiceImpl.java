@@ -42,7 +42,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     private void refreshCurrentUser() {
     	OpenIdCAuthentication authentication = getOpenIdCAuthentication();
         if (authentication != null) {
-            UserInfo userInfo = openIdCService.getUserInfo(authentication.getAccessToken());
+            UserInfo userInfo = openIdCService.getUserInfo(authentication);
             authentication.setUserInfo(userInfo);
         }
     }
