@@ -65,13 +65,15 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
             ResponseEntity<String> entity = kernel.exchange(
             									configuration.getRevocationEndpoint(), 
             									HttpMethod.POST, 
-            									new HttpEntity<>(revocationRequest), //, headers), 
+            									// NB. HttpEntity has two constructors accepting one param. If a MultiValueMap is passed, it will 
+            									// use that that set the passed value IN the header. Here the Token is required to be set in the body.
+            									new HttpEntity<>(revocationRequest, null), 
             									String.class, 
             									client(configuration.getClientId(), configuration.getClientSecret() ) );
             
             if (entity.getStatusCode().value() != 200) { // RFC 7009 says the response should be 200 unless we provided an unknown token type
                 LOGGER.error("Cannot handle revocation response with code: " + entity.getStatusCode());
-                LOGGER.error("Payload is: " + entity.getBody());
+                LOGGER.error("Payload is: " + entity.getBody() );
             }
 
             response.sendRedirect(UriComponentsBuilder.fromHttpUrl(logoutEndpoint)
