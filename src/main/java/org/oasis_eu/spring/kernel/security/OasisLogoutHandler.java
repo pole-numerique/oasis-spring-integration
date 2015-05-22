@@ -2,23 +2,18 @@ package org.oasis_eu.spring.kernel.security;
 
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
 
-import com.nimbusds.jose.util.Base64;
-
-import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
@@ -34,8 +29,6 @@ import java.io.IOException;
 public class OasisLogoutHandler implements LogoutSuccessHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OasisLogoutHandler.class);
-
-    private RestTemplate restTemplate;
 
     @Autowired
     private OpenIdCConfiguration configuration;
@@ -54,20 +47,16 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
 
         request.getSession().invalidate();
 
-        // Okay, at this stage we have logged out from CK, we want to log out from OASIS too (otherwise it doesn't make sense to log out from CK)
+        // Okay, at this stage we have logged out from CK,
+        // we want to log out from OASIS too (otherwise it doesn't make sense to log out from CK)
         if (authentication instanceof OpenIdCAuthentication) {
             OpenIdCAuthentication token = (OpenIdCAuthentication) authentication;
-
-            MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
-            revocationRequest.add("token", token.getAccessToken());
-
+            
             // Direct Kernel API call kernel.exchange...
             ResponseEntity<String> entity = kernel.exchange(
             									configuration.getRevocationEndpoint(), 
             									HttpMethod.POST, 
-            									// NB. HttpEntity has two constructors accepting one param. If a MultiValueMap is passed, it will 
-            									// use that that set the passed value IN the header. Here the Token is required to be set in the body.
-            									new HttpEntity<>(revocationRequest, null), 
+            									this.createRevocationRequest(token),
             									String.class, 
             									client(configuration.getClientId(), configuration.getClientSecret() ) );
             
@@ -90,10 +79,15 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
         }
     }
 
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    private HttpEntity<MultiValueMap<String, String>> createRevocationRequest(OpenIdCAuthentication token){
+    	MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
+        revocationRequest.add("token", token.getAccessToken());
+        
+        // NB. HttpEntity has two constructors accepting one param. If a MultiValueMap is passed, it will 
+		// use the one that set the passed value IN the header. Here the Token is required to be set in the body.
+		return new HttpEntity<MultiValueMap<String, String>>(revocationRequest, null);
     }
-
+    
     public void setAfterLogoutUrl(String afterLogoutUrl) {
         this.afterLogoutUrl = afterLogoutUrl;
     }

@@ -3,6 +3,7 @@ package org.oasis_eu.spring.util;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -29,10 +30,8 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Intercepted {} request to: {}", request.getMethod(), request.getURI());
-            StringBuilder headers = new StringBuilder("\n");
-            request.getHeaders().entrySet().forEach(e -> headers.append(e.getKey() + ":\t" + e.getValue() + "\n"));
 
-            logger.debug("Request headers: {}", headers.toString());
+            logger.debug("Request headers: {}", buildHeaders(request));
             logger.debug("Request body: {}", new String(body));
         }
 
@@ -72,10 +71,22 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
 
         // even if we're not logging all requests, log info on errors
         if (!response.getStatusCode().is2xxSuccessful()) {
-            logger.info("{} request to {} resulted in {} {}", request.getMethod(), request.getURI(), response.getStatusCode(), response.getStatusCode().getReasonPhrase());
+            if (logger.isWarnEnabled()) {
+            	logger.warn("{} request to {} resulted in {} {}", request.getMethod(), request.getURI(), response.getStatusCode(), response.getStatusCode().getReasonPhrase());
+                if (logger.isInfoEnabled()) {
+                    logger.info("Request headers: {}", buildHeaders(request));
+                    logger.info("Request body: {}", new String(body));
+                }
+            }
         }
 
 
         return response;
     }
+
+	private StringBuilder buildHeaders(HttpRequest request) {
+        StringBuilder headers = new StringBuilder("\n");
+        request.getHeaders().entrySet().forEach(e -> headers.append(e.getKey() + ":\t" + e.getValue() + "\n"));
+		return headers;
+	}
 }

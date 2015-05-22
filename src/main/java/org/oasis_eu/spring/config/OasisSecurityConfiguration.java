@@ -28,10 +28,6 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
     @Value("${application.security.fetchUserInfo:false}")
     boolean fetchUserInfo;
 
-    @Autowired
-    @Qualifier("kernelRestTemplate")
-    private RestTemplate kernelRestTemplate;
-
     @Bean
     public OpenIdCAuthProvider oasisAuthProvider() {
         OpenIdCAuthProvider provider = new OpenIdCAuthProvider();
@@ -55,7 +51,6 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
     @Bean
     protected OasisLogoutHandler logoutHandler() {
         OasisLogoutHandler handler = new OasisLogoutHandler();
-        handler.setRestTemplate(kernelRestTemplate);
         handler.setAfterLogoutUrl(applicationUrl);
         return handler;
     }
