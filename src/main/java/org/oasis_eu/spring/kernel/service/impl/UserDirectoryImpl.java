@@ -1,8 +1,10 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
-import org.oasis_eu.spring.kernel.exception.WrongQueryException;
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
@@ -14,14 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Repository
 public class UserDirectoryImpl implements UserDirectory {
@@ -46,26 +49,14 @@ public class UserDirectoryImpl implements UserDirectory {
                 .buildAndExpand(userId)
                 .toUriString();
 
-        ResponseEntity<UserMembership[]> response = kernel.exchange(uriString, HttpMethod.GET, null, UserMembership[].class, user());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            String orgs = "";
-            for (UserMembership m : response.getBody()) {
-                orgs += String.format("%s (%s)\n", m.getOrganizationName(), m.getOrganizationId());
-            }
-            logger.debug("Found memberships in the following organizations:\n{}", orgs);
-
-            return Arrays.asList(response.getBody());
-        } else {
-            logger.error("Cannot load user membership information: {}", response.getStatusCode());
-
-            if (response.getStatusCode().is4xxClientError()) {
-                throw new WrongQueryException();
-            } else {
-                throw new TechnicalErrorException();
-            }
+        UserMembership[] userMembpArray = kernel.getEntityOrException(uriString, UserMembership[].class, user());
+        String orgs = ""; //TODO : use a StringBuilder
+        for (UserMembership m : userMembpArray ) {
+            orgs += String.format("%s (%s)\n", m.getOrganizationName(), m.getOrganizationId());
         }
+        logger.debug("Found memberships in the following organizations:\n{}", orgs);
 
-
+        return Arrays.asList(userMembpArray);
     }
 
     @Override
@@ -90,17 +81,8 @@ public class UserDirectoryImpl implements UserDirectory {
 
         String uri = builder.buildAndExpand(organizationId).toUriString();
 
-        ResponseEntity<OrgMembership[]> response = kernel.exchange(uri, HttpMethod.GET, null, OrgMembership[].class, user());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return Arrays.asList(response.getBody());
-        } else {
-            logger.error("Cannot load organization memberships: {}", response.getStatusCode());
-            if (response.getStatusCode().is4xxClientError()) {
-                throw new WrongQueryException();
-            } else {
-                throw new TechnicalErrorException();
-            }
-        }
+        OrgMembership[] response = kernel.getEntityOrException(uri, OrgMembership[].class, user());
+        return Arrays.asList(response);
     }
 
     @Override
@@ -109,47 +91,33 @@ public class UserDirectoryImpl implements UserDirectory {
                 .path("/memberships/org/{organization_id}/admins")
                 .buildAndExpand(organizationId)
                 .toUriString();
-
-        ResponseEntity<OrgMembership[]> response = kernel.exchange(uri, HttpMethod.GET, null, OrgMembership[].class, user());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return Arrays.asList(response.getBody());
-        } else {
-            logger.error("Cannot load organization memberships: {}", response.getStatusCode());
-            if (response.getStatusCode().is4xxClientError()) {
-                throw new WrongQueryException();
-            } else {
-                throw new TechnicalErrorException();
-            }
-        }
+        
+        OrgMembership[] omsArray = kernel.getEntityOrException(uri, OrgMembership[].class, user());
+        return Arrays.asList(omsArray);
     }
 
     @Override
     @CacheEvict(value = "accounts", key = "#userAccount.userId")
     public void saveUserAccount(UserAccount userAccount) {
 
-        ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), userAccount.getUserId());
-        String etag = entity.getHeaders().getETag();
+    	ResponseEntity<UserAccount> response = kernel.exchange(userDirectoryEndpoint + "/user/{userId}",
+    			HttpMethod.GET, null, UserAccount.class, user(), userAccount.getUserId());
+
+        String etag = response.getHeaders().getETag();
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("If-Match", etag);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.PUT, new HttpEntity<Object>(userAccount, headers), UserAccount.class, user(), userAccount.getUserId());
+        kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.PUT, new HttpEntity<Object>(userAccount, headers),
+        		UserAccount.class, user(), userAccount.getUserId());
 
     }
 
     @Override
     @Cacheable("accounts")
     public UserAccount findUserAccount(String id) {
-
-        ResponseEntity<UserAccount> entity = kernel.exchange(userDirectoryEndpoint + "/user/{userId}", HttpMethod.GET, null, UserAccount.class, user(), id);
-        if (entity.getStatusCode().is2xxSuccessful()) {
-
-            return entity.getBody();
-        } else {
-            logger.error("Cannot load user account {}, status is: {}", id, entity.getStatusCode());
-            throw new WrongQueryException();
-        }
+    	return kernel.getEntityOrException(userDirectoryEndpoint + "/user/{userId}", UserAccount.class, user(), id);
     }
 
     private void updateMembership(String membershipUri, String membershipEtag, boolean admin) {

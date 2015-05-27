@@ -1,18 +1,20 @@
 package org.oasis_eu.spring.kernel.security;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.BaseEncoding;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
@@ -33,21 +35,19 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.BaseEncoding;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * User: schambon
@@ -84,10 +84,13 @@ public class OpenIdCService {
             form.add("code", code);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()).getBytes()));
+            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), 
+            		configuration.getClientSecret()).getBytes()));
 
             logger.debug("Token endpoint: {}", configuration.getTokenEndpoint());
-            ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
+            ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), 
+            		HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
+            
             if (!response.getStatusCode().is2xxSuccessful()) {
               logger.error("Oops, got error {}", response.getStatusCode());
               for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
@@ -133,7 +136,8 @@ public class OpenIdCService {
             Instant issuedAt = Instant.ofEpochMilli(idToken.getIat());
             Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
 
-            return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), issuedAt, expires, appUser, appAdmin);
+            return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), 
+            		issuedAt, expires, appUser, appAdmin);
 
         } else {
             logger.error("Cannot match state with saved state; possible replay attack");
@@ -144,7 +148,11 @@ public class OpenIdCService {
 
     public boolean verifySignature(SignedJWT signedJWT) throws ParseException {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret()).getBytes()));
+        headers.add("Authorization", 
+        		"Basic " + BaseEncoding.base64()
+        		.encode( String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret() )
+        		.getBytes()) 
+        );
 
         // TODO cache the keys as per HTTP caching headers
         String keysAsJson = restTemplate.exchange(configuration.getKeysEndpoint(), HttpMethod.GET, new HttpEntity<>(headers), String.class).getBody();
@@ -216,15 +224,10 @@ public class OpenIdCService {
     	// so using access token instead :
     	String accessToken = openIdCAuthentication.getAccessToken();    	
        
-        UserInfo body = kernel.exchange(
-	                configuration.getUserInfoEndpoint(),
-	                HttpMethod.GET,
-	                null,
-	                UserInfo.class, 
-	                user(accessToken)) //Oasis kernel User Authentication Impl
-                .getBody();
-
-        return body;
+    	return kernel.getEntityOrNull(configuration.getUserInfoEndpoint(), 
+    			UserInfo.class, //Oasis kernel User Authentication Impl
+    			user(accessToken)); 
+    	
     }
   
 
@@ -279,7 +282,9 @@ public class OpenIdCService {
             uiLocales = RequestContextUtils.getLocale(request).getLanguage();
         }
 
-        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT, uiLocales);
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, 
+			        		stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT, 
+			        		uiLocales);
 
         logger.debug("Auth uri is: {}", authUri);
         response.sendRedirect(authUri);

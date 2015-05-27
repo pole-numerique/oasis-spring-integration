@@ -1,11 +1,13 @@
 package org.oasis_eu.spring.kernel.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.oasis_eu.spring.kernel.exception.AuthenticationRequiredException;
+import org.oasis_eu.spring.kernel.exception.EntityNotFoundException;
 import org.oasis_eu.spring.kernel.exception.ForbiddenException;
 import org.oasis_eu.spring.kernel.exception.TechnicalErrorException;
 import org.oasis_eu.spring.kernel.exception.WrongQueryException;
@@ -92,14 +94,6 @@ public class Kernel {
         return entity;
     }
 
-    public <T> T getForObject(String endpoint, Class<T> responseClass, Authentication auth, Object... uriParameters) {
-        return exchange(endpoint, HttpMethod.GET, null, responseClass, auth, uriParameters).getBody();
-    }
-
-    public <T> ResponseEntity<T> getForEntity(String endpoint, Class<T> responseClass, Authentication auth, Object... uriParameters) {
-        return exchange(endpoint, HttpMethod.GET, null, responseClass, auth, uriParameters);
-    }
-
     /**
      * Same as exchange() then getBodyOrNull()
      * @param endpoint
@@ -108,9 +102,23 @@ public class Kernel {
      * @param id
      * @return
      */
-    public <T> T getEntityOrNull(String endpoint, Class<T> responseClass, Authentication auth, String id) {
-        ResponseEntity<T> response = exchange(endpoint, HttpMethod.GET, null, responseClass, auth, id);
-        return getBodyOrNull(response, logger, responseClass, id, endpoint);
+    public <T> T getEntityOrNull(String endpoint, Class<T> responseClass, Authentication auth, Object... idOrOtherUriParameters) {
+        ResponseEntity<T> response = exchange(endpoint, HttpMethod.GET, null, responseClass, auth, idOrOtherUriParameters);
+        return getBodyOrNull(response, responseClass, endpoint, idOrOtherUriParameters);
+    }
+    
+    /**
+     * Same as exchange() then getBodyUnlessClientError()
+     * @param endpoint
+     * @param responseClass
+     * @param auth
+     * @param id
+     * @return
+     */
+    public <T> T getEntityOrException(String endpoint, Class<T> responseClass, Authentication auth, Object... idOrOtherUriParameters)
+    		throws EntityNotFoundException, ForbiddenException, WrongQueryException {
+        ResponseEntity<T> response = exchange(endpoint, HttpMethod.GET, null, responseClass, auth, idOrOtherUriParameters);
+        return getBodyUnlessClientError(response, responseClass, endpoint, idOrOtherUriParameters);
     }
     
     /**
@@ -127,25 +135,31 @@ public class Kernel {
      * @throws HttpClientErrorException
      */
     public <T> T getBodyOrNull(ResponseEntity<T> response,
-            Logger logger, Class<T> entityClazz, String id, String endpoint) {
+            Class<T> entityClazz, String endpoint, Object... idOrOtherUriParameters) {
         
         if (response.getStatusCode().is2xxSuccessful()) {
             //this.somethingWentWrong(); // TODO rm to test #166, remove it afterwards
             return response.getBody();
+        }
+        
+        this.somethingWentWrong(); // #166
             
-        } else if (response.getStatusCode() == HttpStatus.FORBIDDEN) { // error cases that are OK from a business point of view
-            logger.debug("Forbidden " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}", id, endpoint, response.getStatusCode());
+        if (response.getStatusCode() == HttpStatus.FORBIDDEN) { // error cases that are OK from a business point of view
+            logger.debug("Forbidden " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}",
+            		Arrays.asList(idOrOtherUriParameters), endpoint, response.getStatusCode());
             return null; // ex. 403 service.visible:false, see #179 Bug with notifications referring destroyed app instances
 
         } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) { 
-            logger.debug("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}", id, endpoint, response.getStatusCode());
+            logger.debug("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}",
+            		Arrays.asList(idOrOtherUriParameters), endpoint, response.getStatusCode());
             return null; // ex. 404 - Deleted app (or service ?) instance, see #179 Bug with notifications referring destroyed app instances
             //See #179 Bug with notifications referring destroyed app instances or not others besides 404 ??
         }
         // else other client errors :HttpStatus.NOT_FOUND error cases that should be notified "wrong" but not block
         
-        logger.warn("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}", id, endpoint, response.getStatusCode());
-        this.somethingWentWrong(); // #166
+        logger.warn("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}",
+        		Arrays.asList(idOrOtherUriParameters), endpoint, response.getStatusCode());
+        //this.somethingWentWrong(); // #166 TODO Q or this ?
         return null;
     }
     /**
@@ -159,22 +173,27 @@ public class Kernel {
      * @throws WrongQueryException if any client error
      */
     public <T> T getBodyUnlessClientError(ResponseEntity<T> response,
-            Logger logger, Class<T> entityClazz, String id, String endpoint) throws WrongQueryException {
+            Class<T> entityClazz, String endpoint, Object... idOrOtherUriParameters)
+            		throws EntityNotFoundException, ForbiddenException, WrongQueryException {
         
         if (response.getStatusCode().is2xxSuccessful()) {
+            //this.somethingWentWrong(); // TODO rm to test #166, remove it afterwards
             return response.getBody();
         }
         
         this.somethingWentWrong(); // #166
         
-        if (response.getStatusCode().value() == 403) {
-            logger.debug("Forbidden " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}", id, endpoint, response.getStatusCode());
+        if (response.getStatusCode() == HttpStatus.FORBIDDEN) {
+            logger.debug("Forbidden " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}",
+            		Arrays.asList(idOrOtherUriParameters), endpoint, response.getStatusCode());
+            throw new ForbiddenException();
 
         } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            logger.error("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}", id, endpoint, response.getStatusCode());
-            
+            logger.error("Cannot find " + entityClazz.getSimpleName() + " {} through endpoint {} : error {}",
+            		Arrays.asList(idOrOtherUriParameters), endpoint, response.getStatusCode());
+            throw new EntityNotFoundException();
         }
-        // else other client errors :
+        // else other 4xx client errors :
         //throw new HttpClientErrorException(response.getStatusCode(), null, response.getHeaders(), null, null);
         throw new WrongQueryException();
     }

@@ -1,6 +1,12 @@
 package org.oasis_eu.spring.kernel.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.oasis_eu.spring.kernel.model.InboundNotification;
 import org.oasis_eu.spring.kernel.model.NotificationStatus;
 import org.oasis_eu.spring.kernel.model.OutboundNotification;
@@ -11,16 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * User: schambon
@@ -64,14 +64,14 @@ public class NotificationService {
                 .buildAndExpand(userId)
                 .toUriString();
 
-        ResponseEntity<InboundNotification[]> notifsEntity = kernel.exchange(uri, HttpMethod.GET, null, InboundNotification[].class, user());
+        InboundNotification[] notifsEntity = kernel.getEntityOrNull(uri, InboundNotification[].class, user());
 
-        if (!notifsEntity.getStatusCode().is2xxSuccessful()) {
-            logger.warn("Getting notifications resulted in {} {}", notifsEntity.getStatusCode().value(), notifsEntity.getStatusCode().getReasonPhrase());
+        if (notifsEntity == null || notifsEntity.length < 1 ) {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(notifsEntity.getBody());
+        return Arrays.asList(notifsEntity);
+        
     }
 
     public void setMessageStatus(String userId, List<String> messageIds, NotificationStatus status) {
