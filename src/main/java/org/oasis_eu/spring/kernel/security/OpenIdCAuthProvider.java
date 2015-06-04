@@ -1,6 +1,5 @@
 package org.oasis_eu.spring.kernel.security;
 
-import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ public class OpenIdCAuthProvider implements AuthenticationProvider {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         if (authentication == null || !supports(authentication.getClass())) {

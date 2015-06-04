@@ -1,10 +1,11 @@
 package org.oasis_eu.spring.kernel.service;
 
+import java.util.List;
+
 import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.directory.OrgMembership;
+import org.oasis_eu.spring.kernel.model.directory.PendingOrgMembership;
 import org.oasis_eu.spring.kernel.model.directory.UserMembership;
-
-import java.util.List;
 
 public interface UserDirectory {
 
@@ -17,6 +18,12 @@ public interface UserDirectory {
 
     List<OrgMembership> getAdminsOfOrganization(String organizationId);
 
+    /**
+     * TODO remove. its never used
+     * @param um
+     * @param admin
+     * @param userId
+     */
     void updateMembership(UserMembership um, boolean admin, String userId);
 
     void updateMembership(OrgMembership om, boolean admin, String organizationId);
@@ -30,4 +37,18 @@ public interface UserDirectory {
     void createMembership(String email, String organizationId);
 
     void removeMembership(UserMembership userMembership, String userId);
+
+    /**
+     * Pending invitation
+     * @param organizationId
+     * @param start
+     * @param limit
+     * @return
+     */
+    List<PendingOrgMembership> getPendingOrgMembership(String organizationId, int start, int limit);
+
+    List<PendingOrgMembership> getPendingOrgMembership(String organizationId);
+
+	void removePendingMembership(String pendingMembershipId, String pendingMembershipETag);
+
 }

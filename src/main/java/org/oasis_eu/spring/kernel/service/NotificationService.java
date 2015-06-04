@@ -7,16 +7,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.oasis_eu.spring.kernel.exception.WrongQueryException;
 import org.oasis_eu.spring.kernel.model.InboundNotification;
 import org.oasis_eu.spring.kernel.model.NotificationStatus;
 import org.oasis_eu.spring.kernel.model.OutboundNotification;
 import org.oasis_eu.spring.kernel.security.OpenIdCConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Service
 public class NotificationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+    //private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @Autowired
     private Kernel kernel;
@@ -40,8 +40,17 @@ public class NotificationService {
     @Value("${kernel.notifications_endpoint}")
     private String endpoint;
 
-    public void sendNotification(OutboundNotification outboundNotification) {
-        kernel.exchange(endpoint + "/publish", HttpMethod.POST, new HttpEntity<Object>(outboundNotification), Void.class, client(configuration.getClientId(), configuration.getClientSecret()));
+    /**
+     * NOT USED FOR NOW
+     * @param outboundNotification
+     * @throws WrongQueryException
+     */
+    public void sendNotification(OutboundNotification outboundNotification) throws WrongQueryException{
+        String uriString = endpoint + "/publish";
+        ResponseEntity<Void> kernelResp = kernel.exchange(uriString, HttpMethod.POST, new HttpEntity<Object>(outboundNotification), 
+                Void.class, client(configuration.getClientId(), configuration.getClientSecret()));
+        // validate response body
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString); // TODO test
     }
 
     public List<InboundNotification> getNotifications(String userId, NotificationStatus status) {
@@ -74,11 +83,15 @@ public class NotificationService {
         
     }
 
-    public void setMessageStatus(String userId, List<String> messageIds, NotificationStatus status) {
+    public void setMessageStatus(String userId, List<String> messageIds, NotificationStatus status) throws WrongQueryException{
         MessageStatus ms = new MessageStatus();
         ms.setMessageIds(messageIds);
         ms.setStatus(status);
-        kernel.exchange(endpoint + "/{user_id}/messages", HttpMethod.POST, new HttpEntity<Object>(ms), Void.class, user(), userId);
+
+        String uriString = endpoint + "/{user_id}/messages";
+        ResponseEntity<Void> kernelResp = kernel.exchange(uriString, HttpMethod.POST, new HttpEntity<Object>(ms), Void.class, user(), userId);
+        // validate response body
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString); // TODO test
     }
 
     static class MessageStatus {

@@ -57,7 +57,10 @@ public class OrganizationStoreImpl implements OrganizationStore {
                 .build()
                 .toUriString();
 
-        return kernel.exchange(uri, HttpMethod.POST, new HttpEntity<Organization>(organization), Organization.class, user()).getBody();
+         ResponseEntity<Organization> kernelResp = kernel.exchange(uri, HttpMethod.POST, 
+                     new HttpEntity<Organization>(organization), Organization.class, user());
+        // validate response body
+        return kernel.getBodyUnlessClientError(kernelResp, Organization.class, uri); // TODO test
     }
 
     @Override
@@ -74,7 +77,10 @@ public class OrganizationStoreImpl implements OrganizationStore {
         HttpHeaders headers = new HttpHeaders();
         headers.add("If-Match", eTag);
 
-        kernel.exchange(uri, HttpMethod.PUT, new HttpEntity<Organization>(org, headers), Void.class, user());
+        ResponseEntity<Void> kernelResp = kernel.exchange(uri, HttpMethod.PUT, new HttpEntity<Organization>(org, headers), Void.class, user());
+        // validate response body
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uri); // TODO test
+
     }
 
     @Override
@@ -92,7 +98,11 @@ public class OrganizationStoreImpl implements OrganizationStore {
         headers.add("If-Match", eTag);
 
         Map<String,String> statusMap = new ImmutableMap.Builder<String, String>().put("status", status.toString()) .build();
-        ResponseEntity<String> resEntity = kernel.exchange(uri, HttpMethod.POST, new HttpEntity<Map<String,String>>(statusMap, headers), String.class, user());
+        ResponseEntity<String> resEntity = kernel.exchange(uri, HttpMethod.POST,
+                new HttpEntity<Map<String,String>>(statusMap, headers), String.class, user());
+
+        /*  DONT CHANGE BELOW code unless updating front-end app since there is a pop up linked to this message */
+        // specific error handling, TODO LATER make it more consistent with generic error handling
         if (resEntity.getStatusCode().is4xxClientError() || resEntity.getStatusCode().is5xxServerError()) {
             String res = resEntity.getBody();
             if (res != null && !res.trim().isEmpty()) {

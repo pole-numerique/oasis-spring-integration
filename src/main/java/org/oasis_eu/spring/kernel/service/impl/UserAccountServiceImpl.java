@@ -1,5 +1,6 @@
 package org.oasis_eu.spring.kernel.service.impl;
 
+import org.oasis_eu.spring.kernel.exception.WrongQueryException;
 import org.oasis_eu.spring.kernel.model.UserAccount;
 import org.oasis_eu.spring.kernel.model.UserInfo;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
@@ -33,7 +34,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 	 * @see org.oasis_eu.spring.kernel.service.impl.UserInfoService#saveUserInfo(java.util.Map, java.lang.String)
 	 */
     @Override
-	public void saveUserAccount(UserAccount userAccount) {
+	public void saveUserAccount(UserAccount userAccount) throws WrongQueryException {
+
         userDirectory.saveUserAccount(userAccount);
 
         refreshCurrentUser();
