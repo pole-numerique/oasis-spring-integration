@@ -118,7 +118,7 @@ public class UserDirectoryImpl implements UserDirectory {
         ResponseEntity<UserAccount> kernelResp = kernel.exchange(uriString, HttpMethod.PUT, new HttpEntity<Object>(userAccount, headers),
         		UserAccount.class, user(), userAccount.getUserId());
         // validate response body
-        kernel.getBodyUnlessClientError(kernelResp, UserAccount.class, uriString); // TODO test
+        kernel.getBodyUnlessClientError(kernelResp, UserAccount.class, uriString);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class UserDirectoryImpl implements UserDirectory {
         String uriString = orgMembership.getMembershipUri();
         ResponseEntity<Void> kernelResp = kernel.exchange(uriString, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class, user());
         // validate response body
-        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString); // TODO test
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class UserDirectoryImpl implements UserDirectory {
         String uriString = userMembership.getMembershipUri();
         ResponseEntity<Void> kernelResp = kernel.exchange(uriString, HttpMethod.DELETE, new HttpEntity<Object>(headers), Void.class, user());
         // validate response body
-        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString ); // TODO test
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uriString );
     }
 
     @Override

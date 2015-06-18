@@ -53,29 +53,33 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
             logger.debug("Response headers: {}", headers.toString());
         }
 
-        if (!response.getStatusCode().is2xxSuccessful() && fullErrorLogger.isDebugEnabled()) {
-            // Warning: this will unwind the input stream, rendering it unusable further down the stack. Use only in extreme debugging circumstances!
-            // (actually should not be a problem thanks to bufIn)
+        int bufferLimit = -1;
+        if ((!response.getStatusCode().is2xxSuccessful() && fullErrorLogger.isInfoEnabled())) {
+            bufferLimit = 10000; // up to 10kb response (should be enough for all Kernel error messages)
+        } else if (fullErrorLogger.isDebugEnabled()) {
+            bufferLimit = 1000000; // up to 1000kb response (should be enough for almost all Kernel messages)
+        }
+
+        if ( bufferLimit > 0) { // If there is any error AND log.info is enabled (PROD) OR log.debug is enabled (PREPROD / DEV)
             try {
                 String text;
                 BufferedInputStream bufIn = new BufferedInputStream(response.getBody());
-                bufIn.mark(10000); // up to 10kb response (enough for any Kernel error message)
+                bufIn.mark(bufferLimit);
                 response = new ClientHttpResponseWrapper(response, bufIn);
                 InputStreamReader reader = new InputStreamReader(bufIn, Charsets.UTF_8);
-                //boolean threw = true;
                 try {
                     text = CharStreams.toString(reader);
-                    //threw = false;
                 } finally {
-                    bufIn.reset();
-                    ///Closeables.close(reader, threw);
+                    bufIn.reset(); // now can be read again from start
+                    // NB. If the data contained in the stream (body) is larger than bufferLimit, it will throw an IOException within reset()
+                    // due to the reader pointer position is -1 (means the mark has been invalidated and cannot be reset)
                 }
 
-                fullErrorLogger.debug("Full response body: {}", text); // error message provided by Kernel
+                fullErrorLogger.info("Full response body: {}", text); // error message provided by Kernel (or response body if DEBUG mode)
 
             } catch (IOException ioex) { // happens in response.getInputStream(),
                 // actually also happens and is caught within response.getStatusCode()
-                fullErrorLogger.debug("Full response body can't be retrieved (" + ioex.getMessage()
+                fullErrorLogger.info("Full response body can't be retrieved (" + ioex.getMessage()
                         + "). Received status code : {}", response.getStatusCode());
 
                 // example :
