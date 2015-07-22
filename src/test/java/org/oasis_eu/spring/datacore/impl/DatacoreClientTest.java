@@ -1,14 +1,11 @@
 package org.oasis_eu.spring.datacore.impl;
 
-import org.junit.Test;
-import org.oasis_eu.spring.datacore.model.DCOperator;
-import org.oasis_eu.spring.datacore.model.DCQueryParameters;
-import org.oasis_eu.spring.datacore.model.DCResource;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,10 +14,16 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import org.junit.Test;
+import org.oasis_eu.spring.datacore.model.DCOperator;
+import org.oasis_eu.spring.datacore.model.DCQueryParameters;
+import org.oasis_eu.spring.datacore.model.DCResource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * User: schambon
@@ -28,6 +31,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 
 public class DatacoreClientTest extends BaseDatacoreClientTest {
+    @Value("${application.geoarea.project:geo_0}")
+    private String project;
 
     @Test
     public void testUriBuilder() {
@@ -65,7 +70,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
     public void testGetResources() throws IOException {
         MockRestServiceServer mockRestServiceServer = setupMockServerForGetResources();
 
-        List<DCResource> resources = datacoreClient.findResources("citizenkin.procedure.envelope");
+        List<DCResource> resources = datacoreClient.findResources(project, "citizenkin.procedure.envelope");
         assertEquals(2, resources.size());
         assertEquals("33333_4444_5555", resources.get(0).getIri());
 
@@ -92,7 +97,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
         mockServer.expect(requestTo("http://localhost:8080/dc/type/citizenkin.procedure.envelope?start=0&limit=10"))
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
 
-        List<DCResource> resources = datacoreClient.findResources("citizenkin.procedure.envelope", null, 0, 10);
+        List<DCResource> resources = datacoreClient.findResources(project,"citizenkin.procedure.envelope", null, 0, 10);
         assertEquals(2, resources.size());
         assertEquals("33333_4444_5555", resources.get(0).getIri());
 
@@ -122,7 +127,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
         DCQueryParameters parameters = new DCQueryParameters("recipient", DCOperator.EQ, "organization:val")
                 .and("definition_name", DCOperator.EQ, "electoral_roll_registration");
 
-        List<DCResource> resources = datacoreClient.findResources("citizenkin.procedure.envelope", parameters, 0, 10);
+        List<DCResource> resources = datacoreClient.findResources(project,"citizenkin.procedure.envelope", parameters, 0, 10);
         assertEquals(2, resources.size());
         assertEquals("33333_4444_5555", resources.get(0).getIri());
 
@@ -163,7 +168,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
         resource.getValues().put("definition_name", new DCResource.StringValue("electoral_roll_registration"));
         resource.getValues().put("initiator", new DCResource.StringValue("tagada-tsouin-tsouin"));
 
-        datacoreClient.saveResource(resource);
+        datacoreClient.saveResource(project,resource);
 
 
         mockServer.verify();
@@ -186,7 +191,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
                 .andExpect(method(HttpMethod.PUT))
                 .andRespond(withSuccess());
 
-        datacoreClient.updateResource(resource);
+        datacoreClient.updateResource(project,resource);
 
         mockServer.verify();
     }
@@ -208,7 +213,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
                 .andExpect(method(HttpMethod.DELETE))
                 .andRespond(withNoContent());
 
-        datacoreClient.deleteResource(resource);
+        datacoreClient.deleteResource(project,resource);
 
         mockServer.verify();
     }

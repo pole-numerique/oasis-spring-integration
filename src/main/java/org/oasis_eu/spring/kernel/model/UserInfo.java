@@ -15,6 +15,14 @@ import java.time.Instant;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfo extends BaseUserInfo implements Serializable {
+    private static final long serialVersionUID = 5630983084892826427L;
+
+    @JsonProperty("sub")
+    private String userId;
+    @JsonProperty("email")
+    private String email;
+    @JsonProperty("email_verified")
+    private Boolean emailVerified;
 
     public static UserInfo from(UserInfo in) {
         UserInfo out = new UserInfo();
@@ -38,15 +46,6 @@ public class UserInfo extends BaseUserInfo implements Serializable {
 
         return out;
     }
-
-    @JsonProperty("sub")
-    private String userId;
-
-
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("email_verified")
-    private Boolean emailVerified;
 
     public String getUserId() {
         return userId;

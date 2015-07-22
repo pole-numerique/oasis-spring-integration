@@ -52,10 +52,12 @@ public class DCQueryParameters implements Iterable<DCQueryParameters.DCQueryPara
             if ((objectAsString == null || "".equals(objectAsString)) && objectAsArray == null) {
                 // nothing
             } else if (objectAsString != null) {
-                builder.append("\"" + objectAsString + "\"");
+                builder.append(objectAsString );
+                //builder.append("\"" + objectAsString + "\"");
             } else if (objectAsArray != null) {
                 Joiner joiner = Joiner.on("\",\"");
-                builder.append("[\"" + joiner.join(objectAsArray) + "\"]");
+                builder.append("[" + joiner.join(objectAsArray) + "]");
+                //builder.append("[\"" + joiner.join(objectAsArray) + "\"]");
             } else {
                 LOGGER.error("Cannot serialize parameter that has neither string nor stringarray object");
                 return "";

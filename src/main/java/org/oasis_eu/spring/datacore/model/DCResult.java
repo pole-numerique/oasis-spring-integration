@@ -13,6 +13,7 @@ public class DCResult {
 
     DCResultType type;
     DCResource resource; // may be null
+    DCRights rights; // may be null
     List<String> errorMessages = new ArrayList<>();
 
     public DCResult(DCResultType type, DCResource resource) {
@@ -20,12 +21,14 @@ public class DCResult {
         this.resource = resource;
     }
 
+    public DCResult(DCResultType type, DCRights rights) {
+        this.type = type;
+        this.rights = rights;
+    }
 
     public DCResult(DCResultType type, String... errors) {
         this.type = type;
-
         errorMessages = Arrays.stream(errors).collect(Collectors.toList());
-
     }
 
     public DCResource getResource() {
@@ -34,6 +37,10 @@ public class DCResult {
 
     public DCResultType getType() {
         return type;
+    }
+
+    public DCRights getRights() {
+        return rights;
     }
 
     public List<String> getErrorMessages() {

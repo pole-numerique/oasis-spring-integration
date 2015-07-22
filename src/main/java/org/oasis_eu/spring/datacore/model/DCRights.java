@@ -1,6 +1,9 @@
 package org.oasis_eu.spring.datacore.model;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * User: flombard
@@ -17,6 +20,13 @@ public class DCRights {
     }
     public void setOwners(List<String> owners) {
         this.owners = owners;
+    }
+
+    public void addOwners(List<String> owners) {
+        //Filter repeated values
+        Set<String> rights = new TreeSet<>(owners);
+        //rights.addAll(this.owners);
+        this.owners.addAll(new ArrayList<String>(rights));
     }
 
     public List<String> getWriters() {

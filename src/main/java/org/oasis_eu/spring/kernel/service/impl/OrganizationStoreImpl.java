@@ -5,8 +5,11 @@ import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.userIfExist
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.oasis_eu.spring.kernel.model.Organization;
 import org.oasis_eu.spring.kernel.model.OrganizationStatus;
+import org.oasis_eu.spring.kernel.rest.ResponseProviderInterceptor;
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,25 @@ public class OrganizationStoreImpl implements OrganizationStore {
         return kernel.getEntityOrNull(uri, Organization.class, userIfExists(), organizationId);
     }
 
+    @SuppressWarnings("static-access")
+    public Organization findByDCID(String dc_id) {
+        String uri = UriComponentsBuilder.fromUriString(endpoint)
+                .path("/org")
+                .queryParam("dc_id", dc_id)
+                .build()
+                .toUriString();
+        Organization entity = kernel.getEntityOrNull(uri, Organization.class, userIfExists());
+
+        //Remove message since its not required and error is already treated
+        if(entity == null){
+            HttpServletResponse appResponse = ResponseProviderInterceptor.getResponse();
+            if (appResponse != null) {
+                appResponse.setHeader(kernel.RESPONSE_HEADER_NAME, "");
+            }
+        }
+        return entity;
+    }
+
     @Override
     @CachePut(value = "organizations", key = "#result.id")
     public Organization create(Organization organization) {
@@ -60,7 +82,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
          ResponseEntity<Organization> kernelResp = kernel.exchange(uri, HttpMethod.POST, 
                      new HttpEntity<Organization>(organization), Organization.class, user());
         // validate response body
-        return kernel.getBodyUnlessClientError(kernelResp, Organization.class, uri); // TODO test
+        return kernel.getBodyUnlessClientError(kernelResp, Organization.class, uri);
     }
 
     @Override
@@ -79,7 +101,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
 
         ResponseEntity<Void> kernelResp = kernel.exchange(uri, HttpMethod.PUT, new HttpEntity<Organization>(org, headers), Void.class, user());
         // validate response body
-        kernel.getBodyUnlessClientError(kernelResp, Void.class, uri); // TODO test
+        kernel.getBodyUnlessClientError(kernelResp, Void.class, uri);
 
     }
 

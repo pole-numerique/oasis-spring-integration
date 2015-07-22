@@ -13,6 +13,7 @@ import java.util.Collections;
  * Date: 1/30/14
  */
 public class OpenIdCAuthentication extends AbstractAuthenticationToken {
+    private static final long serialVersionUID = -2562869709198729870L;
 
     private static Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 

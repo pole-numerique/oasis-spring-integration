@@ -39,6 +39,9 @@ public class UserDirectoryImpl implements UserDirectory {
     @Value("${kernel.user_directory_endpoint}")
     private String userDirectoryEndpoint;
 
+    @Value("${kernel.maxUserMembershipsPerPage: 100}")
+    private String maxUserMembershipsPerPage;
+
     @Autowired private Kernel kernel;
 
     @Autowired private MessageSource messageSource;
@@ -50,7 +53,7 @@ public class UserDirectoryImpl implements UserDirectory {
         String uriString = UriComponentsBuilder.fromHttpUrl(userDirectoryEndpoint)
                 .path("/memberships/user/{user_id}")
                 .queryParam("start", "0")
-                .queryParam("limit", "20")
+                .queryParam("limit",maxUserMembershipsPerPage.trim())
                 .buildAndExpand(userId)
                 .toUriString();
 

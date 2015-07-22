@@ -16,6 +16,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
@@ -30,6 +31,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DCResourceTypeAdapter.class);
 
+    @SuppressWarnings("rawtypes")
     private static final Map<String, PropertyHelper> BUILTIN_PROPERTIES = new HashMap<>();
     static {
         BUILTIN_PROPERTIES.put("@id", new StringHelper("uri"));
@@ -59,7 +61,9 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private JsonElement toJson(DCResource.Value value) {
-        if (value.isArray()) {
+        if (value == null) {
+            return JsonNull.INSTANCE;
+        } else if (value.isArray()) {
             JsonArray array = new JsonArray();
             value.asArray().forEach(val -> array.add(toJson(val)));
             return array;
@@ -67,7 +71,9 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
             JsonObject object = new JsonObject();
             value.asMap().forEach((key,val) -> object.add(key, toJson(val)));
             return object;
-        } else return new JsonPrimitive(value.asString());
+        } else if(!value.isNull()){
+            return new JsonPrimitive(value.asString());
+        }else { return new JsonPrimitive("");}
     }
 
     @Override
@@ -96,13 +102,17 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
     }
 
     private DCResource.Value getValue(JsonElement value) {
-        if (value.isJsonArray()) {
+        if (value == null) { // rather than having DCResource.NullValue
+            return null;
+        } else if (value.isJsonArray()) {
             DCResource.ArrayValue v = new DCResource.ArrayValue();
 
             for (JsonElement element : value.getAsJsonArray()) {
                 v.asArray().add(getValue(element));
             }
             return v;
+        } else if (value.isJsonNull()) {
+            return null;
         } else if (value.isJsonObject()) {
             DCResource.MapValue v = new DCResource.MapValue();
             for (Map.Entry<String,JsonElement> entry : value.getAsJsonObject().entrySet()) { v.asMap().put(entry.getKey(), getValue(entry.getValue())); }
@@ -121,6 +131,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
 
         public String propertyName;
 
+        @SuppressWarnings("unused")
         public String getPropertyName() {
             return propertyName;
         }
@@ -152,7 +163,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
         }
 
         @Override
-        Class getArgClass() {
+        Class<Instant> getArgClass() {
             return Instant.class;
         }
     }
@@ -168,7 +179,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
         }
 
         @Override
-        Class getArgClass() {
+        Class<String> getArgClass() {
             return String.class;
         }
     }
@@ -184,7 +195,7 @@ public class DCResourceTypeAdapter implements JsonSerializer<DCResource>, JsonDe
         }
 
         @Override
-        Class getArgClass() {
+        Class<Integer> getArgClass() {
             return int.class;
         }
     }

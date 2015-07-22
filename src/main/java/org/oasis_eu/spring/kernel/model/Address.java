@@ -11,7 +11,8 @@ import java.io.Serializable;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Address implements Serializable {
-	
+    private static final long serialVersionUID = 4187734521814253785L;
+
     @JsonProperty("street_address")
     private String streetAddress; // ex Gustavslundsvagen 139
     private String locality; // ex BROMMA
@@ -20,6 +21,16 @@ public class Address implements Serializable {
     @JsonProperty("postal_code")
     private String postalCode; // ex S-167 51
     private String country;
+
+    public Address(){}
+
+    public Address(String streetAddress,String locality,String region,String postalCode,String country){
+        this.streetAddress = streetAddress;
+        this.locality = locality;
+        this.region = region;
+        this.postalCode = postalCode;
+        this.country = country;
+    }
 
     public String getStreetAddress() {
         return streetAddress;

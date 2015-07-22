@@ -23,8 +23,10 @@ public class Organization implements Serializable {
     /** optional */
     @JsonProperty("territory_id")
     URI territoryId;
-    /** optional */
+    @JsonProperty("dc_id")
+    URI dcId;
     OrganizationStatus status;
+
     /** optional */
     @JsonProperty("status_changed")
     Instant statusChanged;
@@ -70,6 +72,14 @@ public class Organization implements Serializable {
 
     public void setTerritoryId(URI territoryId) {
         this.territoryId = territoryId;
+    }
+
+    public URI getDcId() {
+        return dcId;
+    }
+
+    public void setDcId(URI dcId) {
+        this.dcId = dcId;
     }
 
     public OrganizationStatus getStatus() {

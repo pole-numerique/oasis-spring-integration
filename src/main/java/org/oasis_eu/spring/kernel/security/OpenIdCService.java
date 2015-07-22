@@ -75,22 +75,32 @@ public class OpenIdCService {
     private Kernel kernel;
 
     public OpenIdCAuthentication processAuthentication(String code, String state, String savedState, String savedNonce, String callbackUri) {
+        return processAuthentication(code, null, state, savedState, savedNonce, callbackUri);
+    }
 
-        if (savedState != null && savedState.equals(state)) {
+    public OpenIdCAuthentication processAuthentication(String code, String refreshToken, String state, String savedState,
+            String savedNonce, String callbackUri) {
+
+        if ((savedState == null && state == null) || savedState != null && savedState.equals(state)) {
 
             MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-            form.add("grant_type", "authorization_code");
-            form.add("redirect_uri", callbackUri);
-            form.add("code", code);
+            if (refreshToken != null) {
+                form.add("grant_type", "refresh_token");
+                form.add("refresh_token", refreshToken);
+            } else { // default : code
+                form.add("grant_type", "authorization_code");
+                form.add("code", code);
+                form.add("redirect_uri", callbackUri); // (should not be required in refresh_token case)
+            }
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), 
-            		configuration.getClientSecret()).getBytes()));
+                             configuration.getClientSecret()).getBytes()));
 
             logger.debug("Token endpoint: {}", configuration.getTokenEndpoint());
             ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), 
             		HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
-            
+
             if (!response.getStatusCode().is2xxSuccessful()) {
               logger.error("Oops, got error {}", response.getStatusCode());
               for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
@@ -101,44 +111,47 @@ public class OpenIdCService {
             TokenResponse tokenResponse = response.getBody();
 
             logger.debug("Token response: {}", tokenResponse);
+            if (refreshToken == null) {
+                IdToken idToken = new IdToken();
+                boolean appUser;
+                boolean appAdmin;
+                try {
+                    SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
+                    ReadOnlyJWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
+                    idToken.setIat(idClaims.getIssueTime().getTime());
+                    idToken.setNonce(idClaims.getStringClaim("nonce"));
+                    idToken.setSub(idClaims.getSubject());
+                    idToken.setExp(idClaims.getExpirationTime().getTime());
+                    idToken.setIss(idClaims.getIssuer());
 
-            IdToken idToken = new IdToken();
-            boolean appUser;
-            boolean appAdmin;
-            try {
-                SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
-                ReadOnlyJWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
-                idToken.setIat(idClaims.getIssueTime().getTime());
-                idToken.setNonce(idClaims.getStringClaim("nonce"));
-                idToken.setSub(idClaims.getSubject());
-                idToken.setExp(idClaims.getExpirationTime().getTime());
-                idToken.setIss(idClaims.getIssuer());
+                    appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
+                    appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
 
-                appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
-                appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
+                    if (!configuration.isMocked()) {
+                        verifySignature(signedJWT);
+                    }
 
-                if (!configuration.isMocked()) {
-                    verifySignature(signedJWT);
+                    logger.debug("Signature verified");
+
+                } catch (ParseException e) {
+                    logger.error("Cannot parse ID Token as JWS", e);
+                    return null;
                 }
 
-                logger.debug("Signature verified");
+                if (!configuration.isMocked() && (idToken.getNonce() == null || !idToken.getNonce().equals(savedNonce))) {
+                    logger.error("Invalid nonce, possible replay attack");
+                    return null;
+                }
 
-            } catch (ParseException e) {
-                logger.error("Cannot parse ID Token as JWS", e);
-                return null;
+                Instant issuedAt = Instant.ofEpochMilli(idToken.getIat());
+                Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
+
+                return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), 
+                               issuedAt, expires, appUser, appAdmin);
+            }else{
+                Instant now = Instant.now();
+                return new OpenIdCAuthentication("", tokenResponse.getAccessToken(), tokenResponse.getIdToken(),now, now.minusMillis(-3600), true, true);
             }
-
-            if (!configuration.isMocked() && (idToken.getNonce() == null || !idToken.getNonce().equals(savedNonce))) {
-                logger.error("Invalid nonce, possible replay attack");
-                return null;
-            }
-
-            Instant issuedAt = Instant.ofEpochMilli(idToken.getIat());
-            Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
-
-            return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), 
-            		issuedAt, expires, appUser, appAdmin);
-
         } else {
             logger.error("Cannot match state with saved state; possible replay attack");
 

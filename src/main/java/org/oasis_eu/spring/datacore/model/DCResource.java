@@ -1,5 +1,7 @@
 package org.oasis_eu.spring.datacore.model;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,21 +94,26 @@ public class DCResource {
         return values;
     }
 
+    public static String dcTypeMidfix = "/dc/type/";
     public void setUri(String uri) {
-        setIri(uri.substring(uri.lastIndexOf('/') + 1));
-        uri = uri.substring(0, uri.lastIndexOf('/'));
-        setType(uri.substring(uri.lastIndexOf('/') + 1));
-        uri = uri.substring(0, uri.lastIndexOf('/'));
-        setBaseUri(uri);
+        int modelTypeIndex = uri.indexOf(dcTypeMidfix) + dcTypeMidfix.length();
+        int idSlashIndex = uri.indexOf('/', modelTypeIndex);
+        try {
+            setType(URLDecoder.decode(uri.substring(modelTypeIndex, idSlashIndex), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            // should never happens for UTF-8
+        }
+        setIri(uri.substring(idSlashIndex+1));
+        setBaseUri(uri.substring(0, modelTypeIndex-1));
 
-    }
-
-    public boolean isNew() {
-        return version == -1;
     }
 
     public String getUri() {
         return baseUri + "/" + type + "/" + iri;
+    }
+
+    public boolean isNew() {
+        return version == -1;
     }
 
     // Convenience methods follow
@@ -115,11 +122,12 @@ public class DCResource {
         getValues().put(key, new StringValue(value));
     }
 
+    public void setMappedList(String key, List<Map<String,Value>> values) {
+        getValues().put(key, new ArrayValue(values.stream().map(MapValue::new).collect(Collectors.toList())));
+    }
+
     public void set(String key, List<String> values) {
-
         getValues().put(key, new ArrayValue(values.stream().map(StringValue::new).collect(Collectors.toList())));
-
-
     }
 
     public String getAsString(String key) {
@@ -190,6 +198,11 @@ public class DCResource {
 
         private String value;
 
+        public StringValue(String s) {
+            value = s;
+        }
+        public StringValue() {}
+
         @Override
         public boolean isArray() {
             return false;
@@ -217,12 +230,6 @@ public class DCResource {
 
         public void setValue(String value) {
             this.value = value;
-        }
-        public StringValue(String s) {
-            value = s;
-        }
-        public StringValue() {
-
         }
 
         @Override

@@ -1,28 +1,25 @@
 package org.oasis_eu.spring.datacore.impl;
 
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+
 import org.junit.Test;
 import org.oasis_eu.spring.datacore.model.DCOperator;
 import org.oasis_eu.spring.datacore.model.DCOrdering;
 import org.oasis_eu.spring.datacore.model.DCQueryParameters;
-import org.oasis_eu.spring.datacore.model.DCResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
  * User: schambon
  * Date: 5/5/15
  */
 public class OrderedDatacoreQueryTest extends BaseDatacoreClientTest {
+    @Value("${application.geoarea.project:geo_0}")
+    private String project;
 
     // Someday we'll have to tighten exception handling in the dc client
     // (eg return an empty resource list when there is a 404)
@@ -42,7 +39,7 @@ public class OrderedDatacoreQueryTest extends BaseDatacoreClientTest {
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
         DCQueryParameters params = new DCQueryParameters("name", DCOrdering.ASCENDING);
-        datacoreClient.findResources("a_type", params, 0, 100);
+        datacoreClient.findResources(project, "a_type", params, 0, 100);
     }
 
     @Test(expected = HttpClientErrorException.class)
@@ -59,6 +56,6 @@ public class OrderedDatacoreQueryTest extends BaseDatacoreClientTest {
                     .toString()))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
-        datacoreClient.findResources("a_type", new DCQueryParameters("parameter", DCOrdering.DESCENDING, DCOperator.GT, "600"), 100, 200);
+        datacoreClient.findResources(project, "a_type", new DCQueryParameters("parameter", DCOrdering.DESCENDING, DCOperator.GT, "600"), 100, 200);
     }
 }

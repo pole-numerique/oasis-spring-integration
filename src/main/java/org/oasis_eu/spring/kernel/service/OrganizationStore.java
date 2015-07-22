@@ -13,6 +13,8 @@ public interface OrganizationStore {
 
     Organization find(String id);
 
+    Organization findByDCID(String dc_id);
+
     Organization create(Organization organization);
 
     void update(Organization org);

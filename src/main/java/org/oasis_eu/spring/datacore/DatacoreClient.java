@@ -13,20 +13,24 @@ import java.util.List;
  */
 public interface DatacoreClient {
 
-    List<DCResource> findResources(String type);
+    List<DCResource> findResources(String project, String type);
 
-    List<DCResource> findResources(String type, DCQueryParameters queryParameter, int start, int maxResult);
+    List<DCResource> findResources(String project, String type, DCQueryParameters queryParameter, int start, int maxResult);
 
-    DCResult getResource(String type, String iri);
+    DCResult getResource(String project, String type, String iri);
 
-    DCResult saveResource(DCResource resource);
+    DCResult saveResource(String project, DCResource resource);
 
-    DCResult updateResource(DCResource resource);
+    DCResult updateResource(String project, DCResource resource);
 
-    DCResult deleteResource(DCResource resource);
+    DCResult deleteResource(String project, DCResource resource);
 
-    DCResult addRightsOnResource(DCResource resource, DCRights rights);
+    DCResult addRightsOnResource(String project, DCResource resource, DCRights rights);
 
-    DCResult setRightsOnResource(DCResource resource, DCRights rights);
+    DCResult getRightsOnResource(String project, DCResource resource);
+
+    DCResult setRightsOnResource(String project, DCResource resource, DCRights rights);
+
+    DCResult getResourceFromURI(String project, String url);
 
 }
