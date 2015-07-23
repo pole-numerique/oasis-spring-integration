@@ -131,9 +131,13 @@ public class DatacoreClientImpl implements DatacoreClient {
     }
     @Override
     public DCResult getResourceFromURI(String project, String url) {
-        URI uri = UriComponentsBuilder.fromUriString(url)
+        URI rawUri = UriComponentsBuilder.fromUriString(url)
+                .build(true) // its already encoded
+                .toUri();
+
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+                .path(rawUri.getPath()) // getPath() gets a decoded URI path
                 .build()
-                .encode()
                 .toUri();
 
         try {
@@ -269,7 +273,6 @@ public class DatacoreClientImpl implements DatacoreClient {
     public DCResult setRightsOnResource(String project, DCResource resource, DCRights rights) {
         URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
                 .path("/dc/r/{type}/{iri}/{version}")
-                //.path("/dc/r/"+resource.getType() +"/"+ resource.getIri() +"/"+ resource.getVersion() )
                 .build()
                 .expand(resource.getType(), resource.getIri(), resource.getVersion())
                 //.encode() //should not be encoded
