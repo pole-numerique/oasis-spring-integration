@@ -15,8 +15,14 @@ public class DCResource {
     public static final int INITIAL_VERSION = -1;
 
     int version = INITIAL_VERSION;
+    /** (encoded) */
+    String uri;
+    /** (encoded) */
     String baseUri;
+    String encodedType;
+    /** (decoded) */
     String type;
+    /** (encoded) */
     String iri;
 
     Instant created;
@@ -40,6 +46,14 @@ public class DCResource {
 
     public void setBaseUri(String baseUri) {
         this.baseUri = baseUri;
+    }
+
+    public String getEncodedType() {
+        return encodedType;
+    }
+
+    public void setEncodedType(String encodedTypeRef) {
+        this.encodedType = encodedTypeRef;
     }
 
     public String getType() {
@@ -96,20 +110,23 @@ public class DCResource {
 
     public static String dcTypeMidfix = "/dc/type/";
     public void setUri(String uri) {
+        this.uri = uri;
+        
         int modelTypeIndex = uri.indexOf(dcTypeMidfix) + dcTypeMidfix.length();
         int idSlashIndex = uri.indexOf('/', modelTypeIndex);
+        this.encodedType = uri.substring(modelTypeIndex, idSlashIndex);
         try {
-            setType(URLDecoder.decode(uri.substring(modelTypeIndex, idSlashIndex), "UTF-8"));
+            setType(URLDecoder.decode(this.encodedType, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             // should never happens for UTF-8
         }
-        setIri(uri.substring(idSlashIndex+1));
-        setBaseUri(uri.substring(0, modelTypeIndex-1));
-
+        
+        setIri(uri.substring(idSlashIndex+1)); // (encoded)
+        setBaseUri(uri.substring(0, modelTypeIndex-1)); // (encoded)
     }
 
     public String getUri() {
-        return baseUri + "/" + type + "/" + iri;
+        return uri;
     }
 
     public boolean isNew() {
