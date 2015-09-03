@@ -2,8 +2,14 @@ package org.oasis_eu.spring.datacore.model;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -11,19 +17,52 @@ import java.util.stream.Collectors;
  * Date: 1/2/14
  */
 public class DCResource {
+    
+    //////////////////////////////////////////////
+    // TAKEN FROM DATACORE UriHelper
+    // TODO LATER use it
+    
+    /** used to split id in order to encode its path elements if it's not disabled */
+    public static final String URL_PATH_SEPARATOR = "/";
+    public static final String URL_SAFE_CHARACTERS_BESIDES_ALPHANUMERIC = "\\$\\-_\\.\\+!\\*'\\(\\)";
+    public static final String URL_SAFE_CHARACTERS_REGEX = "0-9a-zA-Z" + URL_SAFE_CHARACTERS_BESIDES_ALPHANUMERIC;
+    public static final String URL_ALSO_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS = ":@~&,;=/";
+    public static final String URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_REGEX = URL_SAFE_CHARACTERS_REGEX
+            + URL_ALSO_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS;
+    public static final String URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_BESIDES_ALPHANUMERIC
+            = URL_SAFE_CHARACTERS_BESIDES_ALPHANUMERIC + URL_ALSO_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS;
+    /** IRI rule, other characters must be encoded. NB. : are required for ex. prefixed field names */
+    public static final String NOT_URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_REGEX = "[^"
+            + URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_REGEX + "]";
+    /** model name & type best practice rule, other characters are forbidden */
+    public static final String NOT_URL_ALWAYS_SAFE_OR_COLON_CHARACTERS_REGEX =
+          "[^0-9a-zA-Z\\$\\-_\\.\\(\\)\\:]"; // not reserved +!*, not '
+
+    /** to detect whether relative (rather than absolute) uri
+     groups are delimited by () see http://stackoverflow.com/questions/6865377/java-regex-capture-group
+     URI scheme : see http://stackoverflow.com/questions/3641722/valid-characters-for-uri-schemes */
+    private static final Pattern anyBaseUrlPattern = Pattern.compile("^([a-zA-Z][a-zA-Z0-9\\.\\-\\+]*)://[^/]+"); // TODO or "^http[s]?://data\\.ozwillo\\.com/" ?
+    private static final Pattern multiSlashPattern = Pattern.compile("/+");
+    private static final Pattern frontSlashesPattern = Pattern.compile("^/*");
+    private static final Pattern notUrlAlwaysSafeCharactersPattern = Pattern.compile(NOT_URL_ALWAYS_SAFE_OR_COLON_CHARACTERS_REGEX);
+    private static final Pattern notIriSafeCharactersPattern = Pattern.compile(NOT_URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_REGEX);
+    
+    
 
     public static final int INITIAL_VERSION = -1;
 
     int version = INITIAL_VERSION;
     /** (encoded) */
-    String uri;
-    /** (encoded) */
     String baseUri;
-    String encodedType;
     /** (decoded) */
     String type;
     /** (encoded) */
     String iri;
+
+    /** cache (encoded) */
+    String uri;
+    /** cache */
+    String encodedType;
 
     Instant created;
     Instant lastModified;
@@ -31,6 +70,30 @@ public class DCResource {
     String lastModifiedBy;
 
     Map<String, Value> values = new HashMap<>();
+    
+    public static String encodeUriPathSegment(String uriPathSegment) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            for (char c : uriPathSegment.toCharArray()) {
+                if ( c >= 48 && c <= 57 // number
+                        || c >= 65 && c <= 90 // upper case
+                        || c >= 97 && c <= 122 // lower case
+                        || URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_BESIDES_ALPHANUMERIC.indexOf(c) != -1) { // among safe chars
+                    sb.append(c);
+                } else {
+                    sb.append(URLEncoder.encode(new String(Character.toChars(c)) , "UTF-8"));
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            // should never happens for UTF-8
+            throw new RuntimeException(e);
+        }
+        return sb.toString();
+    }
+
+    private static char toHex(int c) {
+       return (char) (c < 10 ? '0' + c : 'A' + c - 10);
+    }
 
     public int getVersion() {
         return version;
@@ -49,11 +112,10 @@ public class DCResource {
     }
 
     public String getEncodedType() {
-        return encodedType;
-    }
-
-    public void setEncodedType(String encodedTypeRef) {
-        this.encodedType = encodedTypeRef;
+        if (this.encodedType == null) {
+            this.encodedType = encodeUriPathSegment(this.type);
+        }
+        return this.encodedType;
     }
 
     public String getType() {
@@ -110,22 +172,28 @@ public class DCResource {
 
     public static String dcTypeMidfix = "/dc/type/";
     public void setUri(String uri) {
-        this.uri = uri;
-        
         int modelTypeIndex = uri.indexOf(dcTypeMidfix) + dcTypeMidfix.length();
         int idSlashIndex = uri.indexOf('/', modelTypeIndex);
-        this.encodedType = uri.substring(modelTypeIndex, idSlashIndex);
+        String encodedType = uri.substring(modelTypeIndex, idSlashIndex);
         try {
-            setType(URLDecoder.decode(this.encodedType, "UTF-8"));
+            setType(URLDecoder.decode(encodedType, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             // should never happens for UTF-8
+            throw new RuntimeException(e);
         }
         
         setIri(uri.substring(idSlashIndex+1)); // (encoded)
         setBaseUri(uri.substring(0, modelTypeIndex-1)); // (encoded)
     }
 
+    /**
+     * 
+     * @return (encoded)
+     */
     public String getUri() {
+        if (this.uri == null) {
+            this.uri = baseUri + '/' + getEncodedType() + '/' + getIri();
+        }
         return uri;
     }
 
