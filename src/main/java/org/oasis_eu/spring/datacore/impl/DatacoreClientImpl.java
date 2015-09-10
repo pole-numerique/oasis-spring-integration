@@ -1,6 +1,7 @@
 package org.oasis_eu.spring.datacore.impl;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -59,7 +61,7 @@ public class DatacoreClientImpl implements DatacoreClient {
                         .path("/dc/type/{type}")
                         .build()
                         .expand(model)
-                        .encode()
+                        .encode() // ex. orgprfr:OrgPriv%C3%A9e_0 (WITH unencoded ':' and encoded accented chars etc.)
                         .toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -69,6 +71,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
         return Arrays.asList(resources);
     }
+
 
     @Override
     public List<DCResource> findResources(String project, String model, DCQueryParameters queryParameters, int start, int maxResult) {
@@ -81,24 +84,31 @@ public class DatacoreClientImpl implements DatacoreClient {
         if (queryParameters != null) {
             for (DCQueryParameters.DCQueryParam param : queryParameters) {
                 uriComponentsBuilder.queryParam(param.getSubject(), param.getOperator().getRepresentation() + param.getObject());
+                // ex. {start=[0], limit=[11], geo:name.v=[$regex^Zamor], geo:country=[http://data.ozwillo.com/dc/type/geocoes:Pa%C3%ADs_0/ES]}
             }
         }
+        UriComponents uriComponents = uriComponentsBuilder
+                .build()
+                .expand(model)
+                .encode();
+        // path ex. orgprfr:OrgPriv%C3%A9e_0 (WITH unencoded ':' and encoded accented chars etc.)
+        // and query ex. geo:name.v=$regex%5EZamor&geo:country=http://data.ozwillo.com/dc/type/geocoes:Pa%25C3%25ADs_0/ES
+        // NB. This will also encode all parameters including the regex ^ and other matches like "geo:country=http..." which is wrong
 
-        String uriString = uriComponentsBuilder
-                              .build()
-                              .expand(model)
-//                            .encode()
-                              .toUriString();
+        URI requestUri = uriComponents.toUri();
+        // and NOT uriComponents.toString() else variable expansion encodes it once too many
+        // (because new UriTemplate(uriString) assumes uriString is not yet encoded -_-)
+        // ex. https://plnm-dev-dc/dc/type/geoci:City_0?start=0&limit=11&geo:name.v=$regex%5EZamor&geo:country=http://data.ozwillo.com/dc/type/geocoes:Pa%25C3%25ADs_0/ES 
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Find Resources: URI String is " + uriString);
+            LOGGER.debug("Find Resources: URI String is " + requestUri);
         }
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-Datacore-Project", project.trim());
-            DCResource[] dcResource = dataCoreRestTemplate.exchange(uriString, HttpMethod.GET, new HttpEntity<>(headers), DCResource[].class).getBody();
+            DCResource[] dcResource = dataCoreRestTemplate.exchange(requestUri, HttpMethod.GET, new HttpEntity<>(headers), DCResource[].class).getBody();
 
             return Arrays.asList(dcResource);
         } catch(HttpClientErrorException ex) {
@@ -109,15 +119,11 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     }
 
+
     @Override
     public DCResult getResource(String project, String model, String iri) {
 
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/type/{type}/{iri}")
-                .build()
-                .expand(model, iri)
-                .encode()
-                .toUri();
+        URI uri = dcResourceUri(model, iri);
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -129,6 +135,7 @@ public class DatacoreClientImpl implements DatacoreClient {
             return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
         }
     }
+
     @Override
     public DCResult getResourceFromURI(String project, String url) {
         URI rawUri = UriComponentsBuilder.fromUriString(url)
@@ -163,7 +170,7 @@ public class DatacoreClientImpl implements DatacoreClient {
                 .path("/dc/type/{type}")
                 .build()
                 .expand(resource.getType())
-                //.encode()
+                .encode() // ex. orgprfr:OrgPriv%C3%A9e_0 (WITH unencoded ':' and encoded accented chars etc.)
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -183,12 +190,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult updateResource(String project, DCResource resource) {
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/type/{type}/{iri}")
-                .build()
-                .expand(resource.getType(), resource.getIri())
-                //.encode()
-                .toUri();
+        URI uri = dcResourceUri(resource);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -207,13 +209,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult deleteResource(String project, DCResource resource) {
-
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/type/{type}/{iri}")
-                .build()
-                .expand(resource.getType(), resource.getIri())
-                .encode()
-                .toUri();
+        URI uri = dcResourceUri(resource);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("If-Match", Integer.toString(resource.getVersion()));
@@ -226,12 +222,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult addRightsOnResource(String project, DCResource resource, DCRights rights) {
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/r/{type}/{iri}/{version}")
-                .build()
-                .expand(resource.getType(), resource.getIri(), resource.getVersion())
-                .encode()
-                .toUri();
+        URI uri = dcResourceRightsUri(resource);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -249,13 +240,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult getRightsOnResource(String project, DCResource resource) {
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/r/{type}/{iri}/{version}")
-                .build()
-                //error if type is already encoded (OrgPriv%C3%A9e_0 gives: OrgPriv%25C325%A9e_0)
-                .expand(resource.getType(), resource.getIri(), resource.getVersion())
-                .encode()
-                .toUri();
+        URI uri = dcResourceRightsUri(resource);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -271,12 +256,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult setRightsOnResource(String project, DCResource resource, DCRights rights) {
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path("/dc/r/{type}/{iri}/{version}")
-                .build()
-                .expand(resource.getType(), resource.getIri(), resource.getVersion())
-                //.encode() //should not be encoded
-                .toUri();
+        URI uri = dcResourceRightsUri(resource);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -291,5 +271,70 @@ public class DatacoreClientImpl implements DatacoreClient {
             return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
         }
     }
+
+    private StringBuilder dcResourceTypeUriBuilder(String resourceType, String apiUriPart) {
+        // we use StringBuilder rather than the Spring fluent URI builder API, because
+        // it has no way to expand already encoded path components :
+        /*String uriString = UriComponentsBuilder.fromUriString(datacoreUrl)
+                .path("/dc/r/{type}")
+                .build()
+                // NB. error if type is already encoded (OrgPriv%C3%A9e_0 gives: OrgPriv%25C325%A9e_0)
+                .expand(resource.getType())
+                // AND NOT path("/dc/r/{type}/{iri}/{version}")....expand(DCResource.encodeUriPathSegment(resource.getType()) rather than encode() else double encoded
+                // ACTUALLY A SPRING-LIKE SOLUTION WOULD BE .pathSegment(iri.split("/")).expand(...).encode()...
+                .encode()
+                .toUriString();
+        StringBuilder sb = new StringBuilder(uriString);*/
+        StringBuilder sb = new StringBuilder(datacoreUrl);
+        sb.append(apiUriPart);
+        sb.append(DCResource.encodeUriPathSegment(resourceType));
+        return sb;
+    }
+
+    private StringBuilder dcResourceUriBuilder(DCResource resource, String apiUriPart) {
+        return dcResourceUriBuilder(resource.getType(), resource.getIri(), apiUriPart);
+    }
+
+    private StringBuilder dcResourceUriBuilder(String resourceType, String resourceIri, String apiUriPart) {
+        StringBuilder sb = dcResourceTypeUriBuilder(resourceType, apiUriPart);
+        sb.append('/');
+        sb.append(resourceIri); // already encoded
+        return sb;
+    }
+
+    private URI dcResourceRightsUri(DCResource resource) {
+        StringBuilder sb = dcResourceUriBuilder(resource, "/dc/r/");
+        sb.append('/');
+        sb.append(resource.getVersion()); // no need to encode
+        return builderToUri(sb);
+    }
+
+    private URI dcResourceUri(DCResource resource) {
+        return builderToUri(dcResourceUriBuilder(resource, "/dc/type/"));
+    }
+
+    private URI dcResourceUri(String resourceType, String iri) {
+        return builderToUri(dcResourceUriBuilder(resourceType, iri, "/dc/type/"));
+    }
+
+    private URI dcResourceTypeUri(String resourceType) {
+        return builderToUri(dcResourceTypeUriBuilder(resourceType, "/dc/type/"));
+    }
+
+    /**
+     * avoids URISyntaxException
+     * @param sb
+     * @return
+     */
+    private URI builderToUri(StringBuilder sb) {
+        try {
+            return new URI(sb.toString());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+
+
 
 }

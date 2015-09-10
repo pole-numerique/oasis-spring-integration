@@ -1,11 +1,19 @@
 package org.oasis_eu.spring.datacore.impl;
 
-import com.google.gson.*;
+import java.lang.reflect.Type;
+import java.util.LinkedHashSet;
+
 import org.oasis_eu.spring.datacore.model.DCRights;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 /**
  * User: flombard
@@ -54,7 +62,7 @@ public class DCRightsTypeAdapter implements JsonSerializer<DCRights>, JsonDeseri
         
         if (object.has("owners")) {
             JsonArray ownersArray = object.getAsJsonArray("owners");
-            List<String> owners = new ArrayList<>(ownersArray.size());
+            LinkedHashSet<String> owners = new LinkedHashSet<>(ownersArray.size());
             for (int i = 0; i < ownersArray.size(); i++) {
                 owners.add(ownersArray.get(i).getAsString());
             }
@@ -63,7 +71,7 @@ public class DCRightsTypeAdapter implements JsonSerializer<DCRights>, JsonDeseri
         
         if (object.has("writers")) {
             JsonArray writersArray = object.getAsJsonArray("writers");
-            List<String> writers = new ArrayList<>(writersArray.size());
+            LinkedHashSet<String> writers = new LinkedHashSet<>(writersArray.size());
             for (int i = 0; i < writersArray.size(); i++) {
                 writers.add(writersArray.get(i).getAsString());
             }
@@ -72,7 +80,7 @@ public class DCRightsTypeAdapter implements JsonSerializer<DCRights>, JsonDeseri
         
         if (object.has("readers")) {
             JsonArray readersArray = object.getAsJsonArray("readers");
-            List<String> readers = new ArrayList<>(readersArray.size());
+            LinkedHashSet<String> readers = new LinkedHashSet<>(readersArray.size());
             for (int i = 0; i < readersArray.size(); i++) {
                 readers.add(readersArray.get(i).getAsString());
             }
