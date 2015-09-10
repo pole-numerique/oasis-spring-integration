@@ -13,6 +13,7 @@ public enum DCResultType {
     NOT_FOUND(404),
     CONFLICT(409),
     BAD_REQUEST(400),
+    FORBIDDEN(403),
     SERVER_ERROR(500),
     NOT_MODIFIED(304),
     UNKNOWN();
