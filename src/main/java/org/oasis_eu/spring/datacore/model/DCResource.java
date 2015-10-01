@@ -171,6 +171,10 @@ public class DCResource {
     }
 
     public static String dcTypeMidfix = "/dc/type/";
+    /**
+     * Can also be used to parse an uri by creating a dummy Resource and setting its uri
+     * @param uri
+     */
     public void setUri(String uri) {
         int modelTypeIndex = uri.indexOf(dcTypeMidfix) + dcTypeMidfix.length();
         int idSlashIndex = uri.indexOf('/', modelTypeIndex);

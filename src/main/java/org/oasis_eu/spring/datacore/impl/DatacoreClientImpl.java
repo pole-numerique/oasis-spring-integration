@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -63,6 +64,7 @@ public class DatacoreClientImpl implements DatacoreClient {
                         .expand(model)
                         .encode() // ex. orgprfr:OrgPriv%C3%A9e_0 (WITH unencoded ':' and encoded accented chars etc.)
                         .toUri();
+        LOGGER.debug("Fetching ALL Resources: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -101,7 +103,7 @@ public class DatacoreClientImpl implements DatacoreClient {
         // ex. https://plnm-dev-dc/dc/type/geoci:City_0?start=0&limit=11&geo:name.v=$regex%5EZamor&geo:country=http://data.ozwillo.com/dc/type/geocoes:Pa%25C3%25ADs_0/ES 
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Find Resources: URI String is " + requestUri);
+            LOGGER.debug("Fetching limited Resources: URI String is " + requestUri);
         }
 
         try {
@@ -122,8 +124,9 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     @Override
     public DCResult getResource(String project, String model, String iri) {
-
         URI uri = dcResourceUri(model, iri);
+
+        LOGGER.debug("Fetching Resource: URI String is " + uri);
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -132,20 +135,23 @@ public class DatacoreClientImpl implements DatacoreClient {
             DCResource resource = dataCoreRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCResource.class).getBody();
             return new DCResult(DCResultType.SUCCESS, resource);
         } catch (HttpClientErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
     }
 
     @Override
     public DCResult getResourceFromURI(String project, String url) {
-        URI rawUri = UriComponentsBuilder.fromUriString(url)
-                .build(true) // its already encoded
-                .toUri();
+        /* Below is a solution for issue 268 : it happened only in PROD because a not well ENCODED URL was decoded and verified by the HAProxy,
+         * then when it found any remaining special characters (like encoded spaces) it responded with a 400 Bad Request error. 
+         * In this case, the url after being decoded by HAproxy was : http://data.ozwillo.com/dc/type/geocibg:НаселеноMесто_0/BG/BG-02/Малко%20Търново
+         * In Dev / Preprod there is not any HAProxy and the java datacore app treat the request in case it have encoded (or doubled encoded) chars.
+         * In previous code the URL was assumed to be well encoded changing only the datacoreUrl (resources in DC have baseUrl http://data.ozwillo.com and not
+         *  https://data.ozwillo.com NOR https://data.ozwillo-dev.eu > real DC addresses) before submit it in the request, which was a wrong approach. */
+        DCResource dummyResourceForUri = new DCResource();
+        dummyResourceForUri.setUri(url);
+        URI uri = dcResourceUri(dummyResourceForUri.getType(), dummyResourceForUri.getIri());
 
-        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
-                .path(rawUri.getPath()) // getPath() gets a decoded URI path
-                .build()
-                .toUri();
+        LOGGER.debug("Fetching Resource From URI String : " + uri);
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -154,7 +160,7 @@ public class DatacoreClientImpl implements DatacoreClient {
             DCResource resource = dataCoreRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCResource.class).getBody();
             return new DCResult(DCResultType.SUCCESS, resource);
         } catch (HttpClientErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
     }
 
@@ -172,6 +178,7 @@ public class DatacoreClientImpl implements DatacoreClient {
                 .expand(resource.getType())
                 .encode() // ex. orgprfr:OrgPriv%C3%A9e_0 (WITH unencoded ':' and encoded accented chars etc.)
                 .toUri();
+        LOGGER.debug("Saving into Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -184,13 +191,14 @@ public class DatacoreClientImpl implements DatacoreClient {
 
             return new DCResult(DCResultType.fromCode(entity.getStatusCode().value()), entity.getBody());
         } catch (HttpClientErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
     }
 
     @Override
     public DCResult updateResource(String project, DCResource resource) {
         URI uri = dcResourceUri(resource);
+        LOGGER.debug("Updating Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -202,7 +210,7 @@ public class DatacoreClientImpl implements DatacoreClient {
             dataCoreRestTemplate.put(uri, requestEntity);
             return new DCResult(DCResultType.SUCCESS, (DCResource) null);
         } catch (HttpClientErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
 
     }
@@ -210,6 +218,7 @@ public class DatacoreClientImpl implements DatacoreClient {
     @Override
     public DCResult deleteResource(String project, DCResource resource) {
         URI uri = dcResourceUri(resource);
+        LOGGER.debug("Deleting Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("If-Match", Integer.toString(resource.getVersion()));
@@ -223,6 +232,7 @@ public class DatacoreClientImpl implements DatacoreClient {
     @Override
     public DCResult addRightsOnResource(String project, DCResource resource, DCRights rights) {
         URI uri = dcResourceRightsUri(resource);
+        LOGGER.debug("Adding rights into Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -234,13 +244,14 @@ public class DatacoreClientImpl implements DatacoreClient {
             dataCoreRestTemplate.exchange(uri, HttpMethod.POST, requestEntity, Void.class);
             return new DCResult(DCResultType.SUCCESS, (DCResource) null);
         } catch (HttpClientErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
     }
 
     @Override
     public DCResult getRightsOnResource(String project, DCResource resource) {
         URI uri = dcResourceRightsUri(resource);
+        LOGGER.debug("Fetching Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -250,13 +261,14 @@ public class DatacoreClientImpl implements DatacoreClient {
             DCRights rights = dataCoreRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCRights.class).getBody();
             return new DCResult(DCResultType.SUCCESS, rights);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
     }
 
     @Override
     public DCResult setRightsOnResource(String project, DCResource resource, DCRights rights) {
         URI uri = dcResourceRightsUri(resource);
+        LOGGER.debug("Setting rights to Resource: URI String is " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -268,8 +280,17 @@ public class DatacoreClientImpl implements DatacoreClient {
             dataCoreRestTemplate.put(uri, requestEntity);
             return new DCResult(DCResultType.SUCCESS, (DCResource) null);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
+            return this.getDCResultFromHttpErrorException(e);
         }
+    }
+
+
+    /* HELPERS & HANDLERS */
+
+    private DCResult getDCResultFromHttpErrorException(HttpStatusCodeException e){
+        LOGGER.error("Error caught while querying data core", e);
+        LOGGER.debug("Response body: {}", e.getResponseBodyAsString());
+        return new DCResult(DCResultType.fromCode(e.getStatusCode().value()), e.getResponseBodyAsString());
     }
 
     private StringBuilder dcResourceTypeUriBuilder(String resourceType, String apiUriPart) {
