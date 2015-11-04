@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import java.io.Serializable;
 
 /**
- * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
+ * Data holder for the info returned by the Ozwillo kernel's userinfo endpoint.
  * Based on: http://openid.net/specs/openid-connect-basic-1_0-28.html#StandardClaims
  *
  * User: jdenanot

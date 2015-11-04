@@ -1,5 +1,8 @@
 package org.oasis_eu.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -8,11 +11,8 @@ import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
- * Data holder for the info returned by the OASIS kernel's userinfo endpoint.
+ * Data holder for the info returned by the Ozwillo kernel's userinfo endpoint.
  * Based on: http://openid.net/specs/openid-connect-basic-1_0-28.html#StandardClaims
  * 
  * Also provides user locale negociation helpers

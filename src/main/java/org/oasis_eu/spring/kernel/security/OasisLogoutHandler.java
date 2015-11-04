@@ -1,7 +1,5 @@
 package org.oasis_eu.spring.kernel.security;
 
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
-
 import org.oasis_eu.spring.kernel.service.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.client;
 
 /**
  * User: schambon
@@ -48,7 +47,7 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
         request.getSession().invalidate();
 
         // Okay, at this stage we have logged out from CK,
-        // we want to log out from OASIS too (otherwise it doesn't make sense to log out from CK)
+        // we want to log out from Ozwillo too (otherwise it doesn't make sense to log out from CK)
         if (authentication instanceof OpenIdCAuthentication) {
             OpenIdCAuthentication token = (OpenIdCAuthentication) authentication;
             
