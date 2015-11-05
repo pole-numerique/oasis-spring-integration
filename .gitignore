@@ -1,6 +1,7 @@
 # Package files
 *.class
-*.jar
+# For the ugly dependency geronimo-servlet_3.1_spec-1.0
+# *.jar
 *.war
 *.ear
 
