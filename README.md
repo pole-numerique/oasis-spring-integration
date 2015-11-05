@@ -1,3 +1,12 @@
+=====================================================
+
+OASIS - Java Spring Integration
+http://www.ozwillo.com/
+https://github.com/ozwillo/ozwillo-java-spring-integration
+Copyright (c) 2013-2015 Open Wide - http://www.openwide.fr
+
+=====================================================
+
 Ozwillo Spring Integration
 ==========================
 
