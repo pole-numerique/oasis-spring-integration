@@ -48,7 +48,7 @@ Features needed for the Portal will be directly implemented here, consisting of:
 This library is provided under LGPL v3.
 
 ```
-Copyright (C) 2014 Atol Conseils et Développements
+Copyright (C) 2015 OpenWide
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as
