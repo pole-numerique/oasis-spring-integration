@@ -233,15 +233,12 @@
             </exclusions>
         </dependency>
 
-        <!-- Servlet 3.1 (Apache 2.0 License), from CXF's Jetty and compatible with Tomcat 7 -->
+        <!-- Servlet 3.1 must be provided by the server (ex : Tomcat) -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.1_spec</artifactId>
-            <version>${geronimo.servlet-3.1-spec.version}</version>
-            <!-- TODO : When an implementation on JSR 340 will be release in stable state, we have to change this ugly dependency -->
-            <!-- Found here : https://repository.apache.org/#nexus-search;quick~geronimo-servlet_3.1 -->
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/geronimo-servlet_3.1_spec-1.0-20140722.200019-49.jar</systemPath>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
 
 
