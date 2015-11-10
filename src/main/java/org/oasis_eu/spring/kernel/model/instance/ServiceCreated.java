@@ -56,11 +56,8 @@ public class ServiceCreated {
     @JsonProperty("target_audience")
     private List<Audience> targetAudience;
 
-    @JsonProperty("territory_id")
-    private String territoryId;
-
-    @JsonProperty("provider_id")
-    private String providerId;
+    @JsonProperty("geographical_areas")
+    private List<String> geographicalAreas;
 
     @JsonProperty("tos_uri")
     private String defaultTosUri;
@@ -77,9 +74,6 @@ public class ServiceCreated {
 
     @JsonProperty("contacts")
     private List<String> contacts = new ArrayList<>();
-
-    @JsonProperty("subscription_uri")
-    private String subscriptionUri;
 
 
     public String getIdentifier() {
@@ -203,12 +197,12 @@ public class ServiceCreated {
         this.targetAudience = targetAudience;
     }
 
-    public String getTerritoryId() {
-        return territoryId;
+    public List<String> getGeographicalAreas() {
+        return geographicalAreas;
     }
 
-    public void setTerritoryId(String territoryId) {
-        this.territoryId = territoryId;
+    public void setGeographicalAreas(List<String> geographicalAreas) {
+        this.geographicalAreas = geographicalAreas;
     }
 
     public boolean isVisible() {
@@ -217,14 +211,6 @@ public class ServiceCreated {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-    }
-
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
     }
 
     public String getName(Locale locale) {
@@ -307,14 +293,6 @@ public class ServiceCreated {
         this.defaultPolicyUri = defaultPolicyUri;
     }
 
-    public String getSubscriptionUri() {
-        return subscriptionUri;
-    }
-
-    public void setSubscriptionUri(String subscriptionUri) {
-        this.subscriptionUri = subscriptionUri;
-    }
-
     public void setLocalizedTosUris(Map<String, String> localizedTosUris) {
         this.localizedTosUris = localizedTosUris;
     }
@@ -342,8 +320,7 @@ public class ServiceCreated {
                 ", redirectUris=" + redirectUris +
                 ", postLogoutRedirectUris=" + postLogoutRedirectUris +
                 ", targetAudience=" + targetAudience +
-                ", territoryId='" + territoryId + '\'' +
-                ", providerId='" + providerId + '\'' +
+                ", geographicalAreas='" + geographicalAreas + '\'' +
                 '}';
     }
 }
