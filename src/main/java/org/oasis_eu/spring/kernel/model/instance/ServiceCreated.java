@@ -59,6 +59,9 @@ public class ServiceCreated {
     @JsonProperty("geographical_areas")
     private List<String> geographicalAreas;
 
+    @JsonProperty("provider_id")
+    private String providerId;
+
     @JsonProperty("tos_uri")
     private String defaultTosUri;
 
@@ -75,6 +78,8 @@ public class ServiceCreated {
     @JsonProperty("contacts")
     private List<String> contacts = new ArrayList<>();
 
+    @JsonProperty("subscription_uri")
+    private String subscriptionUri;
 
     public String getIdentifier() {
         return identifier;
@@ -213,6 +218,14 @@ public class ServiceCreated {
         this.visible = visible;
     }
 
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+
     public String getName(Locale locale) {
         if (localizedNames.containsKey(locale.getLanguage())) {
             return localizedNames.get(locale.getLanguage());
@@ -293,6 +306,14 @@ public class ServiceCreated {
         this.defaultPolicyUri = defaultPolicyUri;
     }
 
+    public String getSubscriptionUri() {
+        return subscriptionUri;
+    }
+
+    public void setSubscriptionUri(String subscriptionUri) {
+        this.subscriptionUri = subscriptionUri;
+    }
+
     public void setLocalizedTosUris(Map<String, String> localizedTosUris) {
         this.localizedTosUris = localizedTosUris;
     }
@@ -321,6 +342,7 @@ public class ServiceCreated {
                 ", postLogoutRedirectUris=" + postLogoutRedirectUris +
                 ", targetAudience=" + targetAudience +
                 ", geographicalAreas='" + geographicalAreas + '\'' +
+                ", providerId='" + providerId + '\'' +
                 '}';
     }
 }
