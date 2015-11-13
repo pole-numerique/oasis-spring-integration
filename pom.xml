@@ -356,7 +356,7 @@
                     <includes>
                         <include>**/*.class</include>
                     </includes>
-                    <groups>org.ozwillo.spring.test.IntegrationTest</groups>
+                    <groups>org.oasis_eu.spring.test.IntegrationTest</groups>
                 </configuration>
             </plugin>
             <plugin>
@@ -366,7 +366,7 @@
                     <includes>
                         <include>**/*.class</include>
                     </includes>
-                    <excludedGroups>org.ozwillo.spring.test.IntegrationTest</excludedGroups>
+                    <excludedGroups>org.oasis_eu.spring.test.IntegrationTest</excludedGroups>
                 </configuration>
             </plugin>
             <plugin>

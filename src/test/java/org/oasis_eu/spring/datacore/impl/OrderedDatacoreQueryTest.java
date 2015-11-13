@@ -50,7 +50,7 @@ public class OrderedDatacoreQueryTest extends BaseDatacoreClientTest {
                     .fromHttpUrl("http://localhost:8080/dc/type/a_type")
                     .queryParam("start", 100)
                     .queryParam("limit", 200)
-                    .queryParam("parameter", ">\"600\"-")
+                    .queryParam("parameter", ">600-")
                     .build()
                     .encode()
                     .toString()))
