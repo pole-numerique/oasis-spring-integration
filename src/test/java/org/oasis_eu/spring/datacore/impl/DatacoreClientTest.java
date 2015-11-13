@@ -121,7 +121,7 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
 
         String response = b.toString();
 
-        mockServer.expect(requestTo("http://localhost:8080/dc/type/citizenkin.procedure.envelope?start=0&limit=10&recipient=%22organization:val%22&definition_name=%22electoral_roll_registration%22"))
+        mockServer.expect(requestTo("http://localhost:8080/dc/type/citizenkin.procedure.envelope?start=0&limit=10&recipient=organization:val&definition_name=electoral_roll_registration"))
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
 
         DCQueryParameters parameters = new DCQueryParameters("recipient", DCOperator.EQ, "organization:val")
