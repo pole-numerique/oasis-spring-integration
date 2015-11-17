@@ -87,8 +87,6 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
     @Override
     public String toString() {
         return "OpenIdCAuthentication{\n" +
-                "  accessToken='" + accessToken + "\'\n" +
-                "  idToken='" + idToken + "\'\n" +
                 "  subject='" + subject + "\'\n" +
                 "  accessTokenIssuedAt=" + accessTokenIssuedAt + "\n" +
                 "  accessTokenExpires=" + accessTokenExpires + "\n" +
