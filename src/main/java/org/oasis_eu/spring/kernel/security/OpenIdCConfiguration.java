@@ -76,4 +76,6 @@ public interface OpenIdCConfiguration {
     default String getHomeUri() {
         return null;
     }
+
+
 }
