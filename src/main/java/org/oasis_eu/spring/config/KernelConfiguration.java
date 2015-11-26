@@ -108,7 +108,7 @@ public class KernelConfiguration {
         messageConverters.add(new GsonMessageConverter(dataCoreGson));
         template.setMessageConverters(messageConverters);
 
-        template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor()));
+        template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor(), new KernelLoggingInterceptor()));
 
         return template;
     }
