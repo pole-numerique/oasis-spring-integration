@@ -1,107 +1,149 @@
 package org.oasis_eu.spring.kernel.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * User: schambon
- * Date: 6/13/14
- */
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+
 public class InboundNotification {
-    @JsonProperty("id")
-    String id;
-    @JsonProperty("user_id")
-    String userId;
+	private static final Logger logger = LoggerFactory.getLogger(InboundNotification.class);
 
-    @JsonProperty("instance_id")
-    String instanceId;
-    @JsonProperty("service_id")
-    String serviceId;
+	@JsonProperty("id")
+	private String id;
 
-    @JsonProperty("message")
-    String message;
+	@JsonProperty("user_id")
+	private String userId;
 
-    @JsonProperty("action_uri")
-    String actionUri;
+	@JsonProperty("instance_id")
+	private String instanceId;
 
-    @JsonProperty("action_label")
-    String actionLabel;
+	@JsonProperty("message")
+	private String message;
+	private Map<String, String> localizedmessages = new HashMap<>();
 
-    @JsonProperty("status")
-    NotificationStatus status;
+	@JsonProperty("service_id")
+	private String serviceId;
 
-    @JsonProperty("time")
-    Instant time;
+	@JsonProperty("action_uri")
+	private String actionUri;
 
-    public String getId() {
-        return id;
-    }
+	@JsonProperty("action_label")
+	private String actionLabel;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	@JsonProperty("status")
+	private NotificationStatus status;
 
-    public String getUserId() {
-        return userId;
-    }
+	@JsonProperty("time")
+	private Instant time;
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	@JsonAnyGetter
+	public Map<String, String> anyGetter() {
+		Map<String, String> result = new HashMap<>();
 
-    public String getInstanceId() {
-        return instanceId;
-    }
+		localizedmessages.entrySet().forEach(e -> result.put("message#" + e.getKey(), e.getValue()));
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
+		return result;
+	}
 
-    public String getServiceId() {
-        return serviceId;
-    }
+	@JsonAnySetter
+	public void anySetter(String key, String value) {
+		if (key.startsWith("message#")) {
+			localizedmessages.put(key.substring("message#".length()), value);
+		} else {
+			logger.debug("Discarding unknown property {}", key);
+		}
+	}
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	public String getUserId() {
+		return userId;
+	}
 
-    public String getActionUri() {
-        return actionUri;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    public void setActionUri(String actionUri) {
-        this.actionUri = actionUri;
-    }
+	public String getInstanceId() {
+		return instanceId;
+	}
 
-    public String getActionLabel() {
-        return actionLabel;
-    }
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
 
-    public void setActionLabel(String actionLabel) {
-        this.actionLabel = actionLabel;
-    }
+	public String getServiceId() {
+		return serviceId;
+	}
 
-    public NotificationStatus getStatus() {
-        return status;
-    }
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId;
+	}
 
-    public void setStatus(NotificationStatus status) {
-        this.status = status;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public Instant getTime() {
-        return time;
-    }
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
-    public void setTime(Instant time) {
-        this.time = time;
-    }
+	public String getMessage(Locale locale) {
+		if (localizedmessages.containsKey(locale.toLanguageTag())) {
+			return localizedmessages.get(locale.toLanguageTag());
+		} else {
+			return message;
+		}
+	}
+
+	@JsonIgnore
+	public void setLocalizedMessage(Map<String, String> localizedmessages) {
+		this.localizedmessages = localizedmessages;
+	}
+
+	public String getActionUri() {
+		return actionUri;
+	}
+
+	public void setActionUri(String actionUri) {
+		this.actionUri = actionUri;
+	}
+
+	public String getActionLabel() {
+		return actionLabel;
+	}
+
+	public void setActionLabel(String actionLabel) {
+		this.actionLabel = actionLabel;
+	}
+
+	public NotificationStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(NotificationStatus status) {
+		this.status = status;
+	}
+
+	public Instant getTime() {
+		return time;
+	}
+
+	public void setTime(Instant time) {
+		this.time = time;
+	}
 }
