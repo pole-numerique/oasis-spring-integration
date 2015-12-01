@@ -1,16 +1,14 @@
 package org.oasis_eu.spring.kernel.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.Instant;
+import org.oasis_eu.spring.kernel.model.util.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class InboundNotification {
@@ -27,7 +25,7 @@ public class InboundNotification {
 
 	@JsonProperty("message")
 	private String message;
-	private Map<String, String> localizedmessages = new HashMap<>();
+	private LocalizedString localizedmessages;
 
 	@JsonProperty("service_id")
 	private String serviceId;
@@ -44,19 +42,14 @@ public class InboundNotification {
 	@JsonProperty("time")
 	private Instant time;
 
-	@JsonAnyGetter
-	public Map<String, String> anyGetter() {
-		Map<String, String> result = new HashMap<>();
-
-		localizedmessages.entrySet().forEach(e -> result.put("message#" + e.getKey(), e.getValue()));
-
-		return result;
+	public  InboundNotification(){
+		localizedmessages = new LocalizedString();
 	}
 
 	@JsonAnySetter
 	public void anySetter(String key, String value) {
 		if (key.startsWith("message#")) {
-			localizedmessages.put(key.substring("message#".length()), value);
+			localizedmessages.setLocalizedString(key.substring("message#".length()), value);
 		} else {
 			logger.debug("Discarding unknown property {}", key);
 		}
@@ -103,15 +96,12 @@ public class InboundNotification {
 	}
 
 	public String getMessage(Locale locale) {
-		if (localizedmessages.containsKey(locale.toLanguageTag())) {
-			return localizedmessages.get(locale.toLanguageTag());
-		} else {
-			return message;
-		}
+		String localMessage = localizedmessages.getLocalizedString(locale);
+		return localMessage !=null ? localMessage : message;
 	}
 
 	@JsonIgnore
-	public void setLocalizedMessage(Map<String, String> localizedmessages) {
+	public void setLocalizedMessage(LocalizedString localizedmessages) {
 		this.localizedmessages = localizedmessages;
 	}
 
