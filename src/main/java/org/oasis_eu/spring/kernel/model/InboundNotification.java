@@ -35,6 +35,7 @@ public class InboundNotification {
 
 	@JsonProperty("action_label")
 	private String actionLabel;
+	private LocalizedString localizedActionLabels;
 
 	@JsonProperty("status")
 	private NotificationStatus status;
@@ -44,14 +45,15 @@ public class InboundNotification {
 
 	public  InboundNotification(){
 		localizedmessages = new LocalizedString();
+		localizedActionLabels = new LocalizedString();
 	}
 
 	@JsonAnySetter
 	public void anySetter(String key, String value) {
 		if (key.startsWith("message#")) {
 			localizedmessages.setLocalizedString(key.substring("message#".length()), value);
-		} else {
-			logger.debug("Discarding unknown property {}", key);
+		} else if (key.startsWith("action_label#")) {
+			localizedActionLabels.setLocalizedString(key.substring("action_label#".length()), value);
 		}
 	}
 
@@ -117,8 +119,18 @@ public class InboundNotification {
 		return actionLabel;
 	}
 
+	public String getActionLabel(Locale locale) {
+		String localActionLabels = localizedActionLabels.getLocalizedString(locale);
+		return localActionLabels !=null ? localActionLabels : actionLabel;
+	}
+
 	public void setActionLabel(String actionLabel) {
 		this.actionLabel = actionLabel;
+	}
+
+	@JsonIgnore
+	public void setLocalizedActionLabels(LocalizedString localizedactionLabels) {
+		this.localizedActionLabels = localizedactionLabels;
 	}
 
 	public NotificationStatus getStatus() {
