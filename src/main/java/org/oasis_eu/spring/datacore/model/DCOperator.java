@@ -16,7 +16,8 @@ public enum DCOperator {
     IN("$in"),
     NIN("$nin"),
     REGEX("$regex"),
-    EXISTS("$exists");
+    EXISTS("$exists"),
+    FULLTEXT("$fulltext");
 
     private final String representation;
 
