@@ -4,7 +4,7 @@
 
     <groupId>org.ozwillo</groupId>
     <artifactId>ozwillo-java-spring-integration</artifactId>
-    <version>1.22</version>
+    <version>1.23-SNAPSHOT</version>
 
 
     <!-- =================== -->
