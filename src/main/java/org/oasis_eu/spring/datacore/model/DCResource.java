@@ -268,6 +268,23 @@ public class DCResource {
         }
     }
 
+    @Override
+    public String toString() {
+        return "DCResource{" +
+                   "version=" + version +
+                   ", baseUri='" + baseUri + '\'' +
+                   ", type='" + type + '\'' +
+                   ", iri='" + iri + '\'' +
+                   ", uri='" + uri + '\'' +
+                   ", encodedType='" + encodedType + '\'' +
+                   ", created=" + created +
+                   ", lastModified=" + lastModified +
+                   ", createdBy='" + createdBy + '\'' +
+                   ", lastModifiedBy='" + lastModifiedBy + '\'' +
+                   ", values=" + values +
+                   '}';
+    }
+
     // poor design, but it's just for convenience anyway
     public abstract static class Value {
         public abstract boolean isArray();
