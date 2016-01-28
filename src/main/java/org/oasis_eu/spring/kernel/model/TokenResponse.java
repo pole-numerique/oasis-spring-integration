@@ -19,6 +19,9 @@ public class TokenResponse {
     @JsonProperty("token_type")
     private String tokenType;
 
+    @JsonProperty(value = "refresh_token", required = false)
+    private String refreshToken = null;
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -59,6 +62,14 @@ public class TokenResponse {
         this.tokenType = tokenType;
     }
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     @Override
     public String toString() {
         return "TokenResponse{" +
@@ -67,6 +78,7 @@ public class TokenResponse {
                 ", idToken='" + idToken + '\'' +
                 ", scope='" + scope + '\'' +
                 ", tokenType='" + tokenType + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
                 '}';
     }
 }

@@ -25,6 +25,7 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
     private boolean appUser;
     private boolean appAdmin;
     private UserInfo userInfo;
+    private String refreshToken;
 
     public OpenIdCAuthentication(String subject, String accessToken, String idToken, Instant iat, Instant exp, boolean appUser, boolean appAdmin) {
         super(authorities);
@@ -82,6 +83,14 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
 
     public void setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override

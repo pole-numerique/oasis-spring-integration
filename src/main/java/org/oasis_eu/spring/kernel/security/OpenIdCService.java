@@ -146,8 +146,13 @@ public class OpenIdCService {
                 Instant issuedAt = Instant.ofEpochMilli(idToken.getIat());
                 Instant expires = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
 
-                return new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(), 
-                               issuedAt, expires, appUser, appAdmin);
+                OpenIdCAuthentication authentication = new OpenIdCAuthentication(idToken.getSub(), tokenResponse.getAccessToken(), tokenResponse.getIdToken(),
+                        issuedAt, expires, appUser, appAdmin);
+                if (tokenResponse.getRefreshToken() != null) {
+                    authentication.setRefreshToken(tokenResponse.getRefreshToken());
+                }
+
+                return authentication;
             }else{
                 Instant now = Instant.now();
                 return new OpenIdCAuthentication("", tokenResponse.getAccessToken(), tokenResponse.getIdToken(),now, now.minusMillis(-3600), true, true);
@@ -295,9 +300,14 @@ public class OpenIdCService {
             uiLocales = RequestContextUtils.getLocale(request).getLanguage();
         }
 
-        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, 
-			        		stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT, 
-			        		uiLocales);
+        PromptType promptType = stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT;
+
+        if (scopesToRequire.contains("offline_access")) {
+            promptType = PromptType.FORCED;
+        }
+
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire,
+                promptType, uiLocales);
 
         logger.debug("Auth uri is: {}", authUri);
         response.sendRedirect(authUri);
