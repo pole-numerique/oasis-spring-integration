@@ -150,6 +150,7 @@ public class OpenIdCService {
                         issuedAt, expires, appUser, appAdmin);
                 if (tokenResponse.getRefreshToken() != null) {
                     authentication.setRefreshToken(tokenResponse.getRefreshToken());
+                    authentication.setRefreshNonce(savedNonce);
                 }
 
                 return authentication;

@@ -26,6 +26,7 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
     private boolean appAdmin;
     private UserInfo userInfo;
     private String refreshToken;
+    private String refreshNonce;
 
     public OpenIdCAuthentication(String subject, String accessToken, String idToken, Instant iat, Instant exp, boolean appUser, boolean appAdmin) {
         super(authorities);
@@ -102,5 +103,13 @@ public class OpenIdCAuthentication extends AbstractAuthenticationToken {
                 "  appUser=" + appUser + "\n" +
                 "  appAdmin=" + appAdmin + "\n" +
                 '}';
+    }
+
+    public void setRefreshNonce(String refreshNonce) {
+        this.refreshNonce = refreshNonce;
+    }
+
+    public String getRefreshNonce() {
+        return refreshNonce;
     }
 }
