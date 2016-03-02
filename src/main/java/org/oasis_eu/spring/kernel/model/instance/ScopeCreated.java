@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -78,7 +79,7 @@ public class ScopeCreated {
         } else if (key.startsWith("description#")) {
             localizedDescriptions.put(key.substring("description#".length()), value);
         } else {
-            throw new IllegalArgumentException(String.format("Cannot match key: %s to any valid attribute", key));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "Cannot match key: %s to any valid attribute", key));
         }
     }
 

@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -83,7 +84,8 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(dataCoreRestTemplate);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json")));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json"), StandardCharsets.UTF_8));
         String line = reader.readLine();
         StringBuilder b = new StringBuilder();
         while (line != null) {
@@ -110,7 +112,8 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(dataCoreRestTemplate);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json")));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json"), StandardCharsets.UTF_8));
         String line = reader.readLine();
         StringBuilder b = new StringBuilder();
         while (line != null) {
@@ -140,7 +143,8 @@ public class DatacoreClientTest extends BaseDatacoreClientTest {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(dataCoreRestTemplate);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/resource.json")));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/resource.json"), StandardCharsets.UTF_8));
         String line = reader.readLine();
         StringBuilder b = new StringBuilder();
         while (line != null) {

@@ -3,6 +3,7 @@ package org.oasis_eu.spring.util;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
             logger.debug("Intercepted {} request to: {}", request.getMethod(), request.getURI());
 
             logger.debug("Request headers: {}", buildHeaders(request));
-            logger.debug("Request body: {}", new String(body));
+            logger.debug("Request body: {}", new String(body, StandardCharsets.UTF_8));
         }
 
         long before = System.currentTimeMillis();
@@ -84,7 +85,7 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
 
                 // example :
 
-                // ERROR| 12:17:52.205 | org.oasis_eu.spring.kernel.service.Kernel - Cannot find <{If-Match=[1433240236449], Authorization=[Bearer 
+                // ERROR| 12:17:52.205 | org.oasis_eu.spring.kernel.service.Kernel - Cannot find <{If-Match=[1433240236449], Authorization=[Bearer
                 // eyJpZCI6IjQ4YTljNjhjLTdhODEtNDU4NC1iYTFhLTA1OWVmNzJlMzFlNS9PY2FTWGNOdmo4VzMyTDFFTVgzZDNBIiwiaWF0IjoxNDMzMjM5Mjc2ODAzLCJleHAiOjE
                 // 0MzMyNDI4NzY4MDN9]}> [] through endpoint http://kernel.ozwillo-dev.eu/d/pending-memberships/membership/d2f6b7da-2e8b-4504-86b7-
                 // edb95d689b1c : error I/O error on DELETE request for "http://kernel.ozwillo-dev.eu/d/pending-memberships/membership/d2f6b7da-2e
@@ -106,11 +107,11 @@ public class KernelLoggingInterceptor implements ClientHttpRequestInterceptor {
         // even if we're not logging all requests, log info on errors
         if (!response.getStatusCode().is2xxSuccessful()) { // TODO LATER logger.error() if 5xx, unify with above
             if (logger.isWarnEnabled()) {
-                logger.warn("{} request to {} resulted in {} {}", request.getMethod(), request.getURI(), response.getStatusCode(), 
+                logger.warn("{} request to {} resulted in {} {}", request.getMethod(), request.getURI(), response.getStatusCode(),
                         response.getStatusCode().getReasonPhrase());
                 if (logger.isInfoEnabled()) {
                     logger.info("Request headers: {}", buildHeaders(request));
-                    logger.info("Request body: {}", new String(body));
+                    logger.info("Request body: {}", new String(body, StandardCharsets.UTF_8));
                 }
             }
         }

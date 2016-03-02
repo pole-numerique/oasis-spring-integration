@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class DCResourceTypeAdapterTest {
     @Test
     public void testDeserialization() throws Exception {
         InputStream is = getClass().getClassLoader().getResourceAsStream("dc_inner/resource.json");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
         DCResourceTypeAdapter adapter = new DCResourceTypeAdapter();
         JsonParser jp = new JsonParser();
@@ -102,7 +103,8 @@ public class DCResourceTypeAdapterTest {
     @Test
     public void testDeserializationWithGson() {
         Gson gson = getGson();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/resource.json")));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/resource.json"), StandardCharsets.UTF_8));
         DCResource resource = gson.fromJson(reader, DCResource.class);
 
         assertNotNull(resource);
@@ -126,7 +128,8 @@ public class DCResourceTypeAdapterTest {
     @Test
     public void testDeserializationOfMultipleResults() {
         Gson gson = getGson();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json")));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("dc_inner/multiple_resources.json"), StandardCharsets.UTF_8));
 
         List<DCResource> resources = gson.fromJson(reader, new TypeToken<List<DCResource>>(){}.getType());
 

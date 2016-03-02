@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ public class ScopeNeeded {
         if (key.startsWith("motivation#")) {
             localizedMotivations.put(key.substring("motivation#".length()), value);
         } else {
-            throw new IllegalArgumentException(String.format("Cannot match key %s to properties", key));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "Cannot match key %s to properties", key));
         }
     }
 

@@ -1,5 +1,8 @@
 package org.oasis_eu.spring.kernel.model;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
 import com.google.common.io.BaseEncoding;
 
 /**
@@ -18,8 +21,8 @@ public class ClientAuthentication implements Authentication {
 
     @Override
     public String getAuthenticationHeader() {
-        return String.format("Basic %s",
-                BaseEncoding.base64().encode(String.format("%s:%s", clientId, clientSecret).getBytes()));
+        return "Basic " + BaseEncoding.base64().encode(
+            String.format(Locale.ROOT, "%s:%s", clientId, clientSecret).getBytes(StandardCharsets.UTF_8));
     }
 
 
