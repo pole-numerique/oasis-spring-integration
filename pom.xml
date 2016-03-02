@@ -50,6 +50,8 @@
     </ciManagement>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <icu.ibm.version>56.1</icu.ibm.version>
         <java.version>1.8</java.version>
         <spring-framework.version>4.0.3.RELEASE</spring-framework.version>
