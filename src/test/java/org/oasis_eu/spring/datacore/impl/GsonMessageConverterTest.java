@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
 import static org.junit.Assert.*;
@@ -71,7 +72,7 @@ public class GsonMessageConverterTest {
         byte[] bytes = byteArrayOutputStream.toByteArray();
         assertNotEquals(0, bytes.length);
 
-        String s = new String(bytes);
+        String s = new String(bytes, StandardCharsets.UTF_8);
         assertTrue(s.contains("\"state\":\"SENT\""));
 
         verify(message, atLeastOnce()).getHeaders();

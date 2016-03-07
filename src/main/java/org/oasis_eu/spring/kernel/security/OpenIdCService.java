@@ -3,12 +3,14 @@ package org.oasis_eu.spring.kernel.security;
 import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,7 +72,7 @@ public class OpenIdCService {
     @Autowired
     @Qualifier("kernelRestTemplate")
     private RestTemplate restTemplate;
-    
+
     @Autowired
     private Kernel kernel;
 
@@ -94,11 +96,11 @@ public class OpenIdCService {
             }
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(String.format("%s:%s", configuration.getClientId(), 
-                             configuration.getClientSecret()).getBytes()));
+            headers.add("Authorization", "Basic " + BaseEncoding.base64().encode(
+                String.format(Locale.ROOT, "%s:%s", configuration.getClientId(), configuration.getClientSecret()).getBytes(StandardCharsets.UTF_8)));
 
             logger.debug("Token endpoint: {}", configuration.getTokenEndpoint());
-            ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(), 
+            ResponseEntity<TokenResponse> response = restTemplate.exchange(configuration.getTokenEndpoint(),
             		HttpMethod.POST, new HttpEntity<>(form, headers), TokenResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
@@ -167,10 +169,9 @@ public class OpenIdCService {
 
     public boolean verifySignature(SignedJWT signedJWT) throws ParseException {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", 
-        		"Basic " + BaseEncoding.base64()
-        		.encode( String.format("%s:%s", configuration.getClientId(), configuration.getClientSecret() )
-        		.getBytes()) 
+        headers.add("Authorization",
+            "Basic " + BaseEncoding.base64().encode(
+                String.format(Locale.ROOT, "%s:%s", configuration.getClientId(), configuration.getClientSecret() ).getBytes(StandardCharsets.UTF_8))
         );
 
         // TODO cache the keys as per HTTP caching headers
@@ -208,7 +209,7 @@ public class OpenIdCService {
                     .queryParam("redirect_uri", callbackUri)
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
-    
+
             return builder
                         .build()
                         .encode()
@@ -225,7 +226,7 @@ public class OpenIdCService {
             if (uiLocales != null) {
                 builder = builder.queryParam("ui_locales", uiLocales);
             }
-    
+
             if (promptType.equals(PromptType.FORCED)) {
                 builder = builder.queryParam("prompt", "consent");
             } else if (promptType.equals(PromptType.NONE)) {
@@ -241,14 +242,14 @@ public class OpenIdCService {
     public UserInfo getUserInfo(OpenIdCAuthentication openIdCAuthentication) {
     	// possibly nothing yet in SecurityContextHolder.getContext() (if within authenticate()),
     	// so using access token instead :
-    	String accessToken = openIdCAuthentication.getAccessToken();    	
-       
-    	return kernel.getEntityOrNull(configuration.getUserInfoEndpoint(), 
+    	String accessToken = openIdCAuthentication.getAccessToken();
+
+    	return kernel.getEntityOrNull(configuration.getUserInfoEndpoint(),
     			UserInfo.class, //Oasis kernel User Authentication Impl
-    			user(accessToken)); 
-    	
+    			user(accessToken));
+
     }
-  
+
 
 
 
@@ -265,7 +266,7 @@ public class OpenIdCService {
 
         try {
             String s = objectMapper.writeValueAsString(state);
-            return BaseEncoding.base64Url().encode(s.getBytes());
+            return BaseEncoding.base64Url().encode(s.getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
             logger.error("Cannot serialize state", e);
             throw new RuntimeException(e);

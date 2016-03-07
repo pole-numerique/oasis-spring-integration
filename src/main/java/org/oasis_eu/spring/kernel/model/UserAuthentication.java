@@ -15,7 +15,7 @@ public class UserAuthentication implements Authentication {
 
     @Override
     public String getAuthenticationHeader() {
-        return String.format("Bearer %s", token);
+        return "Bearer " + token;
     }
 
     public UserAuthentication(String token) {

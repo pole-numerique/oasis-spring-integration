@@ -64,7 +64,7 @@ public class OrganizationStoreImplTest {
 
         Organization openwide = store.find("6dccdb8d-ec46-4675-9965-806ea37b73e1");
         assertEquals("openwide-ck", openwide.getName());
-        assertEquals(new Instant(1386859649613l), openwide.getModified());
+        assertEquals(new Instant(1386859649613L), openwide.getModified());
         assertEquals(new URI(LYON_TERRITORY_ID), openwide.getTerritoryId());
 
         server.verify();

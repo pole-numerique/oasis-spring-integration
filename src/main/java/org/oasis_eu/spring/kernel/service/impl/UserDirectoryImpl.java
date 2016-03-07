@@ -4,6 +4,7 @@ import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.oasis_eu.spring.kernel.exception.EntityNotFoundException;
 import org.oasis_eu.spring.kernel.exception.ForbiddenException;
@@ -61,7 +62,7 @@ public class UserDirectoryImpl implements UserDirectory {
 
         StringBuilder orgs = new StringBuilder();
         for (UserMembership m : userMembpArray ) {
-            orgs.append( String.format("%s (%s)\n", m.getOrganizationName(), m.getOrganizationId()) );
+            orgs.append( String.format(Locale.ROOT, "%s (%s)\n", m.getOrganizationName(), m.getOrganizationId()) );
         }
         logger.debug("Found memberships in the following organizations:\n{}", orgs);
 
@@ -99,7 +100,7 @@ public class UserDirectoryImpl implements UserDirectory {
                 .path("/memberships/org/{organization_id}/admins")
                 .buildAndExpand(organizationId)
                 .toUriString();
-        
+
         OrgMembership[] omsArray = kernel.getEntityOrNull(uri, OrgMembership[].class, user());
         return Arrays.asList(omsArray);
     }

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 /**
  * User: schambon
@@ -41,7 +42,7 @@ public class GsonMessageConverter
 
     @Override
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
-        return gson.fromJson(new InputStreamReader(inputMessage.getBody()), type);
+        return gson.fromJson(new InputStreamReader(inputMessage.getBody(), StandardCharsets.UTF_8), type);
     }
 
 
@@ -53,13 +54,13 @@ public class GsonMessageConverter
 
     @Override
     protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
-        return gson.fromJson(new InputStreamReader(inputMessage.getBody()), clazz);
+        return gson.fromJson(new InputStreamReader(inputMessage.getBody(), StandardCharsets.UTF_8), clazz);
     }
 
     @Override
     protected void writeInternal(Object resource, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
 
-        OutputStreamWriter writer = new OutputStreamWriter(outputMessage.getBody());
+        OutputStreamWriter writer = new OutputStreamWriter(outputMessage.getBody(), StandardCharsets.UTF_8);
         gson.toJson(resource, writer);
         writer.flush();
 
