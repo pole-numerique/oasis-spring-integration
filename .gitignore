@@ -2,8 +2,6 @@
 *.class
 # For the ugly dependency geronimo-servlet_3.1_spec-1.0
 # *.jar
-*.war
-*.ear
 
 # Eclipse
 .project
@@ -14,9 +12,13 @@
 .idea
 *.iml
 
-# Maven
-target/
+# Gradle
+build/
+.gradle/
 
 # Vim
 .*.swp
+
+# Mac OS
+.DS_Store
 

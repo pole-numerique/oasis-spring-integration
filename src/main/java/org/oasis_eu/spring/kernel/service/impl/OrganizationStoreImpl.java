@@ -64,7 +64,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
         if(entity == null){
             HttpServletResponse appResponse = ResponseProviderInterceptor.getResponse();
             if (appResponse != null) {
-                appResponse.setHeader(kernel.RESPONSE_HEADER_NAME, "");
+                appResponse.setHeader(Kernel.RESPONSE_HEADER_NAME, "");
             }
         }
         return entity;
