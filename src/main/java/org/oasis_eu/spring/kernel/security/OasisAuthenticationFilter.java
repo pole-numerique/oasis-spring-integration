@@ -72,12 +72,10 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
 
         if (LOGIN.equals(req.getServletPath())) {
             doLogin(req, res);
-            return;
         } else if (CALLBACK.equals(req.getServletPath())) {
             if (doVerify(req, res)) {
                 chain.doFilter(req, res);
             }
-            return;
         } else if (onlyIfAuthenticated && SecurityContextHolder.getContext().getAuthentication() == null) {
             logger.debug("Path {} requires pre-authentication, aborting", req.getServletPath());
             res.setStatus(401);
