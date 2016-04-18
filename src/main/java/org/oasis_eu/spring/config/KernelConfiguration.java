@@ -12,6 +12,7 @@ import org.oasis_eu.spring.datacore.impl.DCResourceTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DCRightsTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DatacoreSecurityInterceptor;
 import org.oasis_eu.spring.datacore.impl.GsonMessageConverter;
+import org.oasis_eu.spring.datacore.model.DCModel;
 import org.oasis_eu.spring.datacore.model.DCResource;
 import org.oasis_eu.spring.datacore.model.DCRights;
 import org.oasis_eu.spring.kernel.rest.KernelResponseErrorHandler;
@@ -106,6 +107,29 @@ public class KernelConfiguration {
 
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
         messageConverters.add(new GsonMessageConverter(dataCoreGson));
+        template.setMessageConverters(messageConverters);
+
+        template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor(), new KernelLoggingInterceptor()));
+
+        return template;
+    }
+
+    @Bean
+    @Qualifier("datacoreJackson")
+    public RestTemplate datacoreRestJacksonTemplate() {
+        RestTemplate template = new RestTemplate(newRequestFactory());
+
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+
+        messageConverters.add(new FormHttpMessageConverter());
+        messageConverters.add(new StringHttpMessageConverter());
+
+        MappingJackson2HttpMessageConverter jacksonMessageConverter = new MappingJackson2HttpMessageConverter();
+        jacksonMessageConverter.setObjectMapper(objectMapper());
+        messageConverters.add(jacksonMessageConverter);
+
+        messageConverters.add(new NullConverter()); // prevent stupid errors
+
         template.setMessageConverters(messageConverters);
 
         template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor(), new KernelLoggingInterceptor()));

@@ -6,11 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.oasis_eu.spring.datacore.DatacoreClient;
-import org.oasis_eu.spring.datacore.model.DCQueryParameters;
-import org.oasis_eu.spring.datacore.model.DCResource;
-import org.oasis_eu.spring.datacore.model.DCResult;
-import org.oasis_eu.spring.datacore.model.DCResultType;
-import org.oasis_eu.spring.datacore.model.DCRights;
+import org.oasis_eu.spring.datacore.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +42,30 @@ public class DatacoreClientImpl implements DatacoreClient {
     @Qualifier("dataCore")
     private RestTemplate dataCoreRestTemplate;
 
+    @Autowired
+    @Qualifier("datacoreJackson")
+    private RestTemplate datacoreRestJacksonTemplate;
+
     @Value("${datacore.url: http://localhost:8080}")
     private String datacoreUrl;
+
+    @Override
+    public List<DCModel> findModels(int limit) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0")
+            .queryParam("limit", limit)
+            .build()
+            .toUri();
+
+        LOGGER.debug("Fetching all models: URI String is " + uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        DCModel[] resources =
+            datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel[].class).getBody();
+
+        return Arrays.asList(resources);
+    }
 
     /**
      * Note: this only returns the results that the DC returns… i.e. the first 10 by default.
