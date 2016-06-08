@@ -12,6 +12,8 @@ public interface DatacoreClient {
 
     List<DCModel> findModels(int limit);
 
+    DCModel findModel(String type);
+
     List<DCResource> findResources(String project, String type);
 
     List<DCResource> findResources(String project, String type, DCQueryParameters queryParameter, int start, int maxResult);

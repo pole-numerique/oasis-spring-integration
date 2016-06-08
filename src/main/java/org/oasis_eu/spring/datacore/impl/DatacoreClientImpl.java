@@ -67,6 +67,23 @@ public class DatacoreClientImpl implements DatacoreClient {
         return Arrays.asList(resources);
     }
 
+    @Override
+    public DCModel findModel(String model) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0/{type}")
+            .build()
+            .expand(model)
+            .encode()
+            .toUri();
+
+        LOGGER.debug("Fetching model, URI String is {}", uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel.class).getBody();
+    }
+
     /**
      * Note: this only returns the results that the DC returns… i.e. the first 10 by default.
      * So this method is only a proof-of-concept really.
@@ -373,8 +390,6 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     /**
      * avoids URISyntaxException
-     * @param sb
-     * @return
      */
     private URI builderToUri(StringBuilder sb) {
         try {
