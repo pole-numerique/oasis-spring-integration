@@ -33,4 +33,5 @@ public interface DatacoreClient {
 
     DCResult getResourceFromURI(String project, String url);
 
+    List<String> getResourceAliases(String project, String type, String iri);
 }

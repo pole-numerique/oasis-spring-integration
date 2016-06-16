@@ -165,6 +165,23 @@ public class DatacoreClientImpl implements DatacoreClient {
     }
 
     @Override
+    public List<String> getResourceAliases(String project, String type, String iri) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/aliases/{type}/{iri}")
+            .build()
+            .expand(type, iri)
+            .encode()
+            .toUri();
+
+        LOGGER.debug("Searching aliases for {}", uri);
+
+        HttpHeaders headers = getCommonHeaders(project);
+        String[] aliases = dataCoreRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), String[].class).getBody();
+
+        return Arrays.asList(aliases);
+    }
+
+    @Override
     public DCResult saveResource(String project, DCResource resource) {
 
         if (!resource.isNew()) {
@@ -355,7 +372,10 @@ public class DatacoreClientImpl implements DatacoreClient {
         }
     }
 
-
-
-
+    private HttpHeaders getCommonHeaders(String project) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-Datacore-Project", project);
+        return headers;
+    }
 }
