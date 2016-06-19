@@ -154,9 +154,7 @@ public class DatacoreClientImpl implements DatacoreClient {
         LOGGER.debug("Fetching Resource From URI String : " + uri);
 
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-Datacore-Project", project);
+            HttpHeaders headers = getCommonHeaders(project);
             DCResource resource = dataCoreRestTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCResource.class).getBody();
             return new DCResult(DCResultType.SUCCESS, resource);
         } catch (HttpClientErrorException e) {
@@ -353,10 +351,6 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     private URI dcResourceUri(String resourceType, String iri) {
         return builderToUri(dcResourceUriBuilder(resourceType, iri, "/dc/type/"));
-    }
-
-    private URI dcResourceTypeUri(String resourceType) {
-        return builderToUri(dcResourceTypeUriBuilder(resourceType, "/dc/type/"));
     }
 
     /**
