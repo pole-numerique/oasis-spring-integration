@@ -92,6 +92,12 @@ compileJava {
     options.compilerArgs += [ '-Xlint:all', '-Xlint:-processing', '-Xlint:-serial', '-Xlint:-path' ]
 }
 
+test {
+    useJUnit {
+        excludeCategories 'org.oasis_eu.spring.test.IntegrationTest'
+    }
+}
+
 forbiddenApis {
     bundledSignatures = [ 'jdk-unsafe', 'jdk-deprecated', 'jdk-system-out' ]
 }
