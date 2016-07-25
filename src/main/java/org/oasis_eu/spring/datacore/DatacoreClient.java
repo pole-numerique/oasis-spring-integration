@@ -1,9 +1,6 @@
 package org.oasis_eu.spring.datacore;
 
-import org.oasis_eu.spring.datacore.model.DCQueryParameters;
-import org.oasis_eu.spring.datacore.model.DCResource;
-import org.oasis_eu.spring.datacore.model.DCResult;
-import org.oasis_eu.spring.datacore.model.DCRights;
+import org.oasis_eu.spring.datacore.model.*;
 
 import java.util.List;
 
@@ -12,6 +9,10 @@ import java.util.List;
  * Date: 1/2/14
  */
 public interface DatacoreClient {
+
+    List<DCModel> findModels(int limit);
+
+    DCModel findModel(String project, String type);
 
     List<DCResource> findResources(String project, String type);
 

@@ -116,6 +116,29 @@ public class KernelConfiguration {
     }
 
     @Bean
+    @Qualifier("datacoreJackson")
+    public RestTemplate datacoreRestJacksonTemplate() {
+        RestTemplate template = new RestTemplate(newRequestFactory());
+
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+
+        messageConverters.add(new FormHttpMessageConverter());
+        messageConverters.add(new StringHttpMessageConverter());
+
+        MappingJackson2HttpMessageConverter jacksonMessageConverter = new MappingJackson2HttpMessageConverter();
+        jacksonMessageConverter.setObjectMapper(objectMapper());
+        messageConverters.add(jacksonMessageConverter);
+
+        messageConverters.add(new NullConverter()); // prevent stupid errors
+
+        template.setMessageConverters(messageConverters);
+
+        template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor(), new KernelLoggingInterceptor()));
+
+        return template;
+    }
+
+    @Bean
     public Gson dataCoreGson() {
         return new GsonBuilder().registerTypeAdapter(DCResource.class, new DCResourceTypeAdapter())
                 .registerTypeAdapter(DCRights.class, new DCRightsTypeAdapter())

@@ -2,15 +2,12 @@ package org.oasis_eu.spring.datacore.impl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.oasis_eu.spring.datacore.DatacoreClient;
-import org.oasis_eu.spring.datacore.model.DCQueryParameters;
-import org.oasis_eu.spring.datacore.model.DCResource;
-import org.oasis_eu.spring.datacore.model.DCResult;
-import org.oasis_eu.spring.datacore.model.DCResultType;
-import org.oasis_eu.spring.datacore.model.DCRights;
+import org.oasis_eu.spring.datacore.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +43,72 @@ public class DatacoreClientImpl implements DatacoreClient {
     @Qualifier("dataCore")
     private RestTemplate dataCoreRestTemplate;
 
+    @Autowired
+    @Qualifier("datacoreJackson")
+    private RestTemplate datacoreRestJacksonTemplate;
+
     @Value("${datacore.url: http://localhost:8080}")
     private String datacoreUrl;
+
+    @Override
+    public List<DCModel> findModels(int limit) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0")
+            .queryParam("dcmo:isStorage", true)
+            .queryParam("limit", limit)
+            .build()
+            .toUri();
+
+        LOGGER.debug("Fetching all models: URI String is " + uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        DCModel[] resources =
+            datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel[].class).getBody();
+
+        List<DCModel> allModels = new ArrayList<>();
+
+        for (DCModel model : resources) {
+            allModels.add(model);
+            allModels.addAll(findSubModels(model.getName()));
+        }
+
+        return allModels;
+    }
+
+    private List<DCModel> findSubModels(String storageModel) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0")
+            .queryParam("dcmo:storageModel", storageModel)
+            .build()
+            .toUri();
+
+        LOGGER.debug("Fetching all submodels: URI String is " + uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        DCModel[] subModels =
+            datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel[].class).getBody();
+        return Arrays.asList(subModels);
+    }
+
+    @Override
+    public DCModel findModel(String project, String model) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0/{type}")
+            .build()
+            .expand(model)
+            .encode()
+            .toUri();
+
+        LOGGER.debug("Fetching model, URI String is {}", uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("X-Datacore-Project", project);
+
+        return datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel.class).getBody();
+    }
 
     /**
      * Note: this only returns the results that the DC returns… i.e. the first 10 by default.
@@ -355,8 +416,6 @@ public class DatacoreClientImpl implements DatacoreClient {
 
     /**
      * avoids URISyntaxException
-     * @param sb
-     * @return
      */
     private URI builderToUri(StringBuilder sb) {
         try {

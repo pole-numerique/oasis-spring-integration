@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
-    // inject configuration
     @Value("${kernel.auth.issuer:}")
     protected String issuer;
     @Value("${kernel.auth.auth_endpoint:}")
@@ -42,7 +41,7 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     private String mockLoginPageUri;
     private String mockProfile;
 
-    private List<String> skippedPaths = new ArrayList<String>();
+    private List<String> skippedPaths = new ArrayList<>();
 
     @Override
     public String getIssuer() {
@@ -186,7 +185,7 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
     @Override
     public boolean skipAuthenticationForPath(String url) {
-        return skippedPaths.stream().anyMatch(path -> url.startsWith(path));
+        return skippedPaths.stream().anyMatch(url::startsWith);
     }
 
     public void addSkippedPaths(List<String> urls) {
