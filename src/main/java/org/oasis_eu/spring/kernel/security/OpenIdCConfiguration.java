@@ -33,10 +33,6 @@ public interface OpenIdCConfiguration {
 
     void setProfileEndpoint(String profileEndpoint);
 
-    String getApplicationId();
-
-    void setApplicationId(String applicationId);
-
     String getClientId();
 
     void setClientId(String clientId);

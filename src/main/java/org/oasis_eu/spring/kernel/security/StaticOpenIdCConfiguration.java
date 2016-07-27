@@ -28,8 +28,6 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     protected String profileEndpoint;
     @Value("${kernel.auth.callback_uri:}")
     protected String callbackUri;
-    @Value("${kernel.application_id:}")
-    protected String applicationId;
     @Value("${kernel.client_id:}")
     protected String clientId;
     @Value("${kernel.client_secret:}")
@@ -115,16 +113,6 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 	public void setProfileEndpoint(String profileEndpoint) {
 		this.profileEndpoint = profileEndpoint;
 	}
-
-	@Override
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    @Override
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
 
     @Override
     public String getClientId() {
