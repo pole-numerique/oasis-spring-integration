@@ -68,7 +68,7 @@ public class DatacoreClientImpl implements DatacoreClient {
     }
 
     @Override
-    public DCModel findModel(String model) {
+    public DCModel findModel(String project, String model) {
         URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
             .path("/dc/type/dcmo:model_0/{type}")
             .build()
@@ -80,6 +80,7 @@ public class DatacoreClientImpl implements DatacoreClient {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("X-Datacore-Project", project);
 
         return datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel.class).getBody();
     }

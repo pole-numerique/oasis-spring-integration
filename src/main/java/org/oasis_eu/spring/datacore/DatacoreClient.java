@@ -12,7 +12,7 @@ public interface DatacoreClient {
 
     List<DCModel> findModels(int limit);
 
-    DCModel findModel(String type);
+    DCModel findModel(String project, String type);
 
     List<DCResource> findResources(String project, String type);
 
