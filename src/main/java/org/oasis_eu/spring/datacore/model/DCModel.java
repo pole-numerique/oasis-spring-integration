@@ -7,7 +7,7 @@ import java.net.URI;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DCModel {
+public class DCModel implements Comparable<DCModel> {
 
     @JsonProperty("@id")
     private URI id;
@@ -47,6 +47,11 @@ public class DCModel {
         return "DCModel{" +
             "id=" + id +
             '}';
+    }
+
+    @Override
+    public int compareTo(DCModel otherModel) {
+        return name.compareTo(otherModel.getName());
     }
 
     public static class DcModelField {
