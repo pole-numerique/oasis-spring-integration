@@ -53,6 +53,7 @@ public class DatacoreClientImpl implements DatacoreClient {
     public List<DCModel> findModels(int limit) {
         URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
             .path("/dc/type/dcmo:model_0")
+            .queryParam("dcmo:isStorage", true)
             .queryParam("limit", limit)
             .build()
             .toUri();
