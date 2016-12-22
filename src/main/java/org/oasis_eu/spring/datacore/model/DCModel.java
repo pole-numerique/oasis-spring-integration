@@ -15,6 +15,9 @@ public class DCModel implements Comparable<DCModel> {
     @JsonProperty("dcmo:name")
     private String name;
 
+    @JsonProperty("o:version")
+    private Integer version;
+
     @JsonProperty("dcmo:globalFields")
     private List<DcModelField> fields;
 
@@ -32,6 +35,14 @@ public class DCModel implements Comparable<DCModel> {
 
     public void setId(URI id) {
         this.id = id;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public List<DcModelField> getFields() {
