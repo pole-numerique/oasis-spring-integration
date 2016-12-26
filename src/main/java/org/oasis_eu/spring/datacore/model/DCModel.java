@@ -18,6 +18,9 @@ public class DCModel implements Comparable<DCModel> {
     @JsonProperty("o:version")
     private Integer version;
 
+    @JsonProperty("dcmo:pointOfViewAbsoluteName")
+    private String project;
+
     @JsonProperty("dcmo:globalFields")
     private List<DcModelField> fields;
 
@@ -45,6 +48,10 @@ public class DCModel implements Comparable<DCModel> {
         this.version = version;
     }
 
+    public String getProject() { return project; }
+
+    public void setProject(String project) { this.project = project; }
+
     public List<DcModelField> getFields() {
         return fields;
     }
@@ -56,8 +63,11 @@ public class DCModel implements Comparable<DCModel> {
     @Override
     public String toString() {
         return "DCModel{" +
-            "id=" + id +
-            '}';
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", version=" + version +
+                ", projet='" + project + '\'' +
+                '}';
     }
 
     @Override
