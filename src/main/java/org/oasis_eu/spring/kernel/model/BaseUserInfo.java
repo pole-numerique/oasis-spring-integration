@@ -5,17 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Locale.LanguageRange;
-import java.util.stream.Collectors;
 
 /**
  * Data holder for the info returned by the Ozwillo kernel's userinfo endpoint.
  * Based on: http://openid.net/specs/openid-connect-basic-1_0-28.html#StandardClaims
- * 
- * Also provides user locale negociation helpers
  *
  * User: jdenanot
  * Date: 8/29/14
@@ -24,23 +17,20 @@ import java.util.stream.Collectors;
 public abstract class BaseUserInfo implements Serializable {
     private static final long serialVersionUID = -5272426743544132097L;
 
-    @JsonProperty("name")
     private String name; // full name
-    @JsonProperty("given_name") // TODO upgrade : middle_name
+    @JsonProperty("given_name")
     private String givenName; // first name
     @JsonProperty("family_name")
     private String familyName; // last name
-    @JsonProperty("gender")
+    @JsonProperty("middle_name")
+    private String middleName;
+    private String nickname;
     private String gender; // "male" or "female"
-
-    @JsonProperty("phone")
-    private String phone;
 
     @JsonProperty("phone_number")
     private String phoneNumber;
     @JsonProperty("phone_number_verified")
     private Boolean phoneNumberVerified;
-    @JsonProperty("birthdate")
     private LocalDate birthdate;
     @JsonProperty("picture")
     private String pictureUrl;
@@ -48,19 +38,15 @@ public abstract class BaseUserInfo implements Serializable {
     @JsonProperty("address")
     private Address address;
 
-    @JsonProperty("updated_at") // TODO upgrade : created_at
+    @JsonProperty("updated_at")
     private Long updatedAt;
 
     /** OpenID Connect's ui_locales ex. "en-GB fr", to be parsed by get*Locale*() methods
      * or further by UserInfoService methods
      * (or by Locale methods, ex. forLanguageTag() to get the first one) */
-    @JsonProperty("locale")
     private String locale;
     @JsonProperty("zoneinfo")
     private String zoneInfo;
-
-    @JsonProperty("nickname")
-    private String nickname;
 
     public abstract String getUserId();
 
@@ -94,6 +80,14 @@ public abstract class BaseUserInfo implements Serializable {
         this.familyName = lastName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
     public String getGender() {
         return gender;
     }
@@ -108,14 +102,6 @@ public abstract class BaseUserInfo implements Serializable {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public String getPhone() {
-        return phoneNumber;
-    }
-
-    public void setPhone(String phone) {
-        setPhoneNumber(phone);
     }
 
     public LocalDate getBirthdate() {
@@ -150,72 +136,6 @@ public abstract class BaseUserInfo implements Serializable {
         this.phoneNumberVerified = phoneNumberVerified;
     }
     
-    /**
-     * 
-     * @return locale ex. "en-GB fr"parsed as Locales
-     */
-    public List<Locale> getLocales() {
-        if (locale == null) {
-            return null;
-        }
-        return Arrays.stream(locale.split(" ")) // NB. uses fastpath when single char pattern http://stackoverflow.com/questions/5965767/performance-of-stringtokenizer-class-vs-split-method-in-java
-            .map(localeString -> Locale.forLanguageTag(localeString))
-            .collect(Collectors.toList());
-    }
-    
-    /**
-     * shortcut ; ideally rather use getBestLocale()
-     * @return
-     */
-    public Locale getFirstLocale() {
-        if (locale == null) {
-            return null;
-        }
-        return getLocales().get(0);
-    }
-    
-    /**
-     * Negociates the best locale for the user among the given available ones
-     * @param localeList
-     * @return null if null, "und" Locale if none, best otherwise
-     */
-    public Locale getBestLocale(List<Locale> localeList) {
-        if (locale == null) {
-            return null;
-        }
-        return undefinedLocaleIfNull(Locale.lookup(getLocaleAsLanguageRanges(), localeList));
-    }
-    
-    public static Locale undefinedLocaleIfNull(Locale locale) {
-        return (locale != null) ? locale : Locale.forLanguageTag("und");
-    }
-
-    /**
-     * Negociates the best language tag for the user among the given available ones
-     * (same as getBestLocale)
-     * @param languageTagList
-     * @return
-     */
-    public String getBestLanguageTag(List<String> languageTagList) {
-        if (locale == null) {
-            return null;
-        }
-        return Locale.lookupTag(getLocaleAsLanguageRanges(), languageTagList);
-    }
-    
-    /**
-     * Allows to do what getBestLocale/LanguageTag does using Locale.lookup(Tag)()
-     * @return locale parsed as LanguageRanges, locale being ex. "fr-FR en-GB es"
-     * (actually "fr-FR,en-GB", "en-US;q=1.0,en-GB;q=0.5,fr-FR;q=0.0" also works)
-     */
-    public List<LanguageRange> getLocaleAsLanguageRanges() {
-        if (locale == null) {
-            return null;
-        }
-        return Locale.LanguageRange.parse(locale); // works with "fr-FR en-GB"
-        // (actually also with "fr-FR,en-GB", "en-US;q=1.0,en-GB;q=0.5,fr-FR;q=0.0" http://docs.oracle.com/javase/tutorial/i18n/locale/matching.html
-    }
-    
     public String getLocale() {
         return locale;
 	}
@@ -240,21 +160,6 @@ public abstract class BaseUserInfo implements Serializable {
 		this.pictureUrl = pictureUrl;
 	}
     
-    /*
-     * computes ${modelObject.__${widget.id}__} before applying if rendering condition,
-     * then would fail with password field not found.
-     * <div class="col-sm-10" data-th-if="${'text'.equals(widget.type)}"
-                data-th-include="includes/my-profile-fragments :: text-widget (${widget.id}, ${modelObject.__${widget.id}__}, ${layout.mode})">?</div>
-     * http://www.captaindebug.com/2012/01/autowiring-using-value-and-optional.html#.VBG9QtbAOR8
-     * http://stackoverflow.com/questions/20431344/is-it-possible-to-make-spring-ignore-a-bean-property-that-is-not-writable-or-has
-     * http://stackoverflow.com/questions/11773122/how-to-define-not-mandatory-property-in-spring
-     */
-    public String getPassword() {
-    	
-    	return null;
-    }
-
-
     public String getNickname() {
         return nickname;
     }

@@ -19,7 +19,7 @@ public class UserInfo extends BaseUserInfo implements Serializable {
 
     @JsonProperty("sub")
     private String userId;
-    @JsonProperty("email")
+    @JsonProperty("email_address")
     private String email;
     @JsonProperty("email_verified")
     private Boolean emailVerified;
@@ -37,7 +37,6 @@ public class UserInfo extends BaseUserInfo implements Serializable {
         out.setFamilyName(in.getFamilyName());
         out.setGivenName(in.getGivenName());
         out.setGender(in.getGender());
-        out.setPhone(in.getPhone());
         out.setPhoneNumber(in.getPhoneNumber());
         out.setPhoneNumberVerified(in.isPhoneNumberVerified() != null ? in.isPhoneNumberVerified() : false);
         out.setPictureUrl(in.getPictureUrl());

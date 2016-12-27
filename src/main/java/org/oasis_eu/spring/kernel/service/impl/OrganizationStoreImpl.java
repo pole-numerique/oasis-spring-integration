@@ -36,15 +36,15 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Autowired
     private Kernel kernel;
 
-    @Value("${kernel.user_directory_endpoint}")
-    private String endpoint;
+    @Value("${kernel.organization_endpoint}")
+    private String organizationEndpoint;
 
 
     @Override
     @Cacheable("organizations")
     public Organization find(String organizationId) {
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org/{organizationId}")
+        String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
+                .path("/{organizationId}")
                 .build()
                 .toUriString();
 
@@ -53,8 +53,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
 
     @SuppressWarnings("static-access")
     public Organization findByDCID(String dc_id) {
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org")
+        String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
                 .queryParam("dc_id", dc_id)
                 .build()
                 .toUriString();
@@ -74,8 +73,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @CachePut(value = "organizations", key = "#result.id")
     public Organization create(Organization organization) {
 
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org")
+        String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
                 .build()
                 .toUriString();
 
@@ -88,8 +86,8 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Override
     @CacheEvict(value = "organizations", key = "#org.id")
     public void update(Organization org) {
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org/{organizationId}")
+        String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
+                .path("/{organizationId}")
                 .buildAndExpand(org.getId())
                 .encode()
                 .toUriString();
@@ -108,8 +106,8 @@ public class OrganizationStoreImpl implements OrganizationStore {
     @Override
     @CacheEvict(value = "organizations", key = "#organizationId")
     public String setStatus(String organizationId, OrganizationStatus status) {
-        String uri = UriComponentsBuilder.fromUriString(endpoint)
-                .path("/org/{organizationId}")
+        String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
+                .path("/{organizationId}")
                 .buildAndExpand(organizationId)
                 .encode()
                 .toUriString();
