@@ -2,6 +2,7 @@ package org.oasis_eu.spring.datacore.impl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,7 +66,30 @@ public class DatacoreClientImpl implements DatacoreClient {
         DCModel[] resources =
             datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel[].class).getBody();
 
-        return Arrays.asList(resources);
+        List<DCModel> allModels = new ArrayList<>();
+
+        for (DCModel model : resources) {
+            allModels.add(model);
+            allModels.addAll(findSubModels(model.getName()));
+        }
+
+        return allModels;
+    }
+
+    private List<DCModel> findSubModels(String storageModel) {
+        URI uri = UriComponentsBuilder.fromUriString(datacoreUrl)
+            .path("/dc/type/dcmo:model_0")
+            .queryParam("dcmo:storageModel", storageModel)
+            .build()
+            .toUri();
+
+        LOGGER.debug("Fetching all submodels: URI String is " + uri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        DCModel[] subModels =
+            datacoreRestJacksonTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), DCModel[].class).getBody();
+        return Arrays.asList(subModels);
     }
 
     @Override
