@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DCModel implements Comparable<DCModel> {
@@ -73,6 +74,20 @@ public class DCModel implements Comparable<DCModel> {
     @Override
     public int compareTo(DCModel otherModel) {
         return name.compareTo(otherModel.getName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DCModel model = (DCModel) o;
+        return Objects.equals(id, model.id) &&
+            Objects.equals(version, model.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, version);
     }
 
     public static class DcModelField {
