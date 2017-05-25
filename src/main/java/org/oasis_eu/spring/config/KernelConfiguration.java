@@ -11,7 +11,6 @@ import com.google.gson.GsonBuilder;
 import org.oasis_eu.spring.datacore.impl.DCResourceTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DCRightsTypeAdapter;
 import org.oasis_eu.spring.datacore.impl.DatacoreSecurityInterceptor;
-import org.oasis_eu.spring.datacore.impl.GsonMessageConverter;
 import org.oasis_eu.spring.datacore.model.DCResource;
 import org.oasis_eu.spring.datacore.model.DCRights;
 import org.oasis_eu.spring.kernel.rest.KernelResponseErrorHandler;
@@ -31,6 +30,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -105,7 +105,9 @@ public class KernelConfiguration {
         RestTemplate template = new RestTemplate(newRequestFactory());
 
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-        messageConverters.add(new GsonMessageConverter(dataCoreGson));
+        GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
+        gsonHttpMessageConverter.setGson(dataCoreGson);
+        messageConverters.add(gsonHttpMessageConverter);
         template.setMessageConverters(messageConverters);
 
         template.setInterceptors(Arrays.asList(datacoreSecurityInterceptor(), new KernelLoggingInterceptor()));
