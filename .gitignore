@@ -15,6 +15,7 @@
 # Gradle
 build/
 .gradle/
+gradle.properties
 
 # Vim
 .*.swp
