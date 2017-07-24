@@ -45,6 +45,12 @@ afterEvaluate { project ->
                     description POM_DESCRIPTION
                     url POM_URL
 
+                    scm {
+                        url POM_SCM_URL
+                        connection POM_SCM_CONNECTION
+                        developerConnection POM_SCM_DEV_CONNECTION
+                    }
+
                     licenses {
                         license {
                             name POM_LICENCE_NAME
@@ -63,8 +69,23 @@ afterEvaluate { project ->
         }
     }
 
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+
     signing {
-        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
     }
 }
