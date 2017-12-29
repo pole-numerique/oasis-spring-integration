@@ -19,7 +19,7 @@ public class UserInfo extends BaseUserInfo implements Serializable {
 
     @JsonProperty("sub")
     private String userId;
-    @JsonProperty("email_address")
+    @JsonProperty("email")
     private String email;
     @JsonProperty("email_verified")
     private Boolean emailVerified;
