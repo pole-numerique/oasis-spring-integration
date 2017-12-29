@@ -8,8 +8,8 @@ configurations.errorprone {
 }
 apply plugin: 'de.thetaphi.forbiddenapis'
 
-group = 'org.ozwillo'
-version = '1.25.1'
+group = 'com.ozwillo'
+version = '1.25.4'
 
 repositories {
     mavenCentral()
