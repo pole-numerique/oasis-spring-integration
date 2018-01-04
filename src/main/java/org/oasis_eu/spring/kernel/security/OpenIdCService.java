@@ -1,23 +1,18 @@
 package org.oasis_eu.spring.kernel.security;
 
-import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.BaseEncoding;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
 import org.oasis_eu.spring.kernel.model.UserInfo;
@@ -37,19 +32,20 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.BaseEncoding;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.oasis_eu.spring.kernel.model.AuthenticationBuilder.user;
 
 /**
  * User: schambon
@@ -83,7 +79,7 @@ public class OpenIdCService {
     public OpenIdCAuthentication processAuthentication(String code, String refreshToken, String state, String savedState,
             String savedNonce, String callbackUri) {
 
-        if ((savedState == null && state == null) || savedState != null && savedState.equals(state)) {
+        if ((savedState == null && state == null) || (savedState != null && savedState.equals(state))) {
 
             MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
             if (refreshToken != null) {
@@ -119,7 +115,7 @@ public class OpenIdCService {
                 boolean appAdmin;
                 try {
                     SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
-                    ReadOnlyJWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
+                    JWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
                     idToken.setIat(idClaims.getIssueTime().getTime());
                     idToken.setNonce(idClaims.getStringClaim("nonce"));
                     idToken.setSub(idClaims.getSubject());
@@ -192,7 +188,7 @@ public class OpenIdCService {
                     return signedJWT.verify(verifier);
                 }
 
-            } catch (JOSEException |InvalidKeySpecException |NoSuchAlgorithmException e) {
+            } catch (JOSEException e) {
                 logger.error("Cannot verify key", e);
             }
         }

@@ -24,26 +24,32 @@ public class ClientHttpResponseWrapper implements ClientHttpResponse {
 		this.body = bufIn;
 	}
 
+	@Override
 	public HttpHeaders getHeaders() {
 		return delegate.getHeaders();
 	}
 
+	@Override
 	public InputStream getBody() throws IOException {
 		return body;
 	}
 
+	@Override
 	public HttpStatus getStatusCode() throws IOException {
 		return delegate.getStatusCode();
 	}
 
+	@Override
 	public int getRawStatusCode() throws IOException {
 		return delegate.getRawStatusCode();
 	}
 
+	@Override
 	public String getStatusText() throws IOException {
 		return delegate.getStatusText();
 	}
 
+	@Override
 	public void close() {
 		delegate.close();
 	}

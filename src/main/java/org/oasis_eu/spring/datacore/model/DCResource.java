@@ -75,9 +75,9 @@ public class DCResource {
         StringBuilder sb = new StringBuilder();
         try {
             for (char c : uriPathSegment.toCharArray()) {
-                if ( c >= 48 && c <= 57 // number
-                        || c >= 65 && c <= 90 // upper case
-                        || c >= 97 && c <= 122 // lower case
+                if ( (c >= 48 && c <= 57) // number
+                        || (c >= 65 && c <= 90) // upper case
+                        || (c >= 97 && c <= 122) // lower case
                         || URL_SAFE_PATH_SEGMENT_OR_SLASH_CHARACTERS_BESIDES_ALPHANUMERIC.indexOf(c) != -1) { // among safe chars
                     sb.append(c);
                 } else {
@@ -243,8 +243,8 @@ public class DCResource {
     public Map<String, String> getAsStringMap(String key) {
         Value val = getValues().get(key);
         if (val.isMap()) {
-            Map<String, String> map = new HashMap<String,String>();
-            val.asMap().entrySet().stream().map(entry -> map.put(entry.getKey(), entry.getValue().asString()));
+            Map<String, String> map = new HashMap<>();
+            val.asMap().forEach((key1, value) -> map.put(key1, value.asString()));
             return map;
 
         } else {

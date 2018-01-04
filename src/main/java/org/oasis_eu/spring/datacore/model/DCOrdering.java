@@ -8,9 +8,9 @@ public enum DCOrdering {
     ASCENDING("+"),
     DESCENDING("-");
 
-    private String representation;
+    private final String representation;
 
-    private DCOrdering(String representation) {
+    DCOrdering(String representation) {
         this.representation = representation;
     }
 

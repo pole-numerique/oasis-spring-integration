@@ -1,6 +1,8 @@
 package org.oasis_eu.spring.datacore.model;
 
-import java.util.HashSet;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import java.util.Set;
 
 /**
@@ -19,13 +21,10 @@ public enum DCResultType {
     UNKNOWN();
 
 
-    private Set<Integer> codes;
+    private final ImmutableSet<Integer> codes;
 
-    private DCResultType(int... codes_) {
-        this.codes = new HashSet<>();
-        for (int c : codes_) {
-            codes.add(c);
-        }
+    DCResultType(Integer... codes_) {
+        this.codes = ImmutableSet.copyOf(Sets.newHashSet(codes_));
     }
 
     public Set<Integer> getCodes() {

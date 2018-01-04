@@ -5,6 +5,8 @@ import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.util.concurrent.Callable;
+
 /**
  * User: schambon 
  * Date: 9/12/14 
@@ -48,6 +50,11 @@ public class RequestBoundCache implements Cache {
     @Override
     public <T> T get(Object key, Class<T> type) {
         return target().get(key, type);
+    }
+
+    @Override
+    public <T> T get(Object key, Callable<T> valueLoader) {
+        return target().get(key, valueLoader);
     }
 
     @Override

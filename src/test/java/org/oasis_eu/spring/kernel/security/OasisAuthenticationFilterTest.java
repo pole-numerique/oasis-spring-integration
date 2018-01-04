@@ -10,7 +10,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class OasisAuthenticationFilterTest {
@@ -20,7 +19,7 @@ public class OasisAuthenticationFilterTest {
 
         HttpServletRequest req = mock(HttpServletRequest.class);
         String url = "/whatever/is/my?great=answer&final=one";
-        stub(req.getServletPath()).toReturn(url);
+        when(req.getServletPath()).thenReturn(url);
 
         OpenIdCConfiguration conf = mock(OpenIdCConfiguration.class);
         when(conf.skipAuthenticationForPath(url)).thenReturn(true);
@@ -40,7 +39,7 @@ public class OasisAuthenticationFilterTest {
     public void testDoNotSkip() throws Exception {
         HttpServletRequest req = mock(HttpServletRequest.class);
         String url = "/whatever/is/my?great=answer&final=one";
-        stub(req.getServletPath()).toReturn(url);
+        when(req.getServletPath()).thenReturn(url);
 
         OpenIdCConfiguration conf = mock(OpenIdCConfiguration.class);
 

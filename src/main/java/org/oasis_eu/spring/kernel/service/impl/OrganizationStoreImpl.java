@@ -52,6 +52,7 @@ public class OrganizationStoreImpl implements OrganizationStore {
     }
 
     @SuppressWarnings("static-access")
+    @Override
     public Organization findByDCID(String dc_id) {
         String uri = UriComponentsBuilder.fromUriString(organizationEndpoint)
                 .queryParam("dc_id", dc_id)
