@@ -14,6 +14,7 @@ public class KernelResponseErrorHandler extends DefaultResponseErrorHandler {
     @Override
     protected boolean hasError(HttpStatus statusCode) {
         return (statusCode == HttpStatus.UNAUTHORIZED ||
+                statusCode == HttpStatus.FORBIDDEN ||
 				statusCode.series() == HttpStatus.Series.SERVER_ERROR);
     }
 }
