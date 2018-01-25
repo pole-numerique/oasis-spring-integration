@@ -3,11 +3,11 @@ package org.oasis_eu.spring.kernel.model;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.joda.time.Instant;
 import org.oasis_eu.spring.kernel.model.util.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.Locale;
 
 
