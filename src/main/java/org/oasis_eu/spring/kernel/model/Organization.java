@@ -2,8 +2,7 @@ package org.oasis_eu.spring.kernel.model;
 
 import java.io.Serializable;
 import java.net.URI;
-
-import org.joda.time.Instant;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
