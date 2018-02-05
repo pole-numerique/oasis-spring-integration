@@ -112,8 +112,12 @@ public class Kernel {
      * @return
      */
     public <T> T getEntityOrNull(String endpoint, Class<T> responseClass, Authentication auth, Object... idOrOtherUriParameters) {
-        ResponseEntity<T> response = exchange(endpoint, HttpMethod.GET, null, responseClass, auth, idOrOtherUriParameters);
-        return getBodyOrNull(response, responseClass, endpoint, idOrOtherUriParameters);
+        try {
+            ResponseEntity<T> response = exchange(endpoint, HttpMethod.GET, null, responseClass, auth, idOrOtherUriParameters);
+            return getBodyOrNull(response, responseClass, endpoint, idOrOtherUriParameters);
+        } catch (HttpClientErrorException hcee) {
+            return null;
+        }
     }
     
     /**
