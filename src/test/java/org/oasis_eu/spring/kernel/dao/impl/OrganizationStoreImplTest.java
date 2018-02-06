@@ -2,16 +2,14 @@ package org.oasis_eu.spring.kernel.dao.impl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 
-import org.joda.time.Instant;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.oasis_eu.spring.kernel.dao.DAOTestConfiguration;
 import org.oasis_eu.spring.kernel.security.OpenIdCAuthentication;
 import org.oasis_eu.spring.kernel.service.OrganizationStore;
 import org.oasis_eu.spring.kernel.model.Organization;
-import org.oasis_eu.spring.test.IntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -64,7 +62,7 @@ public class OrganizationStoreImplTest {
 
         Organization openwide = store.find("6dccdb8d-ec46-4675-9965-806ea37b73e1");
         assertEquals("openwide-ck", openwide.getName());
-        assertEquals(new Instant(1386859649613L), openwide.getModified());
+        assertEquals(Instant.ofEpochSecond(1386859649613L), openwide.getModified());
         assertEquals(new URI(LYON_TERRITORY_ID), openwide.getTerritoryId());
 
         server.verify();
