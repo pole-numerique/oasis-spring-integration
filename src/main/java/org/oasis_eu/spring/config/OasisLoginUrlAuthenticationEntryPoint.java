@@ -3,10 +3,9 @@ package org.oasis_eu.spring.config;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -16,9 +15,6 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OasisLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
-	@Autowired(required = false)
-	private LocaleResolver localeResolver;
-	
     public OasisLoginUrlAuthenticationEntryPoint(String loginFormUrl) {
         super(loginFormUrl);
     }
@@ -27,10 +23,10 @@ public class OasisLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticatio
     protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) {
     	// Pass current locale to login service
-        if (localeResolver != null) {
+        if (LocaleContextHolder.getLocale() != null) {
 
             return UriComponentsBuilder.fromUriString(super.getLoginFormUrl())
-                    .queryParam("ui_locales", localeResolver.resolveLocale(request))
+                    .queryParam("ui_locales", LocaleContextHolder.getLocale())
                     .build()
                     .encode()
                     .toUriString();

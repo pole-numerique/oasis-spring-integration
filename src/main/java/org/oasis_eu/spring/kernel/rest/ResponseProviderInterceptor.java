@@ -3,9 +3,13 @@ package org.oasis_eu.spring.kernel.rest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
 /**
  * Provides HTTP response as request attribute, allows to ex. set headers
@@ -15,7 +19,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  * @author mdutoo
  *
  */
-public class ResponseProviderInterceptor extends HandlerInterceptorAdapter{
+public class ResponseProviderInterceptor implements WebFilter {
 
     public static final String REQUEST_ATTRIBUTE_RESPONSE_NAME = ResponseProviderInterceptor.class.getName() +  ".reponse";
 
@@ -35,9 +39,9 @@ public class ResponseProviderInterceptor extends HandlerInterceptorAdapter{
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        request.setAttribute(REQUEST_ATTRIBUTE_RESPONSE_NAME, response);
-        return true;
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        RequestContextHolder.currentRequestAttributes()
+                .setAttribute(REQUEST_ATTRIBUTE_RESPONSE_NAME, exchange.getResponse(), RequestAttributes.SCOPE_REQUEST);
+        return Mono.empty();
     }
-
 }

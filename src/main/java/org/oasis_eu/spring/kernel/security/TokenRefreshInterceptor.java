@@ -5,17 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 
 /**
  * User: schambon
  * Date: 1/30/14
  */
-public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
+public class TokenRefreshInterceptor implements WebFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenRefreshInterceptor.class);
 
@@ -25,12 +26,10 @@ public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
     long tokenExpiryThreshold;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         if (needsTokenRefresh()) throw new RefreshTokenNeedException("Access token is about to expire, needs refresh");
-
-        return true;
+        return Mono.empty();
     }
-
 
     // checks if there is an access token in the security context; if so, is this token about to expire?
     private boolean needsTokenRefresh() {
@@ -50,5 +49,4 @@ public class TokenRefreshInterceptor extends HandlerInterceptorAdapter {
 
         return false;
     }
-
 }
