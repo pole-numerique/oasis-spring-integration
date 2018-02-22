@@ -13,12 +13,18 @@ public class DCResult {
 
     DCResultType type;
     DCResource resource; // may be null
+    List<DCResource> resources; // may be null
     DCRights rights; // may be null
     List<String> errorMessages = new ArrayList<>();
 
     public DCResult(DCResultType type, DCResource resource) {
         this.type = type;
         this.resource = resource;
+    }
+
+    public DCResult(DCResultType type, List<DCResource> resources) {
+        this.type = type;
+        this.resources = resources;
     }
 
     public DCResult(DCResultType type, DCRights rights) {
@@ -33,6 +39,10 @@ public class DCResult {
 
     public DCResource getResource() {
         return resource;
+    }
+
+    public List<DCResource> getResources() {
+        return resources;
     }
 
     public DCResultType getType() {
