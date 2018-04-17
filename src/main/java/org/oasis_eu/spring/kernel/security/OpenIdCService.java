@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -113,6 +114,7 @@ public class OpenIdCService {
                 IdToken idToken = new IdToken();
                 boolean appUser;
                 boolean appAdmin;
+                String acr = null;
                 try {
                     SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
                     JWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
@@ -124,6 +126,7 @@ public class OpenIdCService {
 
                     appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
                     appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
+                    acr = idClaims.getStringClaim("acr");
 
                     if (!configuration.isMocked()) {
                         verifySignature(signedJWT);
@@ -149,6 +152,9 @@ public class OpenIdCService {
                 if (tokenResponse.getRefreshToken() != null) {
                     authentication.setRefreshToken(tokenResponse.getRefreshToken());
                     authentication.setRefreshNonce(savedNonce);
+                }
+                if (!StringUtils.isEmpty(acr)) {
+                    authentication.setAcr(acr);
                 }
 
                 return authentication;
