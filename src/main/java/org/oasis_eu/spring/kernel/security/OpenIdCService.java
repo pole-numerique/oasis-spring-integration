@@ -13,6 +13,7 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.oasis_eu.spring.kernel.model.AuthorizationContextClasses;
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
 import org.oasis_eu.spring.kernel.model.UserInfo;
@@ -28,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -114,7 +114,7 @@ public class OpenIdCService {
                 IdToken idToken = new IdToken();
                 boolean appUser;
                 boolean appAdmin;
-                String acr = null;
+                AuthorizationContextClasses acr = null;
                 try {
                     SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
                     JWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
@@ -126,7 +126,7 @@ public class OpenIdCService {
 
                     appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
                     appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
-                    acr = idClaims.getStringClaim("acr");
+                    acr = AuthorizationContextClasses.getByValue(idClaims.getStringClaim("acr"));
 
                     if (!configuration.isMocked()) {
                         verifySignature(signedJWT);
@@ -153,8 +153,8 @@ public class OpenIdCService {
                     authentication.setRefreshToken(tokenResponse.getRefreshToken());
                     authentication.setRefreshNonce(savedNonce);
                 }
-                if (!StringUtils.isEmpty(acr)) {
-                    authentication.setAcr(acr);
+                if (acr != null) {
+                    authentication.setAcr(acr.getValue());
                 }
 
                 return authentication;
