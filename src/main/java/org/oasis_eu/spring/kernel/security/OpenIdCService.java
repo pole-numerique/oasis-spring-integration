@@ -13,6 +13,7 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.oasis_eu.spring.kernel.model.AuthorizationContextClasses;
 import org.oasis_eu.spring.kernel.model.IdToken;
 import org.oasis_eu.spring.kernel.model.TokenResponse;
 import org.oasis_eu.spring.kernel.model.UserInfo;
@@ -113,6 +114,7 @@ public class OpenIdCService {
                 IdToken idToken = new IdToken();
                 boolean appUser;
                 boolean appAdmin;
+                AuthorizationContextClasses acr = null;
                 try {
                     SignedJWT signedJWT = SignedJWT.parse(tokenResponse.getIdToken());
                     JWTClaimsSet idClaims = signedJWT.getJWTClaimsSet();
@@ -124,6 +126,7 @@ public class OpenIdCService {
 
                     appUser = Optional.ofNullable(idClaims.getBooleanClaim("app_user")).orElse(false);
                     appAdmin = Optional.ofNullable(idClaims.getBooleanClaim("app_admin")).orElse(false);
+                    acr = AuthorizationContextClasses.getByValue(idClaims.getStringClaim("acr"));
 
                     if (!configuration.isMocked()) {
                         verifySignature(signedJWT);
@@ -149,6 +152,9 @@ public class OpenIdCService {
                 if (tokenResponse.getRefreshToken() != null) {
                     authentication.setRefreshToken(tokenResponse.getRefreshToken());
                     authentication.setRefreshNonce(savedNonce);
+                }
+                if (acr != null) {
+                    authentication.setAcr(acr.getValue());
                 }
 
                 return authentication;
