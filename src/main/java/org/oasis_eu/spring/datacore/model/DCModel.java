@@ -25,6 +25,9 @@ public class DCModel implements Comparable<DCModel> {
     @JsonProperty("dcmo:globalFields")
     private List<DcModelField> fields;
 
+    @JsonProperty("dcmo:fields")
+    private List<DcModelField> dcFields; 
+    
     public String getName() {
         return name;
     }
@@ -60,7 +63,15 @@ public class DCModel implements Comparable<DCModel> {
     public void setFields(List<DcModelField> fields) {
         this.fields = fields;
     }
-
+    
+    public List<DcModelField> getDcFields () {
+        return dcFields;
+    }
+    
+    public void setDcFields(List<DcModelField> fields) {
+        this.dcFields = fields;
+    }
+    
     @Override
     public String toString() {
         return "DCModel{" +
@@ -95,6 +106,9 @@ public class DCModel implements Comparable<DCModel> {
         @JsonProperty("dcmf:name")
         private String name;
 
+        @JsonProperty("dcmf:documentation")
+        private String description;
+        
         public String getName() {
             return name;
         }
@@ -103,6 +117,15 @@ public class DCModel implements Comparable<DCModel> {
             this.name = name;
         }
 
+        public String getDecription() {
+            return description;
+        }
+
+        public void setDescription (String description) {
+            this.description = description;
+        }
+        
+        
         public DcModelField() {
         }
     }
