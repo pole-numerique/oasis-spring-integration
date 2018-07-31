@@ -6,7 +6,7 @@ apply plugin: 'net.ltgt.errorprone'
 apply plugin: 'de.thetaphi.forbiddenapis'
 
 group = 'com.ozwillo'
-version = '1.25.7'
+version = '1.26.0-dev'
 
 repositories {
     mavenCentral()
@@ -94,4 +94,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.4.1'
 }
 
-apply from: 'maven.gradle'
+if (project.hasProperty("PUBLISH")) {
+    apply from: 'maven.gradle'
+}
