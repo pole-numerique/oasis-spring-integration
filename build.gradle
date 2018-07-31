@@ -94,4 +94,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.4.1'
 }
 
-apply from: 'maven.gradle'
+if (project.hasProperty("PUBLISH")) {
+    apply from: 'maven.gradle'
+}
