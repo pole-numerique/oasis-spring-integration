@@ -27,6 +27,8 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     protected String profileEndpoint;
     @Value("${kernel.auth.callback_uri:}")
     protected String callbackUri;
+    @Value("${kernel.auth.post_logout_redirect_uri:}")
+    protected String postLogoutRedirectUri;
     @Value("${kernel.client_id:}")
     protected String clientId;
     @Value("${kernel.client_secret:}")
@@ -141,6 +143,16 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
     @Override
     public void setCallbackUri(String callbackUri) {
         this.callbackUri = callbackUri;
+    }
+
+    @Override
+    public String getPostLogoutRedirectUri() {
+        return postLogoutRedirectUri;
+    }
+
+    @Override
+    public void setPostLogoutRedirectUri(String postLogoutRedirectUri) {
+        this.postLogoutRedirectUri = postLogoutRedirectUri;
     }
 
     @Override

@@ -45,6 +45,10 @@ public interface OpenIdCConfiguration {
 
     void setCallbackUri(String callbackUri);
 
+    String getPostLogoutRedirectUri();
+
+    void setPostLogoutRedirectUri(String postLogoutRedirectUri);
+
     String getScopesToRequire();
 
     void setScopesToRequire(String scopesToRequire);
