@@ -32,11 +32,8 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
     @Autowired
     private OpenIdCConfiguration configuration;
 
-
     @Value("${kernel.auth.logout_endpoint}")
     private String logoutEndpoint;
-
-    private String afterLogoutUrl;
 
     @Autowired
     private Kernel kernel;
@@ -75,9 +72,9 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
             UriComponentsBuilder logoutBuilder = UriComponentsBuilder.fromHttpUrl(logoutEndpoint)
                     .queryParam("id_token_hint", token.getIdToken());
             String kernelLogout;
-            if (afterLogoutUrl != null) {
+            if (configuration.getPostLogoutRedirectUri() != null) {
                 kernelLogout = logoutBuilder
-                        .queryParam("post_logout_redirect_uri", afterLogoutUrl)
+                        .queryParam("post_logout_redirect_uri", configuration.getPostLogoutRedirectUri())
                         .build()
                         .toUriString();
             } else {
@@ -103,11 +100,6 @@ public class OasisLogoutHandler implements LogoutSuccessHandler {
         
         // NB. HttpEntity has two constructors accepting one param. If a MultiValueMap is passed, it will 
 		// use the one that set the passed value IN the header. Here the Token is required to be set in the body.
-		return new HttpEntity<MultiValueMap<String, String>>(revocationRequest, null);
+		return new HttpEntity<>(revocationRequest, null);
     }
-    
-    public void setAfterLogoutUrl(String afterLogoutUrl) {
-        this.afterLogoutUrl = afterLogoutUrl;
-    }
-
 }

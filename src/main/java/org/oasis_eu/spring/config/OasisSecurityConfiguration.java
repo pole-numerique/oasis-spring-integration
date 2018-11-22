@@ -1,7 +1,6 @@
 package org.oasis_eu.spring.config;
 
 import org.oasis_eu.spring.kernel.security.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * User: schambon
@@ -50,9 +48,7 @@ public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAd
 
     @Bean
     protected OasisLogoutHandler logoutHandler() {
-        OasisLogoutHandler handler = new OasisLogoutHandler();
-        handler.setAfterLogoutUrl(applicationUrl);
-        return handler;
+        return new OasisLogoutHandler();
     }
 
     @Override
