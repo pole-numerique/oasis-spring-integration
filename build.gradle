@@ -6,7 +6,7 @@ apply plugin: 'net.ltgt.errorprone'
 apply plugin: 'de.thetaphi.forbiddenapis'
 
 group = 'com.ozwillo'
-version = '1.26.1'
+version = '1.26.2'
 
 repositories {
     mavenCentral()
