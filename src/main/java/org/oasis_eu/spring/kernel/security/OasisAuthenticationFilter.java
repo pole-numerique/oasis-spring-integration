@@ -56,9 +56,6 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     @Value("${application.security.check_if_external_referrer:false}")
     private boolean checkIfExternalReferrer;
 
-    @Value("${application.url:}")
-    private String applicationUrl;
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
@@ -110,7 +107,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
             if (checkIfExternalReferrer) {
                 // if there is a referrer, and it is not from our application, then let's recheck auth.
                 String referrer = req.getHeader("Referer");
-                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(applicationUrl) && req.getParameter("override_referer") == null;
+                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(configuration.getHomeUri()) && req.getParameter("override_referer") == null;
             }
         }
 
