@@ -21,8 +21,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 public abstract class OasisSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     // inject configuration
-    @Value("${application.url}")
-    String applicationUrl;
     @Value("${application.security.fetchUserInfo:false}")
     boolean fetchUserInfo;
 
