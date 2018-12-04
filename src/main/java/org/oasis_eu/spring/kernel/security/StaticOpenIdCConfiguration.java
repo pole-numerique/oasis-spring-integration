@@ -38,6 +38,8 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
     @Value("${kernel.auth.home_uri:}")
     protected String homeUri;
+    @Value("${kernel.auth.error_401_uri:}")
+    protected String error401Uri;
 
     private boolean mocked;
     private String mockLoginPageUri;
@@ -211,5 +213,14 @@ public class StaticOpenIdCConfiguration implements OpenIdCConfiguration {
 
     public void setHomeUri(String homeUri) {
         this.homeUri = homeUri;
+    }
+
+    @Override
+    public String getError401Uri() {
+        return error401Uri;
+    }
+
+    public void setError401Uri(String error401Uri) {
+        this.error401Uri = error401Uri;
     }
 }

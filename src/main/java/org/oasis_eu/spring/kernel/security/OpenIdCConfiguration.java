@@ -77,5 +77,7 @@ public interface OpenIdCConfiguration {
         return null;
     }
 
-
+    default String getError401Uri() {
+        return null;
+    }
 }

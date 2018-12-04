@@ -35,7 +35,7 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     private static final Logger logger = LoggerFactory.getLogger(OasisAuthenticationFilter.class);
 
     private static final String LOGIN = "/login";
-    public static final String CALLBACK = "/callback";
+    private static final String CALLBACK = "/callback";
 
     @Autowired
     private OpenIdCConfiguration configuration;
@@ -48,10 +48,6 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
     private RequestCache requestCache = new HttpSessionRequestCache();
 
     private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-
-
-    @Value("${application.error.401:}")
-    private String unauthorizedPageUrl;
 
     @Value("${application.security.check_if_external_referrer:false}")
     private boolean checkIfExternalReferrer;
@@ -143,16 +139,9 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
 
                 response.sendRedirect(UriComponentsBuilder.fromHttpUrl(redirectUrl).queryParam("override_referer", true).build().toString());
 
-
             } else {
                 requestCache.removeRequest(request, response);
-                if (!Strings.isNullOrEmpty(unauthorizedPageUrl)) {
-                    logger.warn("Invalid authentication, redirecting to configured 401 page {}", unauthorizedPageUrl);
-                    response.sendRedirect(unauthorizedPageUrl);
-                } else {
-                    logger.warn("Invalid authentication and no configured page. Send a 401 and let the browser manage.");
-                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                }
+                handle401response(response);
             }
             return false;
 
@@ -166,27 +155,29 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
                 return false;
             } else {
                 requestCache.removeRequest(request, response);
-
-                if (!Strings.isNullOrEmpty(unauthorizedPageUrl)) {
-                    logger.warn("Invalid authentication, redirecting to configured 401 page {}", unauthorizedPageUrl);
-                    response.sendRedirect(unauthorizedPageUrl);
-                } else {
-                    logger.warn("Invalid authentication and no configured page. Send a 401 and let the browser manage.");
-                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                }
+                handle401response(response);
                 return false;
             }
         }
 
-
         return true;
+    }
+
+    private void handle401response(HttpServletResponse response) throws IOException {
+
+        if (!Strings.isNullOrEmpty(configuration.getError401Uri())) {
+            logger.warn("Invalid authentication, redirecting to configured 401 page {}", configuration.getError401Uri());
+            response.sendRedirect(configuration.getError401Uri());
+        } else {
+            logger.warn("Invalid authentication and no configured page. Send a 401 and let the browser manage.");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        }
     }
 
     private void doLogin(HttpServletRequest req, HttpServletResponse res) throws IOException {
         logger.debug("Request for login - redirecting to the kernel");
         openIdCService.redirectToAuth(req, res, StateType.AUTH_REQUEST);
     }
-
 
     private Authentication processAuthorizationCode(String code, String state, HttpServletRequest request) {
         HttpSession session = request.getSession();
