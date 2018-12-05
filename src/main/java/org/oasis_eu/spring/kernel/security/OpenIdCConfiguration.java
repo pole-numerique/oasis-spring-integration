@@ -70,7 +70,7 @@ public interface OpenIdCConfiguration {
     }
 
     default boolean requireAuthenticationForPath(String path) {
-        return false;
+        return true;
     }
 
     default String getHomeUri() {

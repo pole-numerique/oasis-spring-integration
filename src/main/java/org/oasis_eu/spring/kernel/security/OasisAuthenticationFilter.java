@@ -103,7 +103,9 @@ public class OasisAuthenticationFilter extends GenericFilterBean {
             if (checkIfExternalReferrer) {
                 // if there is a referrer, and it is not from our application, then let's recheck auth.
                 String referrer = req.getHeader("Referer");
-                return !Strings.isNullOrEmpty(referrer) && !referrer.startsWith(configuration.getHomeUri()) && req.getParameter("override_referer") == null;
+                return !Strings.isNullOrEmpty(referrer)
+                        && !referrer.startsWith(configuration.getHomeUri())
+                        && req.getParameter("override_referer") == null;
             }
         }
 
