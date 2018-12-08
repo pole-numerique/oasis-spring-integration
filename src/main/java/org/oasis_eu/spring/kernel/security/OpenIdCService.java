@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -301,7 +301,7 @@ public class OpenIdCService {
         String scopesToRequire = configuration.getScopesToRequire();
         String uiLocales = request.getParameter("ui_locales");
         if (uiLocales == null) {
-            uiLocales = RequestContextUtils.getLocale(request).getLanguage();
+            uiLocales = LocaleContextHolder.getLocale().toLanguageTag();
         }
 
         PromptType promptType = stateType.equals(StateType.SIMPLE_CHECK) ? PromptType.NONE : PromptType.DEFAULT;
