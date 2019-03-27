@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -204,27 +202,32 @@ public class OpenIdCService {
         return false;
     }
 
-    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, PromptType promptType, String uiLocales) throws URISyntaxException {
+    private String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire,
+                              PromptType promptType, String uiLocales) {
         if (configuration.isMocked()) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getMockLoginPageUri())
                     .queryParam("response_type", "code")
                     .queryParam("client_id", configuration.getClientId())
                     .queryParam("scope", scopesToRequire)
-                    .queryParam("redirect_uri", new URI(null,callbackUri,null).toASCIIString())
+                    .queryParam("redirect_uri", callbackUri)
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
 
             return builder
                         .build()
+                        .encode()
                         .toUriString();
         } else {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getAuthEndpoint())
                     .queryParam("response_type", "code")
                     .queryParam("client_id", configuration.getClientId())
                     .queryParam("scope", scopesToRequire)
-                    .queryParam("redirect_uri", new URI(null,callbackUri,null).toASCIIString())
+                    .queryParam("redirect_uri", callbackUri)
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
+
+            if (configuration.getClaims() != null)
+                builder = builder.queryParam("claims", configuration.getClaims());
 
             if (uiLocales != null) {
                 builder = builder.queryParam("ui_locales", uiLocales);
@@ -237,6 +240,7 @@ public class OpenIdCService {
             }
             return builder
                         .build()
+                        .encode()
                         .toUriString();
         }
     }
@@ -310,13 +314,7 @@ public class OpenIdCService {
             promptType = PromptType.FORCED;
         }
 
-        String authUri = null;
-        try {
-            authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire,
-                    promptType, uiLocales);
-        } catch (URISyntaxException e) {
-            logger.error("Auth uri encoding error : ", e.getMessage());
-        }
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, promptType, uiLocales);
 
         logger.debug("Auth uri is: {}", authUri);
         response.sendRedirect(authUri);
