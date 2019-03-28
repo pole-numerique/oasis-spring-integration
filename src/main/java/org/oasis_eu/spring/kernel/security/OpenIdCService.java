@@ -202,7 +202,8 @@ public class OpenIdCService {
         return false;
     }
 
-    public String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire, PromptType promptType, String uiLocales) {
+    private String getAuthUri(String state, String nonce, String callbackUri, String scopesToRequire,
+                              PromptType promptType, String uiLocales) {
         if (configuration.isMocked()) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(configuration.getMockLoginPageUri())
                     .queryParam("response_type", "code")
@@ -224,6 +225,9 @@ public class OpenIdCService {
                     .queryParam("redirect_uri", callbackUri)
                     .queryParam("state", state)
                     .queryParam("nonce", nonce);
+
+            if (configuration.getClaims() != null)
+                builder = builder.queryParam("claims", configuration.getClaims());
 
             if (uiLocales != null) {
                 builder = builder.queryParam("ui_locales", uiLocales);
@@ -310,8 +314,7 @@ public class OpenIdCService {
             promptType = PromptType.FORCED;
         }
 
-        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire,
-                promptType, uiLocales);
+        String authUri = getAuthUri(state, nonce, callbackUri, scopesToRequire, promptType, uiLocales);
 
         logger.debug("Auth uri is: {}", authUri);
         response.sendRedirect(authUri);

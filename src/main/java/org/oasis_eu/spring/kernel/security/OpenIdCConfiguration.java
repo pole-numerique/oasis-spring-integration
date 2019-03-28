@@ -80,4 +80,6 @@ public interface OpenIdCConfiguration {
     default String getError401Uri() {
         return null;
     }
+
+    default String getClaims() { return null; }
 }
